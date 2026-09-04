@@ -59,6 +59,42 @@ interface LandingPageProps {
   onOpenConcierge: () => void;
 }
 
+
+const DEFAULT_SPECIALTIES = [
+  { id: "SPEC-001", name: "Cardiology & Bypass", iconName: "HeartPulse", desc: "Off-Pump CABG, TAVR, and pediatric cardiac surgery by senior directors.", count: "12 Specialists", displayOrder: 1 },
+  { id: "SPEC-002", name: "Robotic Orthopaedics", iconName: "Activity", desc: "MAKO robotic knee & anterior hip replacement with same-day ambulation.", count: "18 Specialists", displayOrder: 2 },
+  { id: "SPEC-003", name: "Comprehensive Oncology", iconName: "Microscope", desc: "TrueBeam radiation, surgical resection, and immunotherapy at RCC & Aster.", count: "15 Specialists", displayOrder: 3 },
+  { id: "SPEC-004", name: "Neurology & Neurosurgery", iconName: "Brain", desc: "Endoscopic skull base surgery, awake craniotomy, and robotic spine fusion.", count: "11 Specialists", displayOrder: 4 },
+  { id: "SPEC-005", name: "Classical Ayurveda", iconName: "Leaf", desc: "Authentic Ashtavaidya 14-21 day Panchakarma at Kottakkal Arya Vaidya Sala.", count: "24 Vaidyas", displayOrder: 5 },
+  { id: "SPEC-006", name: "Living-Donor Transplants", iconName: "Stethoscope", desc: "High-precision liver and kidney transplants with 96%+ survival record.", count: "9 Specialists", displayOrder: 6 },
+  { id: "SPEC-007", name: "Ophthalmology", iconName: "Eye", desc: "Advanced SMILE laser, robotic cataract, and vitreoretinal microsurgery.", count: "14 Specialists", displayOrder: 7 },
+  { id: "SPEC-008", name: "Fertility & IVF", iconName: "Syringe", desc: "ICSI, IMSI, blastocyst culture, and genetic screening with international protocols.", count: "8 Specialists", displayOrder: 8 },
+  { id: "SPEC-009", name: "Gastroenterology", iconName: "Ambulance", desc: "Therapeutic ERCP, endoscopic ultrasound, and advanced GI surgery.", count: "10 Specialists", displayOrder: 9 },
+  { id: "SPEC-010", name: "Urology & Nephrology", iconName: "UserCheck", desc: "Laser lithotripsy, robotic prostatectomy, and renal dialysis centers.", count: "12 Specialists", displayOrder: 10 },
+  { id: "SPEC-011", name: "Dental Care", iconName: "Pill", desc: "Full-mouth dental implants, digital smile design, and maxillofacial surgery.", count: "16 Specialists", displayOrder: 11 },
+  { id: "SPEC-012", name: "Rehabilitation & Wellness", iconName: "Palmtree", desc: "Backwater post-surgical physiotherapy, yoga, and holistic restorative care.", count: "20 Centers", displayOrder: 12 }
+];
+
+const getSpecialtyIcon = (iconName?: string) => {
+  switch (iconName) {
+    case "HeartPulse": return HeartPulse;
+    case "Activity": return Activity;
+    case "Microscope": return Microscope;
+    case "Brain": return Brain;
+    case "Leaf": return Leaf;
+    case "Stethoscope": return Stethoscope;
+    case "Eye": return Eye;
+    case "Syringe": return Syringe;
+    case "Ambulance": return Ambulance;
+    case "UserCheck": return UserCheck;
+    case "Pill": return Pill;
+    case "Palmtree": return Palmtree;
+    case "Bone": return Bone;
+    case "Sparkles": return Sparkles;
+    default: return HeartPulse;
+  }
+};
+
 export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps) {
   const [selectedDistrict, setSelectedDistrict] = useState<string>("All");
   const [apptFullName, setApptFullName] = useState("");
@@ -69,6 +105,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
   const [apptSuccess, setApptSuccess] = useState("");
   const [landingDoctors, setLandingDoctors] = useState<any[]>(KERALA_DOCTORS);
   const [landingHospitals, setLandingHospitals] = useState<any[]>(KERALA_HOSPITALS);
+  const [landingSpecialties, setLandingSpecialties] = useState<any[]>(DEFAULT_SPECIALTIES.map(s => ({ ...s, title: s.name })));
 
   // Load and hydrate Admin-uploaded doctors & hospitals in real-time
   useEffect(() => {
@@ -146,6 +183,35 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
         }
       } catch (e) {
         setLandingHospitals(KERALA_HOSPITALS);
+      }
+      // 3. Load Admin Specialties (Active & Published Only)
+      try {
+        const storedSpecs = localStorage.getItem("maides_admin_specialties");
+        if (storedSpecs) {
+          const parsed = JSON.parse(storedSpecs);
+          const activeAdminSpecs = parsed
+            .filter((s: any) => s.status === "ACTIVE" && (s.published === "PUBLISHED" || !s.published))
+            .map((s: any) => ({
+              id: s.id,
+              name: s.name,
+              title: s.name,
+              desc: s.shortDescription || s.fullDescription || `${s.name} center of excellence in Kerala.`,
+              iconName: s.iconName || "HeartPulse",
+              count: `${s.proceduresCount || s.keyProcedures?.length || 10}+ Procedures`,
+              displayOrder: Number(s.displayOrder) || 99
+            }));
+
+          if (activeAdminSpecs.length > 0) {
+            activeAdminSpecs.sort((a: any, b: any) => (a.displayOrder || 99) - (b.displayOrder || 99));
+            setLandingSpecialties(activeAdminSpecs);
+          } else {
+            setLandingSpecialties(DEFAULT_SPECIALTIES.map(s => ({ ...s, title: s.name })));
+          }
+        } else {
+          setLandingSpecialties(DEFAULT_SPECIALTIES.map(s => ({ ...s, title: s.name })));
+        }
+      } catch (e) {
+        setLandingSpecialties(DEFAULT_SPECIALTIES.map(s => ({ ...s, title: s.name })));
       }
     };
 
@@ -278,21 +344,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
     return selectedRegion === "All" || d.region === selectedRegion;
   });
 
-  // Section 11: 12 Medical Specialties
-  const maidesSpecialties = [
-    { icon: HeartPulse, title: "Cardiology & Bypass", desc: "Off-Pump CABG, TAVR, and pediatric cardiac surgery by senior directors.", count: "12 Specialists" },
-    { icon: Activity, title: "Robotic Orthopaedics", desc: "MAKO robotic knee & anterior hip replacement with same-day ambulation.", count: "18 Specialists" },
-    { icon: Microscope, title: "Comprehensive Oncology", desc: "TrueBeam radiation, surgical resection, and immunotherapy at RCC & Aster.", count: "15 Specialists" },
-    { icon: Brain, title: "Neurology & Neurosurgery", desc: "Endoscopic skull base surgery, awake craniotomy, and robotic spine fusion.", count: "11 Specialists" },
-    { icon: Leaf, title: "Classical Ayurveda", desc: "Authentic Ashtavaidya 14-21 day Panchakarma at Kottakkal Arya Vaidya Sala.", count: "24 Vaidyas" },
-    { icon: Stethoscope, title: "Living-Donor Transplants", desc: "High-precision liver and kidney transplants with 96%+ survival record.", count: "9 Specialists" },
-    { icon: Eye, title: "Ophthalmology", desc: "Advanced SMILE laser, robotic cataract, and vitreoretinal microsurgery.", count: "14 Specialists" },
-    { icon: Syringe, title: "Fertility & IVF", desc: "ICSI, IMSI, blastocyst culture, and genetic screening with international protocols.", count: "8 Specialists" },
-    { icon: Ambulance, title: "Gastroenterology", desc: "Therapeutic ERCP, endoscopic ultrasound, and advanced GI surgery.", count: "10 Specialists" },
-    { icon: UserCheck, title: "Urology & Nephrology", desc: "Laser lithotripsy, robotic prostatectomy, and renal dialysis centers.", count: "12 Specialists" },
-    { icon: Pill, title: "Dental Care", desc: "Full-mouth dental implants, digital smile design, and maxillofacial surgery.", count: "16 Specialists" },
-    { icon: Palmtree, title: "Rehabilitation & Wellness", desc: "Backwater post-surgical physiotherapy, yoga, and holistic restorative care.", count: "20 Centers" }
-  ];
+  // Section 11: Dynamic Medical Specialties from Admin
 
   // Section 36: Dynamic FAQs matching specification
   const screenshotFaqs = [
@@ -819,10 +871,10 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {maidesSpecialties.map((dept, idx) => {
-            const Icon = dept.icon;
+          {landingSpecialties.map((dept, idx) => {
+            const Icon = getSpecialtyIcon(dept.iconName);
             return (
-              <div key={idx} className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-xl hover:border-[#0E82FD] transition-all group flex flex-col justify-between">
+              <div key={dept.id || idx} className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-xl hover:border-[#0E82FD] transition-all group flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0E82FD] group-hover:bg-[#0E82FD] group-hover:text-white transition-all flex items-center justify-center">
@@ -834,7 +886,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                   </div>
 
                   <h3 className="text-lg font-bold text-[#0F2042] group-hover:text-[#0E82FD] transition-colors mb-2">
-                    {dept.title}
+                    {dept.title || dept.name}
                   </h3>
                   <p className="text-xs text-slate-600 leading-relaxed">
                     {dept.desc}
@@ -843,10 +895,10 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
 
                 <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
                   <button onClick={onOpenIntake} className="text-xs font-bold text-[#0E82FD] group-hover:text-blue-700 flex items-center space-x-1">
-                    <span>Request Assistance</span>
+                    <span>Consult Specialty Specialist</span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
-                  <span className="text-[11px] text-slate-400">JCI / NABH</span>
+                  <span className="text-[11px] text-slate-400">JCI / NABH Accredited</span>
                 </div>
               </div>
             );
@@ -1262,13 +1314,12 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                   onChange={(e) => setApptService(e.target.value)}
                   className="w-full px-5 py-3.5 rounded-xl bg-[#163863] border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
                 >
-                  <option value="cardiology" className="bg-[#0F2D54] text-white">Cardiology & Cardiac Surgery</option>
-                  <option value="orthopaedics" className="bg-[#0F2D54] text-white">Orthopaedics & Joint Replacement</option>
-                  <option value="oncology" className="bg-[#0F2D54] text-white">Oncology & Cancer Care</option>
-                  <option value="neurology" className="bg-[#0F2D54] text-white">Neurology & Neurosurgery</option>
-                  <option value="ayurveda" className="bg-[#0F2D54] text-white">Ayurveda & Panchakarma</option>
-                  <option value="transplant" className="bg-[#0F2D54] text-white">Organ Transplantation</option>
-                  <option value="emergency" className="bg-[#0F2D54] text-white">Emergency Consultation</option>
+                  {landingSpecialties.map((spec) => (
+                    <option key={spec.id || spec.name} value={spec.name || spec.title} className="bg-[#0F2D54] text-white">
+                      {spec.name || spec.title}
+                    </option>
+                  ))}
+                  <option value="Emergency Consultation" className="bg-[#0F2D54] text-white">Emergency Consultation</option>
                 </select>
               </div>
 
