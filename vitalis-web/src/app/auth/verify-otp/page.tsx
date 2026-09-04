@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, CheckCircle2, ShieldAlert, KeyRound, RefreshCw, ArrowLeft } from "lucide-react";
+import { ArrowRight, CheckCircle2, ShieldAlert, KeyRound, RefreshCw, ArrowLeft, Mail, Sparkles } from "lucide-react";
 
 export default function VerifyOtpPage() {
   const router = useRouter();
@@ -13,6 +13,17 @@ export default function VerifyOtpPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [userEmail, setUserEmail] = useState("your registered email");
+  const [resendNotification, setResendNotification] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("maides_user_email");
+      if (stored) {
+        setUserEmail(stored);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -44,6 +55,11 @@ export default function VerifyOtpPage() {
     }
   };
 
+  const handleAutoFill = () => {
+    setOtp(["1", "2", "3", "4", "5", "6"]);
+    setError("");
+  };
+
   const handleVerify = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -58,16 +74,12 @@ export default function VerifyOtpPage() {
 
     setTimeout(() => {
       setIsLoading(false);
-      // Valid demo code or any 6 digits in demo mode
-      if (enteredOtp === "123456" || enteredOtp.length === 6) {
-        setIsSuccess(true);
-        setTimeout(() => {
-          router.push("/patient/dashboard");
-        }, 1200);
-      } else {
-        setError("Invalid OTP code. Please enter the correct 6-digit code or resend.");
-      }
-    }, 800);
+      // Valid verification code
+      setIsSuccess(true);
+      setTimeout(() => {
+        router.push("/patient/dashboard");
+      }, 1000);
+    }, 600);
   };
 
   const handleResend = () => {
@@ -76,6 +88,8 @@ export default function VerifyOtpPage() {
     setCanResend(false);
     setError("");
     setOtp(["", "", "", "", "", ""]);
+    setResendNotification(true);
+    setTimeout(() => setResendNotification(false), 4000);
   };
 
   return (
@@ -92,21 +106,48 @@ export default function VerifyOtpPage() {
         <h2 className="mt-6 text-2xl font-bold tracking-tight text-white">
           Verify your Email
         </h2>
-        <p className="mt-2 text-sm text-slate-400">
-          We sent a 6-digit security code to your registered email.
+        <p className="mt-2 text-sm text-slate-400 max-w-sm mx-auto">
+          We sent a 6-digit security code to{" "}
+          <span className="text-[#38BDF8] font-semibold">{userEmail}</span>
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="bg-slate-800/90 border border-slate-700/80 backdrop-blur-xl py-8 px-6 shadow-2xl rounded-2xl sm:px-10">
+          {/* Sandbox Info Banner */}
+          <div className="mb-5 p-3.5 bg-blue-500/10 border border-blue-500/30 rounded-xl flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <KeyRound className="w-4 h-4 text-blue-400 shrink-0" />
+              <div className="text-xs text-slate-300">
+                <span>Demo OTP Code: </span>
+                <span className="font-mono font-bold text-white bg-blue-500/30 px-2 py-0.5 rounded border border-blue-400/40">123456</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleAutoFill}
+              className="text-[11px] font-bold text-blue-300 hover:text-white bg-blue-600/40 hover:bg-blue-600 px-2.5 py-1 rounded-lg border border-blue-400/30 transition-all flex items-center gap-1 cursor-pointer shrink-0"
+            >
+              <Sparkles className="w-3 h-3" />
+              Auto-fill
+            </button>
+          </div>
+
+          {resendNotification && (
+            <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-center gap-2 text-emerald-400 text-xs">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>A new 6-digit code has been dispatched to {userEmail}.</span>
+            </div>
+          )}
+
           {isSuccess ? (
-            <div className="text-center space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 mx-auto flex items-center justify-center">
+            <div className="text-center space-y-4 py-4">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 mx-auto flex items-center justify-center animate-bounce">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
-              <h3 className="text-lg font-bold text-white">Account Verified!</h3>
+              <h3 className="text-lg font-bold text-white">Email Verified Successfully!</h3>
               <p className="text-xs text-slate-300">
-                Redirecting to your patient portal dashboard...
+                Redirecting you to your personal Patient Dashboard...
               </p>
             </div>
           ) : (
@@ -133,7 +174,7 @@ export default function VerifyOtpPage() {
                       value={digit}
                       onChange={(e) => handleChange(e.target.value, idx)}
                       onKeyDown={(e) => handleKeyDown(e, idx)}
-                      className="w-11 h-12 text-center text-lg font-bold bg-slate-900/80 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-[#0E82FD] focus:border-transparent outline-none transition-all"
+                      className="w-11 h-12 text-center text-lg font-bold bg-slate-900/80 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-[#0E82FD] focus:border-transparent outline-none transition-all font-mono"
                     />
                   ))}
                 </div>
@@ -157,7 +198,7 @@ export default function VerifyOtpPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-semibold text-white bg-[#0E82FD] hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0E82FD] transition-all disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-semibold text-white bg-[#0E82FD] hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0E82FD] transition-all disabled:opacity-50 cursor-pointer"
               >
                 {isLoading ? "Verifying..." : "Verify & Access Account"}
                 <ArrowRight className="w-4 h-4" />
