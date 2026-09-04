@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
-import { KERALA_SAMPLE_PACKAGES } from "@/lib/mockData";
+import { KERALA_SAMPLE_PACKAGES, PackageOffer } from "@/lib/mockData";
 import { ArrowUpRight, CheckCircle, Clock, Filter, Star } from "lucide-react";
 
 const TIERS = ["All", "Platinum VIP", "Premium Care", "Value Accredited", "Ayurvedic Rejuvenation"];
@@ -23,11 +23,65 @@ const TIER_BADGE: Record<string, string> = {
 
 export default function PackagesPage() {
   const [tier, setTier] = useState("All");
+  const [packages, setPackages] = useState<any[]>(KERALA_SAMPLE_PACKAGES);
+
+  // Synchronize dynamic packages from Admin Console
+  useEffect(() => {
+    const loadDynamicPackages = () => {
+      try {
+        const stored = localStorage.getItem("maides_admin_packages");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            // Strict role boundary: Only ACTIVE & PUBLISHED packages appear on public portal
+            const activeAdminPackages = parsed
+              .filter((p: any) => p.status === "ACTIVE" && (p.published === "PUBLISHED" || !p.published))
+              .sort((a: any, b: any) => (a.displayOrder || 99) - (b.displayOrder || 99))
+              .map((p: any) => ({
+                id: p.id,
+                title: p.title,
+                tier: p.tier || "Premium Care",
+                treatmentName: p.treatmentName,
+                hospitalName: p.hospitalName,
+                doctorName: p.doctorName,
+                district: p.district || "Ernakulam / Kochi",
+                city: p.city || "Kochi, Kerala",
+                priceUsd: Number(p.priceUsd) || 5000,
+                priceInr: Number(p.priceInr) || Math.round((Number(p.priceUsd) || 5000) * 87.5),
+                durationDays: Number(p.durationDays) || 10,
+                highlights: Array.isArray(p.highlights) && p.highlights.length > 0 ? p.highlights : ["All-inclusive medical care package in Kerala"],
+                inclusions: Array.isArray(p.inclusions) && p.inclusions.length > 0 ? p.inclusions : ["Complete clinical and hospital stay care"],
+                image: p.image || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1200&q=80",
+                displayOrder: Number(p.displayOrder) || 99
+              }));
+
+            // Merge Admin packages with sample packages, prioritizing Admin
+            const merged: any[] = [...activeAdminPackages];
+            KERALA_SAMPLE_PACKAGES.forEach(sp => {
+              if (!merged.some(m => m.id === sp.id || m.title.toLowerCase() === sp.title.toLowerCase())) {
+                merged.push({ ...sp, displayOrder: 99 });
+              }
+            });
+            merged.sort((a, b) => (a.displayOrder || 99) - (b.displayOrder || 99));
+            setPackages(merged);
+            return;
+          }
+        }
+        setPackages(KERALA_SAMPLE_PACKAGES);
+      } catch (e) {
+        setPackages(KERALA_SAMPLE_PACKAGES);
+      }
+    };
+
+    loadDynamicPackages();
+    window.addEventListener("storage", loadDynamicPackages);
+    return () => window.removeEventListener("storage", loadDynamicPackages);
+  }, []);
 
   return (
     <PublicPageLayout navbarStyle="white">
       {({ onOpenIntake }) => {
-        const filtered = KERALA_SAMPLE_PACKAGES.filter((p) => tier === "All" || p.tier === tier);
+        const filtered = packages.filter((p) => tier === "All" || p.tier === tier);
 
         return (
           <div className="min-h-screen">
@@ -89,7 +143,7 @@ export default function PackagesPage() {
                       <div className="space-y-2">
                         <div className="text-xs font-bold text-slate-700">Package Highlights</div>
                         <ul className="space-y-1.5">
-                          {p.highlights.slice(0, 4).map((h) => (
+                          {(p.highlights || []).slice(0, 4).map((h: string) => (
                             <li key={h} className="flex items-start gap-2 text-xs text-slate-600">
                               <CheckCircle className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />{h}
                             </li>

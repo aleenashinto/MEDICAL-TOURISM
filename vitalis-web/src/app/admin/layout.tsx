@@ -104,6 +104,7 @@ export default function AdminLayout({
           submenus: [
             { name: "Hospitals Directory", href: "/admin/hospitals" },
             { name: "Specialists & Doctors", href: "/admin/doctors" },
+            { name: "Treatment Packages", href: "/admin/packages" },
             { name: "Treatments & Surgeries", href: "/admin/treatments" },
             { name: "Medical Specialties", href: "/admin/specialties" },
           ]
