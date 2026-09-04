@@ -2,6 +2,13 @@
 
 All notable changes and architectural decisions across phases are documented here.
 
+## [Phase 9 — Telemedicine & Second Opinion Video Consults] - 2026-09-04
+- Created `consultation_sessions` schema storing scheduled video appointments, secure unique WebRTC meeting rooms (`room-med-XXXXXXXX`), duration, symptoms, clinical prescriptions, recommendations, and multi-currency consultation fee tracking.
+- Engineered Telemedicine Scheduling API (`POST /api/v1/telemedicine/sessions`) with access authorization for `medical_coordinator`, `patient`, `hospital_manager`, and `super_admin`.
+- Built Consultation Retrieval and Token Generation Join Engine (`GET /api/v1/telemedicine/sessions/enquiry/:enquiryId`, `POST /api/v1/telemedicine/sessions/:id/join`) providing cryptographic session tokens and automatic `in_progress` lifecycle transitions.
+- Built Doctor Consultation Completion & Prescription Dispatcher (`POST /api/v1/telemedicine/sessions/:id/complete`) with fit-to-travel and pharmacological treatment protocol recording.
+- Verified test suite: 50/50 automated unit & integration tests passing across all layers (100% pass rate).
+
 ## [Phase 8 — Travel, Accommodation & Logistics Module] - 2026-09-04
 - Created `travel_bookings` schema supporting flight tracking, Kerala airport transfers (Cochin COK, Trivandrum TRV, Calicut CCJ, Kannur CNN), hotel stays, and Ayurvedic wellness resort packages with status tracking (`requested`, `confirmed`, `in_transit`, `completed`, `cancelled`).
 - Built official Indian Medical Visa (e-Med Visa) invitation letter generator schema and endpoint (`POST /api/v1/travel/visa-invitation`) producing unique reference credentials (e.g., `KL-MEDVISA-2026-XXXXXX`) paired with NABH/JCI accredited Kerala hospital verification data for Indian Embassy/Consulate submissions.

@@ -345,6 +345,39 @@ export const visaInvitations = pgTable("visa_invitations", {
   issuedAt: timestamp("issued_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+// ─── Telemedicine & Video Consultations ────────────────────────────────────
+
+export const consultationStatusEnum = pgEnum("consultation_status", [
+  "scheduled",
+  "in_progress",
+  "completed",
+  "cancelled",
+  "no_show",
+]);
+
+export const consultationSessions = pgTable("consultation_sessions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  enquiryId: uuid("enquiry_id").references(() => enquiries.id, { onDelete: "cascade" }).notNull(),
+  patientId: uuid("patient_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  doctorId: uuid("doctor_id").references(() => doctors.id, { onDelete: "cascade" }).notNull(),
+  hospitalId: uuid("hospital_id").references(() => hospitals.id, { onDelete: "cascade" }).notNull(),
+  scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull(),
+  durationMinutes: integer("duration_minutes").default(30).notNull(),
+  status: consultationStatusEnum("status").default("scheduled").notNull(),
+  meetingRoomId: varchar("meeting_room_id", { length: 150 }).notNull().unique(),
+  meetingJoinUrl: text("meeting_join_url").notNull(),
+  patientSymptoms: text("patient_symptoms"),
+  doctorPrescription: text("doctor_prescription"),
+  clinicalRecommendations: text("clinical_recommendations"),
+  feeUsd: integer("fee_usd").default(25).notNull(),
+  feeInr: integer("fee_inr").default(2000).notNull(),
+  recordingUrl: text("recording_url"),
+  startedAt: timestamp("started_at", { withTimezone: true }),
+  endedAt: timestamp("ended_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 // ─── Audit Logs ──────────────────────────────────────────────────────────────
 
 export const auditLogs = pgTable("audit_logs", {

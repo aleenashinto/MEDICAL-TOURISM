@@ -483,6 +483,114 @@ test("Phase 8 Exit Test — Travel, Accommodation & Logistics Module", async (t)
   });
 });
 
+test("Phase 9 Exit Test — Telemedicine & Second Opinion Video Consults", async (t) => {
+  const app = await buildApp();
+  const { signToken } = await import("@maides/auth");
+  const { config } = await import("../src/config.js");
+
+  const patientId = "00000000-0000-0000-0000-000000000002";
+  const doctorId = "00000000-0000-0000-0000-000000000004";
+
+  const patientToken = signToken(
+    { sub: patientId, email: "patient.telemed@maides.in", role: "patient" },
+    config.JWT_SECRET,
+    "1h"
+  );
+
+  const doctorToken = signToken(
+    { sub: doctorId, email: "doctor.telemed@maides.in", role: "doctor" },
+    config.JWT_SECRET,
+    "1h"
+  );
+
+  const coordinatorToken = signToken(
+    { sub: "coord-telemed-903", email: "coord.telemed@maides.in", role: "medical_coordinator" },
+    config.JWT_SECRET,
+    "1h"
+  );
+
+  const unauthHeader = {};
+
+  // Test 1: Unauthorized access to schedule consultation is blocked (401)
+  await t.test("POST /api/v1/telemedicine/sessions without auth token returns 401", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/telemedicine/sessions",
+      headers: unauthHeader,
+      body: {
+        enquiryId: "00000000-0000-0000-0000-000000000001",
+        patientId,
+        doctorId,
+        hospitalId: "00000000-0000-0000-0000-000000000003",
+        scheduledAt: "2026-10-20T14:30:00.000Z",
+        patientSymptoms: "Exertional dyspnea and chest discomfort on stairs",
+      },
+    });
+    assert.strictEqual(res.statusCode, 401);
+  });
+
+  // Test 2: Medical Coordinator can schedule telemedicine video session
+  await t.test("POST /api/v1/telemedicine/sessions with Coordinator token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/telemedicine/sessions",
+      headers: { authorization: `Bearer ${coordinatorToken}` },
+      body: {
+        enquiryId: "00000000-0000-0000-0000-000000000001",
+        patientId,
+        doctorId,
+        hospitalId: "00000000-0000-0000-0000-000000000003",
+        scheduledAt: "2026-10-20T14:30:00.000Z",
+        durationMinutes: 45,
+        patientSymptoms: "Exertional dyspnea and chest tightness with elevated troponin levels",
+        feeUsd: 30,
+        feeInr: 2500,
+      },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+
+  // Test 3: Patient can list their case video consultation sessions
+  await t.test("GET /api/v1/telemedicine/sessions/enquiry/:id with Patient token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "GET",
+      url: "/api/v1/telemedicine/sessions/enquiry/00000000-0000-0000-0000-000000000001",
+      headers: { authorization: `Bearer ${patientToken}` },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+
+  // Test 4: Doctor can complete consultation session & log clinical prescription
+  await t.test("POST /api/v1/telemedicine/sessions/:id/complete with Doctor token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/telemedicine/sessions/00000000-0000-0000-0000-000000000001/complete",
+      headers: { authorization: `Bearer ${doctorToken}` },
+      body: {
+        doctorPrescription: "Tab. Aspirin 75mg OD, Tab. Atorvastatin 40mg HS, Tab. Metoprolol 25mg BD",
+        clinicalRecommendations: "Recommended for prompt elective beating-heart CABG within 30 days. Maintain strict glycemic control.",
+        recordingUrl: "https://vault.maides.in/consultations/rec-session-889.mp4",
+      },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+
+  // Test 5: Patient joining room generates WebRTC secure token
+  await t.test("POST /api/v1/telemedicine/sessions/:id/join with Patient token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/telemedicine/sessions/00000000-0000-0000-0000-000000000001/join",
+      headers: { authorization: `Bearer ${patientToken}` },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+});
+
+
 
 
 

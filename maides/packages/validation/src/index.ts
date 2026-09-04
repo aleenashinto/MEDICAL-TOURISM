@@ -410,6 +410,26 @@ export const VisaInvitationCreateSchema = z.object({
   embassyCity: z.string().max(100).optional(),
 });
 
+// ─── Telemedicine & Video Consultations ────────────────────────────────────
+
+export const TelemedicineScheduleSchema = z.object({
+  enquiryId: z.string().uuid("Enquiry ID is required"),
+  patientId: z.string().uuid("Patient ID is required"),
+  doctorId: z.string().uuid("Doctor ID is required"),
+  hospitalId: z.string().uuid("Hospital ID is required"),
+  scheduledAt: z.string().datetime(),
+  durationMinutes: z.number().int().min(15).max(120).default(30),
+  patientSymptoms: z.string().min(5).max(2000),
+  feeUsd: z.number().int().min(0).default(25),
+  feeInr: z.number().int().min(0).default(2000),
+});
+
+export const TelemedicineCompleteSchema = z.object({
+  doctorPrescription: z.string().min(5).max(3000),
+  clinicalRecommendations: z.string().min(5).max(3000),
+  recordingUrl: z.string().url().optional(),
+});
+
 // ─── Inferred Types ───────────────────────────────────────────────────────────
 
 export type RegisterInput = z.infer<typeof RegisterSchema>;
@@ -432,5 +452,8 @@ export type CostEstimateCalculatorInput = z.infer<typeof CostEstimateCalculatorS
 export type TravelBookingCreateInput = z.infer<typeof TravelBookingCreateSchema>;
 export type TravelBookingUpdateInput = z.infer<typeof TravelBookingUpdateSchema>;
 export type VisaInvitationCreateInput = z.infer<typeof VisaInvitationCreateSchema>;
+export type TelemedicineScheduleInput = z.infer<typeof TelemedicineScheduleSchema>;
+export type TelemedicineCompleteInput = z.infer<typeof TelemedicineCompleteSchema>;
+
 
 
