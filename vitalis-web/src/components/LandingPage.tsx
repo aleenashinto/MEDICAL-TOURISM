@@ -110,8 +110,9 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
   const [landingDoctors, setLandingDoctors] = useState<any[]>(KERALA_DOCTORS);
   const [landingHospitals, setLandingHospitals] = useState<any[]>(KERALA_HOSPITALS);
   const [landingSpecialties, setLandingSpecialties] = useState<any[]>(DEFAULT_SPECIALTIES.map(s => ({ ...s, title: s.name })));
+  const [landingPackages, setLandingPackages] = useState<any[]>(KERALA_SAMPLE_PACKAGES);
 
-  // Load and hydrate Admin-uploaded doctors & hospitals in real-time
+  // Load and hydrate Admin-uploaded doctors, hospitals, specialties & packages in real-time
   useEffect(() => {
     const loadDynamicData = () => {
       // 1. Load Admin Doctors
@@ -126,22 +127,24 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               id: d.id,
               name: d.name,
               title: d.title || "Senior Specialist Doctor",
-              qualifications: d.education || "MBBS, MS, Board Certified",
-              hospitalName: d.hospital || "Aster Medcity, Kochi",
-              district: d.hospital?.includes("Kovalam") || d.hospital?.includes("Trivandrum") ? "Thiruvananthapuram" : d.hospital?.includes("Calicut") ? "Kozhikode" : "Ernakulam",
+              qualifications: d.education || d.qualifications || "MBBS, MS, Board Certified",
+              hospitalName: d.hospital || d.hospitalName || "Aster Medcity, Kochi",
+              district: d.district || (d.hospital?.includes("Kovalam") || d.hospital?.includes("Trivandrum") ? "Thiruvananthapuram" : d.hospital?.includes("Calicut") ? "Kozhikode" : "Ernakulam"),
               experienceYears: typeof d.experienceYears === "number" ? d.experienceYears : (parseInt(d.experience) || 15),
               rating: d.rating || "4.95",
-              avatar: d.avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400",
-              specialty: d.specialty || "Specialty"
+              avatar: d.avatar || d.image || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400",
+              specialty: d.specialty || "Specialty",
+              displayOrder: Number(d.displayOrder) || 99
             }));
           
           // Merge admin doctors first, then existing
           const merged = [...activeAdminDocs];
           KERALA_DOCTORS.forEach(kd => {
-            if (!merged.some(m => m.name.toLowerCase() === kd.name.toLowerCase())) {
-              merged.push(kd);
+            if (!merged.some(m => m.name.toLowerCase() === kd.name.toLowerCase() || m.id === kd.id)) {
+              merged.push({ ...kd, displayOrder: 99 });
             }
           });
+          merged.sort((a, b) => (a.displayOrder || 99) - (b.displayOrder || 99));
           setLandingDoctors(merged);
         } else {
           setLandingDoctors(KERALA_DOCTORS);
@@ -161,15 +164,15 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               id: h.id,
               name: h.name,
               city: h.city || "Kochi, Kerala",
-              district: h.district || "Ernakulam / Kochi",
+              district: h.district || "Ernakulam",
               region: h.region || "Central Kerala",
               accreditations: Array.isArray(h.accreditations) ? h.accreditations : [h.accreditations || "NABH Accredited"],
-              specialties: Array.isArray(h.specialties) ? h.specialties : ["Multispecialty Healthcare"],
+              specialties: Array.isArray(h.specialties) ? h.specialties : (typeof h.specialties === "string" ? h.specialties.split(",").map((s: string) => s.trim()) : ["Multispecialty Healthcare"]),
               rating: h.rating || 4.92,
               reviewCount: h.reviewCount || 1450,
               image: h.image || "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=1200&q=80",
               description: h.description || `${h.name} is a leading NABH/JCI accredited quaternary healthcare destination in Kerala providing world-class medical tourism care.`,
-              internationalServices: h.internationalServices || [
+              internationalServices: Array.isArray(h.internationalServices) && h.internationalServices.length > 0 ? h.internationalServices : [
                 "24/7 International Patient Concierge Desk",
                 "Direct Airport Limousine Escort",
                 "Medical eVisa Fast-Track Letter in 4 Hours"
@@ -191,6 +194,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       } catch (e) {
         setLandingHospitals(KERALA_HOSPITALS);
       }
+
       // 3. Load Admin Specialties (Active & Published Only)
       try {
         const storedSpecs = localStorage.getItem("maides_admin_specialties");
@@ -219,6 +223,55 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
         }
       } catch (e) {
         setLandingSpecialties(DEFAULT_SPECIALTIES.map(s => ({ ...s, title: s.name })));
+      }
+
+      // 4. Load Admin Packages (Active & Published Only)
+      try {
+        const storedPkgs = localStorage.getItem("maides_admin_packages");
+        if (storedPkgs) {
+          const parsed = JSON.parse(storedPkgs);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const activeAdminPackages = parsed
+              .filter((p: any) => p.status === "ACTIVE" && (p.published === "PUBLISHED" || !p.published))
+              .sort((a: any, b: any) => (a.displayOrder || 99) - (b.displayOrder || 99))
+              .map((p: any) => ({
+                id: p.id,
+                title: p.title,
+                tier: p.tier || "Premium Care",
+                treatmentName: p.treatmentName,
+                hospitalName: p.hospitalName,
+                doctorName: p.doctorName,
+                district: p.district || "Ernakulam",
+                city: p.city || "Kochi, Kerala",
+                priceUsd: Number(p.priceUsd) || 5000,
+                priceInr: Number(p.priceInr) || Math.round((Number(p.priceUsd) || 5000) * 87.5),
+                durationDays: Number(p.durationDays) || 10,
+                highlights: Array.isArray(p.highlights) && p.highlights.length > 0 ? p.highlights : ["All-inclusive medical care package in Kerala"],
+                inclusions: Array.isArray(p.inclusions) && p.inclusions.length > 0 ? p.inclusions : ["Complete clinical and hospital stay care"],
+                image: p.image || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1200&q=80",
+                displayOrder: Number(p.displayOrder) || 99
+              }));
+
+            const mergedPkgs: any[] = [...activeAdminPackages];
+            KERALA_SAMPLE_PACKAGES.forEach(sp => {
+              if (!mergedPkgs.some(m => m.id === sp.id || m.title.toLowerCase() === sp.title.toLowerCase())) {
+                mergedPkgs.push({ 
+                  ...sp, 
+                  image: (sp as any).image || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1200&q=80",
+                  displayOrder: 99 
+                });
+              }
+            });
+            mergedPkgs.sort((a, b) => (a.displayOrder || 99) - (b.displayOrder || 99));
+            setLandingPackages(mergedPkgs);
+          } else {
+            setLandingPackages(KERALA_SAMPLE_PACKAGES);
+          }
+        } else {
+          setLandingPackages(KERALA_SAMPLE_PACKAGES);
+        }
+      } catch (e) {
+        setLandingPackages(KERALA_SAMPLE_PACKAGES);
       }
     };
 
@@ -361,8 +414,39 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
     { num: "10", title: "Follow-Up & Convalescence", desc: "Backwater resort recovery, fit-to-fly clearance, and 12-month tele-reviews." }
   ];
 
+  // Dynamic available districts from all active hospitals
+  const availableDistricts = React.useMemo(() => {
+    const rawDistricts = Array.from(new Set(landingHospitals.map(h => h.district).filter(Boolean)));
+    const corePriority = ["Ernakulam", "Thiruvananthapuram", "Kozhikode", "Kottayam", "Malappuram", "Thrissur", "Palakkad", "Alappuzha", "Kollam", "Kannur"];
+    const ordered = ["All"];
+    
+    corePriority.forEach(d => {
+      if (rawDistricts.some(rd => rd.toLowerCase().includes(d.toLowerCase())) && !ordered.includes(d)) {
+        ordered.push(d);
+      }
+    });
+
+    rawDistricts.forEach(d => {
+      const cleanD = d.replace(" / Kochi", "");
+      if (!ordered.some(o => o.toLowerCase() === cleanD.toLowerCase() || o.toLowerCase() === d.toLowerCase())) {
+        ordered.push(d);
+      }
+    });
+
+    return ordered;
+  }, [landingHospitals]);
+
   const filteredHospitals = landingHospitals.filter((h) => {
-    const matchesDistrict = selectedDistrict === "All" || h.district === selectedDistrict || (selectedDistrict === "Ernakulam / Kochi" && (h.district === "Ernakulam" || h.district === "Ernakulam / Kochi"));
+    const hospDist = (h.district || "").toLowerCase();
+    const selDist = selectedDistrict.toLowerCase();
+    
+    const matchesDistrict = selectedDistrict === "All" || 
+      hospDist === selDist || 
+      (selDist === "ernakulam" && (hospDist.includes("ernakulam") || hospDist.includes("kochi"))) ||
+      (selDist === "thiruvananthapuram" && (hospDist.includes("thiruvananthapuram") || hospDist.includes("trivandrum"))) ||
+      (selDist === "kozhikode" && (hospDist.includes("kozhikode") || hospDist.includes("calicut"))) ||
+      hospDist.includes(selDist);
+
     const matchesSpecialty = selectedSpecialty === "All" || (h.specialties && (Array.isArray(h.specialties) ? h.specialties.some((s: string) => s.toLowerCase().includes(selectedSpecialty.toLowerCase())) : true));
     const matchesRegion = selectedRegion === "All" || h.region === selectedRegion;
     return matchesDistrict && matchesSpecialty && matchesRegion;
@@ -517,8 +601,8 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               <div className="relative z-10 w-full max-w-[420px] rounded-t-[200px] rounded-b-3xl bg-gradient-to-b from-blue-500/20 via-white/5 to-white/10 p-2.5 backdrop-blur-xl border border-white/25 shadow-2xl overflow-hidden">
                 <div className="w-full h-[460px] sm:h-[540px] rounded-t-[190px] rounded-b-2xl overflow-hidden relative">
                   <img 
-                    src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=1000&q=80" 
-                    alt="MAIDES Kerala Specialist Doctor" 
+                    src={landingDoctors[0]?.avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=1000&q=80"} 
+                    alt={landingDoctors[0]?.name || "MAIDES Kerala Specialist Doctor"} 
                     className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0F2042]/90 via-transparent to-transparent" />
@@ -526,8 +610,8 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                   {/* Overlay Bottom Doctor Label */}
                   <div className="absolute bottom-4 left-4 right-4 p-3.5 rounded-2xl bg-black/40 backdrop-blur-md border border-white/15 text-white flex items-center justify-between">
                     <div>
-                      <div className="text-xs font-black">Dr. Muralidharan V. Nair</div>
-                      <div className="text-[10px] text-blue-200">Director of Cardiothoracic Surgery</div>
+                      <div className="text-xs font-black">{landingDoctors[0]?.name || "Dr. Muralidharan V. Nair"}</div>
+                      <div className="text-[10px] text-blue-200">{landingDoctors[0]?.title || landingDoctors[0]?.specialty || "Senior Specialist Doctor"}</div>
                     </div>
                     <span className="px-2.5 py-1 rounded-full bg-emerald-500/90 text-[10px] font-bold text-white flex items-center space-x-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
@@ -660,8 +744,8 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                 </div>
 
                 <div>
-                  <h4 className="text-base font-black text-[#0F2042]">Dr. Muralidharan V. Nair</h4>
-                  <p className="text-[11px] text-slate-500 font-medium">Chief Cardiac Surgeon • Aster Medcity, Kochi</p>
+                  <h4 className="text-base font-black text-[#0F2042]">{landingDoctors[0]?.name || "Dr. Muralidharan V. Nair"}</h4>
+                  <p className="text-[11px] text-slate-500 font-medium">{landingDoctors[0]?.title || landingDoctors[0]?.specialty || "Chief Cardiac Surgeon"} • {landingDoctors[0]?.hospitalName || "Aster Medcity, Kochi"}</p>
                 </div>
 
                 <div className="pt-1 flex items-center space-x-2 text-xs font-bold text-[#0E82FD]">
@@ -1050,7 +1134,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
           </div>
           
           <div className="flex flex-wrap gap-2">
-            {["All", "Ernakulam / Kochi", "Thiruvananthapuram", "Kozhikode", "Kottayam", "Malappuram"].map((dist) => (
+            {availableDistricts.map((dist) => (
               <button
                 key={dist}
                 onClick={() => setSelectedDistrict(dist)}
@@ -1182,6 +1266,120 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
         </div>
       </section>
 
+      {/* 9.5 FEATURED ALL-INCLUSIVE KERALA TREATMENT PACKAGES */}
+      <section id="packages" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+          <div>
+            <div className="inline-flex items-center space-x-2">
+              <span className="w-2.5 h-1.5 rounded-full bg-[#0E82FD]" />
+              <span className="text-xs font-bold uppercase tracking-wider text-[#0E82FD]">ALL-INCLUSIVE PACKAGES</span>
+            </div>
+            <h2 className="text-3xl font-black text-[#0F2042] mt-1">Featured Kerala Treatment Packages</h2>
+            <p className="text-sm text-slate-600 mt-1">Hospital stay, surgery, VIP airport transfers, recovery lodging & dedicated interpreter.</p>
+          </div>
+          
+          <Link
+            href="/packages"
+            className="inline-flex items-center space-x-1.5 text-xs font-bold text-[#0E82FD] hover:text-blue-700 transition-colors"
+          >
+            <span>View All Packages</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {landingPackages.slice(0, 6).map((pkg) => {
+            const tierStyle = pkg.tier === "Platinum VIP" 
+              ? "bg-amber-500 text-white" 
+              : pkg.tier === "Ayurvedic Rejuvenation" 
+                ? "bg-emerald-600 text-white" 
+                : pkg.tier === "Value Accredited" 
+                  ? "bg-teal-600 text-white" 
+                  : "bg-[#0E82FD] text-white";
+
+            return (
+              <div key={pkg.id} className="rounded-3xl bg-white border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:border-blue-300 transition-all flex flex-col justify-between group">
+                <div>
+                  <div className="relative h-48 overflow-hidden">
+                    <img 
+                      src={pkg.image || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1200&q=80"} 
+                      alt={pkg.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                    <div className="absolute top-3 left-3">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold shadow-md ${tierStyle}`}>
+                        {pkg.tier || "Premium Care"}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-3 left-3 right-3 text-white">
+                      <div className="text-lg font-black leading-tight">{formatCurrency(pkg.priceUsd || 5000, "USD")}</div>
+                      <div className="text-[11px] text-blue-100 font-medium">₹{(pkg.priceInr || 437500).toLocaleString('en-IN')} • {pkg.durationDays || 7} Days Inpatient & Stay</div>
+                    </div>
+                  </div>
+
+                  <div className="p-5 space-y-3">
+                    <h3 className="text-base font-bold text-[#0F2042] group-hover:text-[#0E82FD] transition-colors line-clamp-1">{pkg.title}</h3>
+                    
+                    <div className="space-y-1 text-xs text-slate-600">
+                      <div className="flex items-center space-x-1.5 font-medium text-slate-700">
+                        <Building2 className="w-3.5 h-3.5 text-[#0E82FD] shrink-0" />
+                        <span className="line-clamp-1">{pkg.hospitalName}</span>
+                      </div>
+                      {pkg.doctorName && (
+                        <div className="flex items-center space-x-1.5 font-medium text-slate-500">
+                          <Stethoscope className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="line-clamp-1">{pkg.doctorName}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100 space-y-1 text-[11px] text-slate-600">
+                      {(pkg.inclusions || pkg.highlights || []).slice(0, 2).map((inc: string, i: number) => (
+                        <div key={i} className="flex items-center space-x-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                          <span className="line-clamp-1">{inc}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-5 pt-0">
+                  <button 
+                    onClick={() => {
+                      setApptHospital(pkg.hospitalName || "");
+                      setApptDoctor(pkg.doctorName || "");
+                      setApptSpecialty(pkg.treatmentName || "Cardiology & Bypass");
+                      const apptSection = document.getElementById("booking-form");
+                      if (apptSection) {
+                        apptSection.scrollIntoView({ behavior: 'smooth' });
+                      } else {
+                        onOpenIntake();
+                      }
+                    }} 
+                    className="w-full py-2.5 rounded-xl bg-blue-50 hover:bg-[#0E82FD] hover:text-white text-xs font-bold text-[#0E82FD] transition-all flex items-center justify-center space-x-1.5 shadow-sm cursor-pointer"
+                  >
+                    <span>Book Package Consultation</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-8 text-center">
+          <Link
+            href="/packages"
+            className="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-white hover:bg-blue-50 text-[#0E82FD] font-bold text-sm border border-blue-200 shadow-sm hover:shadow transition-all group"
+          >
+            <span>Explore All Kerala All-Inclusive Packages</span>
+            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+      </section>
+
       {/* 10. FREQUENTLY ASKED QUESTIONS (SECTION 36) */}
       <section id="faq" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
@@ -1267,7 +1465,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       </section>
 
       {/* 10.5 BOOK AN APPOINTMENT & EMERGENCY MEDICAL SERVICE CONTAINER */}
-      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-8">
+      <section id="booking-form" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
           
           {/* Left Card: Get Emergency Medical Service */}
