@@ -579,6 +579,83 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
         </div>
       </section>
 
+      {/* RECOVERY JOURNEY STEP BY GUIDE CONTAINER */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-12">
+        <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
+          <div className="inline-flex items-center space-x-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#0E82FD]"></span>
+            <span className="text-xs font-black uppercase tracking-widest text-[#0E82FD]">
+              HOW IT WORK
+            </span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#0E82FD]"></span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black text-[#0F2042] tracking-tight">
+            Your Recovery<br />Journey Step By Guide
+          </h2>
+        </div>
+
+        <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6 items-start">
+          {[
+            {
+              title: "Begin Treatment",
+              desc: "We offer a full range of medical kinds services including diagnos",
+              image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+              title: "Clinical Assessment",
+              desc: "We offer a full range of medical kinds services including diagnos",
+              image: "https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+              title: "Medication & Recovery",
+              desc: "We offer a full range of medical kinds services including diagnos",
+              image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+              title: "Patient Care",
+              desc: "We offer a full range of medical kinds services including diagnos",
+              image: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=600&q=80"
+            }
+          ].map((step, idx) => (
+            <div key={idx} className="relative flex flex-col items-center text-center group">
+              {/* Organic 4-Petal / Cloud Masked Image Frame */}
+              <div className="relative w-44 h-44 sm:w-48 sm:h-48 mb-6 flex items-center justify-center">
+                <div 
+                  className="w-full h-full overflow-hidden shadow-lg group-hover:shadow-2xl group-hover:scale-105 transition-all duration-300 bg-blue-50"
+                  style={{
+                    borderRadius: "42% 58% 70% 30% / 45% 45% 55% 55%"
+                  }}
+                >
+                  <img
+                    src={step.image}
+                    alt={step.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                </div>
+              </div>
+
+              {/* Curved Connector Arrow between steps on large screens */}
+              {idx < 3 && (
+                <div className="hidden lg:block absolute top-20 -right-6 w-12 h-6 text-[#0E82FD] pointer-events-none z-10">
+                  <svg viewBox="0 0 50 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full stroke-current stroke-[2.5]">
+                    <path d="M5 6C18 2 30 18 45 10" strokeLinecap="round" />
+                    <path d="M40 5L46 10L41 15" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+              )}
+
+              {/* Text Info */}
+              <h3 className="text-lg font-black text-[#0F2042] mb-2 group-hover:text-[#0E82FD] transition-colors">
+                {step.title}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-500 max-w-[220px] leading-relaxed">
+                {step.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* 5. 12 MEDICAL SPECIALTIES (SECTION 11) */}
       <section id="treatments" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-6">
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
