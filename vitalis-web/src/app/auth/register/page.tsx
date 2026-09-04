@@ -80,11 +80,31 @@ export default function RegisterPage() {
       localStorage.setItem("maides_user_location", formData.country || "United Arab Emirates");
       localStorage.setItem("maides_user_phone", phone);
       localStorage.setItem("maides_user_role", "PATIENT");
+      
+      // Auto-register patient into admin/patient list if not present
+      try {
+        const storedPatients = localStorage.getItem("maides_admin_patients");
+        let patientList = storedPatients ? JSON.parse(storedPatients) : [];
+        if (!patientList.some((p: any) => p.email === email)) {
+          const newPatient = {
+            id: "PAT-" + Math.floor(1000 + Math.random() * 9000),
+            name: `${firstName} ${lastName}`,
+            email: email,
+            phone: phone,
+            country: formData.country || "United Arab Emirates",
+            dob: formData.dob || "1990-01-01",
+            gender: formData.gender || "female",
+            registeredAt: new Date().toISOString().split("T")[0],
+            status: "ACTIVE"
+          };
+          localStorage.setItem("maides_admin_patients", JSON.stringify([newPatient, ...patientList]));
+        }
+      } catch (err) {}
     }
 
     setTimeout(() => {
       setIsLoading(false);
-      router.push("/auth/verify-otp");
+      router.push("/patient/dashboard");
     }, 600);
   };
 
