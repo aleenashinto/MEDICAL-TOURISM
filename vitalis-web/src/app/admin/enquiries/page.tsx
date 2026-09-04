@@ -85,6 +85,24 @@ export default function EnquiriesPage() {
     },
   ]);
 
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("maides_admin_enquiries");
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setEnquiries(prev => {
+              const existingIds = new Set(prev.map(p => p.id));
+              const newItems = parsed.filter((item: any) => !existingIds.has(item.id));
+              return [...newItems, ...prev];
+            });
+          }
+        } catch(e) {}
+      }
+    }
+  }, []);
+
   const handleConvertCase = (enq: any) => {
     setEnquiries(prev => prev.map(item => item.id === enq.id ? { ...item, status: "CONVERTED" } : item));
     setSuccessToast(`Enquiry ${enq.id} for ${enq.name} successfully converted to an Active Medical Case!`);

@@ -61,6 +61,47 @@ interface LandingPageProps {
 
 export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps) {
   const [selectedDistrict, setSelectedDistrict] = useState<string>("All");
+  const [apptFullName, setApptFullName] = useState("");
+  const [apptService, setApptService] = useState("cardiology");
+  const [apptEmail, setApptEmail] = useState("");
+  const [apptDate, setApptDate] = useState("2026-09-12");
+  const [apptPhone, setApptPhone] = useState("");
+  const [apptSuccess, setApptSuccess] = useState("");
+
+  const handleBookAppointment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!apptFullName.trim() || !apptEmail.trim()) return;
+
+    const newEnq = {
+      id: "ENQ-" + Math.floor(1000 + Math.random() * 9000),
+      name: apptFullName.trim(),
+      email: apptEmail.trim(),
+      phone: apptPhone.trim() || "+971 50 123 4567",
+      country: "International Patient",
+      treatment: apptService.charAt(0).toUpperCase() + apptService.slice(1) + " Consultation",
+      budget: "$5,000",
+      urgency: "HIGH",
+      submittedAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
+      status: "NEW",
+      assignedHospital: "Aster Medcity, Kochi",
+      notes: "Direct booking request submitted from Homepage for date: " + apptDate
+    };
+
+    if (typeof window !== "undefined") {
+      const existing = localStorage.getItem("maides_admin_enquiries");
+      let list = [];
+      if (existing) {
+        try { list = JSON.parse(existing); } catch(err){}
+      }
+      localStorage.setItem("maides_admin_enquiries", JSON.stringify([newEnq, ...list]));
+    }
+
+    setApptSuccess(`Thank you ${apptFullName.trim()}! Your appointment request has been scheduled and forwarded to the MAIDES Clinical Coordinator team.`);
+    setApptFullName("");
+    setApptEmail("");
+    setApptPhone("");
+    setTimeout(() => setApptSuccess(""), 6000);
+  };
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>("All");
   const [selectedRegion, setSelectedRegion] = useState<'All' | 'South Kerala' | 'Central Kerala' | 'North Kerala'>('All');
   
@@ -1066,22 +1107,32 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               </p>
             </div>
 
+            {apptSuccess && (
+              <div className="mb-4 p-4 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs sm:text-sm font-semibold flex items-center gap-3 relative z-10 animate-in fade-in">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                <span>{apptSuccess}</span>
+              </div>
+            )}
+
             {/* 2-Column Appointment Input Form */}
-            <form onSubmit={(e) => { e.preventDefault(); onOpenIntake(); }} className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
+            <form onSubmit={handleBookAppointment} className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
               <div>
                 <input
                   type="text"
+                  required
                   placeholder="Full Name..."
+                  value={apptFullName}
+                  onChange={(e) => setApptFullName(e.target.value)}
                   className="w-full px-5 py-3.5 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
                 />
               </div>
 
               <div>
                 <select
-                  defaultValue=""
+                  value={apptService}
+                  onChange={(e) => setApptService(e.target.value)}
                   className="w-full px-5 py-3.5 rounded-xl bg-[#163863] border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
                 >
-                  <option value="" disabled className="bg-[#0F2D54] text-slate-300">Type Of Service</option>
                   <option value="cardiology" className="bg-[#0F2D54] text-white">Cardiology & Cardiac Surgery</option>
                   <option value="orthopaedics" className="bg-[#0F2D54] text-white">Orthopaedics & Joint Replacement</option>
                   <option value="oncology" className="bg-[#0F2D54] text-white">Oncology & Cancer Care</option>
@@ -1095,7 +1146,10 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               <div>
                 <input
                   type="email"
+                  required
                   placeholder="Email Address..."
+                  value={apptEmail}
+                  onChange={(e) => setApptEmail(e.target.value)}
                   className="w-full px-5 py-3.5 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
                 />
               </div>
@@ -1103,6 +1157,9 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               <div>
                 <input
                   type="date"
+                  required
+                  value={apptDate}
+                  onChange={(e) => setApptDate(e.target.value)}
                   className="w-full px-5 py-3.5 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all [color-scheme:dark]"
                 />
               </div>
@@ -1111,6 +1168,8 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                 <input
                   type="tel"
                   placeholder="Phone Number..."
+                  value={apptPhone}
+                  onChange={(e) => setApptPhone(e.target.value)}
                   className="w-full px-5 py-3.5 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
                 />
               </div>
@@ -1118,7 +1177,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               <div>
                 <button
                   type="submit"
-                  className="w-full py-3.5 px-6 rounded-xl bg-[#0E82FD] hover:bg-blue-600 text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center space-x-2"
+                  className="w-full py-3.5 px-6 rounded-xl bg-[#0E82FD] hover:bg-blue-600 text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center space-x-2 cursor-pointer"
                 >
                   <span>Schedule An Appointment</span>
                 </button>
