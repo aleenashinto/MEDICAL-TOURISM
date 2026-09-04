@@ -2,6 +2,14 @@
 
 All notable changes and architectural decisions across phases are documented here.
 
+## [Phase 4 — CRM & Lead Pipeline] - 2026-09-04
+- Implemented full CRM Lead qualification, query, and search endpoints (`GET /api/v1/leads`, `GET /api/v1/leads/:id`).
+- Built lead pipeline status progression endpoint (`PATCH /api/v1/leads/:id/status`) with strict stage transitions (`new` → `contacted` → `qualified` → `medical_review` → `hospital_matching` → `quotation_sent` → `appointment_requested` → `converted`).
+- Built lead assignment endpoint (`POST /api/v1/leads/:id/assign`) linking leads to sales agents or medical coordinators with audit trail.
+- Implemented coordinator note logging endpoint (`POST /api/v1/leads/:id/notes`).
+- Engineered seamless Lead-to-Patient conversion engine (`POST /api/v1/leads/:id/convert`) that auto-provisions patient user accounts and spawns official clinical enquiry cases with immutable audit logging.
+- Verified test suite: 20/20 automated tests passing across RBAC, Catalog, Lead Capture, and CRM Lead Pipeline.
+
 ## [Phase 3 — Public Website & Lead Capture] - 2026-09-04
 - Built public medical enquiry endpoint `POST /api/v1/leads/enquire` with DPDP-compliant consent validation.
 - Created `leads` schema in PostgreSQL storing clinical requests, budget, timeline, and lead source.

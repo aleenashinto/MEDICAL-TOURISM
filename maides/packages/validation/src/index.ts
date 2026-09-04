@@ -173,6 +173,52 @@ export const PaginationSchema = z.object({
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 
+// ─── CRM Lead Schemas ─────────────────────────────────────────────────────────
+
+export const LeadStatusEnumSchema = z.enum([
+  "new",
+  "contacted",
+  "qualified",
+  "medical_review",
+  "hospital_matching",
+  "quotation_sent",
+  "appointment_requested",
+  "converted",
+  "lost",
+  "closed",
+]);
+
+export const LeadQuerySchema = z.object({
+  status: LeadStatusEnumSchema.optional(),
+  specialty: z.string().max(100).optional(),
+  country: z.string().max(100).optional(),
+  assignedAgentId: z.string().uuid().optional(),
+  search: z.string().max(100).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+
+export const LeadStatusUpdateSchema = z.object({
+  status: LeadStatusEnumSchema,
+  notes: z.string().max(2000).optional(),
+});
+
+export const LeadAssignSchema = z.object({
+  assignedAgentId: z.string().uuid("Valid agent ID is required"),
+  notes: z.string().max(2000).optional(),
+});
+
+export const LeadNoteSchema = z.object({
+  note: z.string().min(1, "Note cannot be empty").max(2000),
+});
+
+export const LeadConvertSchema = z.object({
+  assignedCoordinatorId: z.string().uuid().optional(),
+  assignedHospitalId: z.string().uuid().optional(),
+  assignedDoctorId: z.string().uuid().optional(),
+  notes: z.string().max(2000).optional(),
+});
+
 // ─── Inferred Types ───────────────────────────────────────────────────────────
 
 export type RegisterInput = z.infer<typeof RegisterSchema>;
@@ -184,3 +230,8 @@ export type HospitalQueryInput = z.infer<typeof HospitalQuerySchema>;
 export type DoctorQueryInput = z.infer<typeof DoctorQuerySchema>;
 export type DocumentUploadInput = z.infer<typeof DocumentUploadSchema>;
 export type PaginationInput = z.infer<typeof PaginationSchema>;
+export type LeadQueryInput = z.infer<typeof LeadQuerySchema>;
+export type LeadStatusUpdateInput = z.infer<typeof LeadStatusUpdateSchema>;
+export type LeadAssignInput = z.infer<typeof LeadAssignSchema>;
+export type LeadNoteInput = z.infer<typeof LeadNoteSchema>;
+export type LeadConvertInput = z.infer<typeof LeadConvertSchema>;
