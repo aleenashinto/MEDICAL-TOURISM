@@ -258,13 +258,24 @@ export default function DoctorsAdminPage() {
             Create, view, edit, and manage Kerala's top internationally credentialed medical specialists, surgeons, and department heads.
           </p>
         </div>
-        <button 
-          onClick={handleOpenCreate}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0E82FD] hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-md shadow-blue-500/20 transition-all shrink-0 cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add New Specialist Doctor</span>
-        </button>
+        <div className="flex items-center gap-2.5 shrink-0">
+          <a
+            href="/doctors"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 hover:border-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer"
+          >
+            <Eye className="w-4 h-4 text-[#0E82FD]" />
+            <span>View Public Directory</span>
+          </a>
+          <button 
+            onClick={handleOpenCreate}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0E82FD] hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-md shadow-blue-500/20 transition-all shrink-0 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add New Specialist Doctor</span>
+          </button>
+        </div>
       </div>
 
       {/* Search & Filter Bar */}
