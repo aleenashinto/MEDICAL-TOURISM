@@ -41,14 +41,10 @@ export function Navbar({ onOpenIntake, onOpenConcierge, style = "transparent" }:
 
   const navItems = [
     { name: "Home", href: "/" },
-    { name: "About", href: "/about" },
-    { name: "Treatments", href: "/treatments" },
-    { name: "Hospitals", href: "/hospitals" },
-    { name: "Doctors", href: "/doctors" },
-    { name: "Ayurveda", href: "/ayurveda" },
-    { name: "Packages", href: "/packages" },
-    { name: "14 Districts", href: "/destinations" },
-    { name: "International", href: "/international-patients" },
+    { name: "About Us", href: "/about" },
+    { name: "Our Hospitals", href: "/hospitals" },
+    { name: "Services", href: "/treatments" },
+    { name: "Contact Us", href: "/contact" },
   ];
 
   const isWhite = style === "white" || (style === "transparent" && scrolled);
