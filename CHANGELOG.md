@@ -2,6 +2,12 @@
 
 All notable changes and architectural decisions across phases are documented here.
 
+## [Phase 3 — Public Website & Lead Capture] - 2026-09-04
+- Built public medical enquiry endpoint `POST /api/v1/leads/enquire` with DPDP-compliant consent validation.
+- Created `leads` schema in PostgreSQL storing clinical requests, budget, timeline, and lead source.
+- Wired audit trail logging for public lead capture and built staff CRM lead query route `GET /api/v1/leads`.
+- Verified test suite: 15/15 automated unit tests passing across RBAC, Catalog, and Lead Capture layers.
+
 ## [Phase 2 — Catalog Data] - 2026-09-04
 - Added `specialties` and `treatments` schema with PostgreSQL relationships, foreign keys, and cost ranges.
 - Built public REST endpoints for querying Specialties and Treatments with multi-parameter filtering (region, specialty, search, featured).

@@ -8,6 +8,7 @@ import swaggerUi from "@fastify/swagger-ui";
 import { config } from "./config.js";
 import { healthRoutes } from "./modules/health/health.routes.js";
 import { authRoutes } from "./modules/auth/auth.routes.js";
+import { leadRoutes } from "./modules/leads/leads.routes.js";
 import { enquiryRoutes } from "./modules/enquiries/enquiries.routes.js";
 import { hospitalRoutes } from "./modules/hospitals/hospitals.routes.js";
 import { doctorRoutes } from "./modules/doctors/doctors.routes.js";
@@ -78,6 +79,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   // ─── Register API Routes ──────────────────────────────────────────────────
   await app.register(healthRoutes, { prefix: "/api/v1" });
   await app.register(authRoutes, { prefix: "/api/v1/auth" });
+  await app.register(leadRoutes, { prefix: "/api/v1/leads" });
   await app.register(enquiryRoutes, { prefix: "/api/v1/enquiries" });
   await app.register(hospitalRoutes, { prefix: "/api/v1/hospitals" });
   await app.register(doctorRoutes, { prefix: "/api/v1/doctors" });

@@ -98,6 +98,30 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+// ─── Leads / CRM ──────────────────────────────────────────────────────────────
+
+export const leads = pgTable("leads", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  fullName: varchar("full_name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 50 }).notNull(),
+  country: varchar("country", { length: 100 }).notNull(),
+  specialty: varchar("specialty", { length: 100 }).notNull(),
+  treatmentName: varchar("treatment_name", { length: 255 }),
+  preferredDistrict: varchar("preferred_district", { length: 100 }),
+  budget: varchar("budget", { length: 50 }),
+  timeline: varchar("timeline", { length: 50 }),
+  medicalSummary: text("medical_summary").notNull(),
+  status: leadStatusEnum("status").default("new").notNull(),
+  source: varchar("source", { length: 100 }).default("website").notNull(),
+  assignedAgentId: uuid("assigned_agent_id").references(() => users.id),
+  convertedPatientId: uuid("converted_patient_id").references(() => users.id),
+  notes: text("notes"),
+  consentGiven: boolean("consent_given").default(true).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 // ─── Specialties ─────────────────────────────────────────────────────────────
 
 export const specialties = pgTable("specialties", {
