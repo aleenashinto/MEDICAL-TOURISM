@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { LiveSupportChatWidget } from "@/components/LiveSupportChatWidget";
 import { usePathname } from "next/navigation";
 import { 
   HeartPulse, 
@@ -239,7 +240,7 @@ export default function PatientLayout({
           </div>
         </header>
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl w-full mx-auto">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl w-full mx-auto">{children}</main>\n        <LiveSupportChatWidget userRole="patient" />
       </div>
     </div>
   );

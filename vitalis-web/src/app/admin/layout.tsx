@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { LiveSupportChatWidget } from "@/components/LiveSupportChatWidget";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -404,7 +405,7 @@ export default function AdminLayout({
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-7xl w-full mx-auto">{children}</main>
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-7xl w-full mx-auto">{children}\n        <LiveSupportChatWidget userRole="admin" /></main>
       </div>
     </div>
   );
