@@ -152,7 +152,7 @@ export default function PatientLayout({
           </div>
 
           {/* Scrollable Navigation */}
-          <nav className="p-3 space-y-0.5 flex-1 overflow-y-auto mt-2">
+          <nav className="p-3 space-y-1 flex-1 overflow-y-auto mt-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href || (item.href !== "/patient/dashboard" && pathname.startsWith(item.href));
@@ -175,19 +175,29 @@ export default function PatientLayout({
                 </Link>
               );
             })}
+
+            {/* Prominent Highly Visible Sign Out Button Directly Below Settings */}
+            <div className="pt-2 border-t border-slate-700/60 mt-2">
+              <Link
+                href="/auth/login"
+                onClick={() => setMobileDrawerOpen(false)}
+                className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-rose-300 hover:text-white bg-rose-500/15 hover:bg-rose-600 border border-rose-500/30 hover:border-rose-500 transition-all shadow-xs group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <LogOut className="w-4 h-4 text-rose-400 group-hover:text-white transition-colors" />
+                  <span>Sign Out</span>
+                </div>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-200 group-hover:bg-white/20 group-hover:text-white">
+                  Exit
+                </span>
+              </Link>
+            </div>
           </nav>
         </div>
 
-        {/* Footer info & Logout */}
-        <div className="p-3 border-t border-slate-700/60 flex items-center justify-between">
-          <Link
-            href="/auth/login"
-            onClick={() => setMobileDrawerOpen(false)}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-300 hover:text-rose-100 hover:bg-rose-500/20 transition-colors w-full"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Sign Out</span>
-          </Link>
+        {/* Footer info */}
+        <div className="p-3 border-t border-slate-700/60 text-center">
+          <span className="text-[10px] text-slate-400 font-medium">MAIDES Kerala Healthcare Gateway</span>
         </div>
       </aside>
 
