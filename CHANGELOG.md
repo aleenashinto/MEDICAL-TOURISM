@@ -2,6 +2,14 @@
 
 All notable changes and architectural decisions across phases are documented here.
 
+## [Phase 5 — Medical Enquiry & Case Management Engine] - 2026-09-04
+- Implemented comprehensive Case Management Engine across the 10-step Kerala medical tourism lifecycle (`GET /api/v1/enquiries`, `GET /api/v1/enquiries/:id`, `POST /api/v1/enquiries`).
+- Implemented multi-scoped access controls: Patient view restricted to personal cases; Super Admin / Medical Coordinator access across all Kerala cases.
+- Engineered Case Lifecycle Status Progression (`PATCH /api/v1/enquiries/:id/status`) with stage tracking (`new` → `medical_review` → `document_review` → `doctor_assigned` → `opinion_requested` → `opinion_received` → `hospital_selected` → `treatment_planned` → `appointment_scheduled` → `treatment_in_progress` → `treatment_completed` → `follow_up`).
+- Built Hospital & Specialist Case Assignment Controller (`POST /api/v1/enquiries/:id/assign`).
+- Built Specialist Second Opinion Request Dispatcher (`POST /api/v1/enquiries/:id/request-opinion`) with urgency triage (`routine` / `urgent` / `emergency`).
+- Verified test suite: 26/26 automated unit & integration tests passing across all layers.
+
 ## [Phase 4 — CRM & Lead Pipeline] - 2026-09-04
 - Implemented full CRM Lead qualification, query, and search endpoints (`GET /api/v1/leads`, `GET /api/v1/leads/:id`).
 - Built lead pipeline status progression endpoint (`PATCH /api/v1/leads/:id/status`) with strict stage transitions (`new` → `contacted` → `qualified` → `medical_review` → `hospital_matching` → `quotation_sent` → `appointment_requested` → `converted`).

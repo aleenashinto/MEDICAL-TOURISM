@@ -81,6 +81,34 @@ export const EnquiryCreateSchema = z.object({
   }),
 });
 
+export const EnquiryQuerySchema = z.object({
+  status: z
+    .enum([
+      "new",
+      "medical_review",
+      "document_review",
+      "doctor_assigned",
+      "opinion_requested",
+      "opinion_received",
+      "hospital_selected",
+      "treatment_planned",
+      "appointment_scheduled",
+      "treatment_in_progress",
+      "treatment_completed",
+      "follow_up",
+      "closed",
+      "cancelled",
+    ])
+    .optional(),
+  specialty: z.string().max(100).optional(),
+  patientId: z.string().uuid().optional(),
+  assignedCoordinatorId: z.string().uuid().optional(),
+  assignedHospitalId: z.string().uuid().optional(),
+  assignedDoctorId: z.string().uuid().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+
 export const EnquiryStatusUpdateSchema = z.object({
   status: z.enum([
     "new",
@@ -103,6 +131,21 @@ export const EnquiryStatusUpdateSchema = z.object({
   assignedHospitalId: z.string().uuid().optional(),
   assignedDoctorId: z.string().uuid().optional(),
 });
+
+export const EnquiryAssignSchema = z.object({
+  assignedCoordinatorId: z.string().uuid().optional(),
+  assignedHospitalId: z.string().uuid().optional(),
+  assignedDoctorId: z.string().uuid().optional(),
+  internalNotes: z.string().max(2000).optional(),
+});
+
+export const EnquiryOpinionRequestSchema = z.object({
+  doctorId: z.string().uuid("Doctor ID is required"),
+  hospitalId: z.string().uuid("Hospital ID is required"),
+  clinicalNotes: z.string().min(10, "Clinical case notes required for specialist review"),
+  urgency: z.enum(["routine", "urgent", "emergency"]).default("routine"),
+});
+
 
 // ─── Hospital Schemas ─────────────────────────────────────────────────────────
 
