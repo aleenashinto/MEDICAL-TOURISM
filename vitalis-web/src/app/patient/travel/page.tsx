@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { 
   Plane, 
   FileText, 
@@ -12,10 +12,13 @@ import {
   CheckCircle2,
   Calendar,
   Phone,
-  UserCheck
+  UserCheck,
+  Check
 } from "lucide-react";
 
 export default function PatientTravelPage() {
+  const [isDownloaded, setIsDownloaded] = useState(false);
+
   const travelDetails = {
     destination: "Kochi (Cochin), Kerala, India",
     airport: "Cochin International Airport (COK)",
@@ -40,6 +43,26 @@ export default function PatientTravelPage() {
       email: "rahul.nair@vitalis.health",
       languages: "English, Arabic, Hindi, Malayalam",
     },
+  };
+
+  const handleDownloadVisa = () => {
+    setIsDownloaded(true);
+    const content = `GOVERNMENT OF INDIA - EMBASSY VISA INVITATION SUPPORT
+Ref No: ${travelDetails.visaLetter.refNo}
+Date: ${travelDetails.visaLetter.issuedDate}
+
+This is to certify that Sarah Jenkins (UK Passport: UK9988221A) has been accepted for medical treatment (Minimally Invasive Knee Replacement) at ${travelDetails.visaLetter.hospital} under the care of ${travelDetails.visaLetter.doctor}.
+
+Validity: ${travelDetails.visaLetter.validUntil}
+Accreditation: Joint Commission International (JCI) Accredited Hospital.`;
+    
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `MAIDES-Visa-Letter-${travelDetails.visaLetter.refNo}.txt`;
+    a.click();
+    setTimeout(() => setIsDownloaded(false), 3000);
   };
 
   return (
@@ -67,9 +90,12 @@ export default function PatientTravelPage() {
               Ref No: {travelDetails.visaLetter.refNo} • Issued for Aster Medcity
             </p>
           </div>
-          <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-blue-900 hover:bg-blue-50 text-xs font-bold transition-all shadow shrink-0">
-            <Download className="w-4 h-4 text-blue-600" />
-            Download Visa Letter (PDF)
+          <button 
+            onClick={handleDownloadVisa}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-blue-900 hover:bg-blue-50 text-xs font-bold transition-all shadow shrink-0 cursor-pointer"
+          >
+            {isDownloaded ? <Check className="w-4 h-4 text-emerald-600" /> : <Download className="w-4 h-4 text-blue-600" />}
+            {isDownloaded ? "Downloaded!" : "Download Visa Letter (PDF/Doc)"}
           </button>
         </div>
 
@@ -97,10 +123,13 @@ export default function PatientTravelPage() {
           <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2 text-xs">
             <div className="font-semibold text-slate-800 text-sm">{travelDetails.liaison.name}</div>
             <div className="text-slate-600">{travelDetails.liaison.role}</div>
-            <div className="text-slate-600 flex items-center gap-1.5 pt-1">
+            <a 
+              href={`tel:${travelDetails.liaison.phone}`}
+              className="text-slate-700 flex items-center gap-1.5 pt-1 hover:text-blue-600 font-semibold"
+            >
               <Phone className="w-3.5 h-3.5 text-emerald-600" />
               <span>{travelDetails.liaison.phone}</span>
-            </div>
+            </a>
             <div className="text-slate-500 text-[11px]">
               Fluent in: {travelDetails.liaison.languages}
             </div>

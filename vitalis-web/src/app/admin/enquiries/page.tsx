@@ -11,14 +11,22 @@ import {
   Eye, 
   Send,
   AlertCircle,
-  FileSpreadsheet
+  FileSpreadsheet,
+  X,
+  Building2,
+  Stethoscope,
+  DollarSign
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function EnquiriesPage() {
+  const router = useRouter();
   const [filter, setFilter] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedEnquiry, setSelectedEnquiry] = useState<any | null>(null);
+  const [successToast, setSuccessToast] = useState<string | null>(null);
 
-  const enquiries = [
+  const [enquiries, setEnquiries] = useState([
     {
       id: "ENQ-2026-004",
       name: "Sarah Jenkins",
@@ -31,6 +39,7 @@ export default function EnquiriesPage() {
       submittedAt: "2026-09-04 09:30",
       status: "NEW",
       assignedHospital: "Aster Medcity, Kochi",
+      notes: "Patient has knee cartilage wear and prefers Dr. Vijay Anand.",
     },
     {
       id: "ENQ-2026-003",
@@ -44,6 +53,7 @@ export default function EnquiriesPage() {
       submittedAt: "2026-09-04 07:15",
       status: "TRIAGED",
       assignedHospital: "Amrita Institute of Medical Sciences",
+      notes: "Echo scans received, cardiology board review requested.",
     },
     {
       id: "ENQ-2026-002",
@@ -57,6 +67,7 @@ export default function EnquiriesPage() {
       submittedAt: "2026-09-03 16:45",
       status: "QUOTED",
       assignedHospital: "Somatheeram Ayurvedic Village",
+      notes: "14-day rejuvenation package selected.",
     },
     {
       id: "ENQ-2026-001",
@@ -70,8 +81,29 @@ export default function EnquiriesPage() {
       submittedAt: "2026-09-03 11:20",
       status: "CONVERTED",
       assignedHospital: "VPS Lakeshore Hospital",
+      notes: "Converted to Case CAS-2026-085.",
     },
-  ];
+  ]);
+
+  const handleConvertCase = (enq: any) => {
+    setEnquiries(prev => prev.map(item => item.id === enq.id ? { ...item, status: "CONVERTED" } : item));
+    setSuccessToast(`Enquiry ${enq.id} for ${enq.name} successfully converted to an Active Medical Case!`);
+    setTimeout(() => {
+      setSuccessToast(null);
+      router.push("/admin/cases");
+    }, 1200);
+  };
+
+  const handleExportCSV = () => {
+    const headers = "ID,Name,Email,Phone,Country,Treatment,Budget,Urgency,Status,Hospital\n";
+    const rows = enquiries.map(e => `"${e.id}","${e.name}","${e.email}","${e.phone}","${e.country}","${e.treatment}","${e.budget}","${e.urgency}","${e.status}","${e.assignedHospital}"`).join("\n");
+    const blob = new Blob([headers + rows], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `MAIDES-Enquiries-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+  };
 
   const filteredEnquiries = enquiries.filter((item) => {
     if (filter !== "ALL" && item.status !== filter) return false;
@@ -88,6 +120,14 @@ export default function EnquiriesPage() {
 
   return (
     <div className="space-y-6">
+      {/* Toast Notification */}
+      {successToast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-emerald-500 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4">
+          <CheckCircle className="w-5 h-5" />
+          <span className="text-xs font-bold">{successToast}</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -99,7 +139,10 @@ export default function EnquiriesPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-all">
+          <button 
+            onClick={handleExportCSV}
+            className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-all cursor-pointer"
+          >
             <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
             Export CSV
           </button>
@@ -124,9 +167,9 @@ export default function EnquiriesPage() {
             <button
               key={st}
               onClick={() => setFilter(st)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 filter === st
-                  ? "bg-[#0E82FD] text-white"
+                  ? "bg-[#0E82FD] text-white shadow-sm"
                   : "bg-slate-900 text-slate-400 hover:text-white border border-slate-800"
               }`}
             >
@@ -190,14 +233,16 @@ export default function EnquiriesPage() {
                   <td className="py-3 px-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <button
+                        onClick={() => setSelectedEnquiry(enq)}
                         title="View details"
-                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors cursor-pointer"
                       >
                         <Eye className="w-3.5 h-3.5" />
                       </button>
                       <button
+                        onClick={() => handleConvertCase(enq)}
                         title="Convert to Case"
-                        className="px-2.5 py-1 rounded-lg bg-[#0E82FD] hover:bg-blue-600 text-white font-semibold text-[11px] flex items-center gap-1 transition-colors"
+                        className="px-2.5 py-1 rounded-lg bg-[#0E82FD] hover:bg-blue-600 text-white font-semibold text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
                       >
                         Convert Case
                         <ArrowRight className="w-3 h-3" />
@@ -210,6 +255,58 @@ export default function EnquiriesPage() {
           </table>
         </div>
       </div>
+
+      {/* Detail Modal */}
+      {selectedEnquiry && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-lg w-full space-y-4 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="font-mono font-bold text-xs text-blue-400 px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20">
+                  {selectedEnquiry.id}
+                </span>
+                <h3 className="font-bold text-sm text-white">{selectedEnquiry.name}</h3>
+              </div>
+              <button 
+                onClick={() => setSelectedEnquiry(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs text-slate-300">
+              <div><strong>Country & Contact:</strong> {selectedEnquiry.country} • {selectedEnquiry.email} • {selectedEnquiry.phone}</div>
+              <div><strong>Requested Treatment:</strong> {selectedEnquiry.treatment}</div>
+              <div><strong>Matched Hospital:</strong> {selectedEnquiry.assignedHospital}</div>
+              <div><strong>Urgency:</strong> <span className="text-amber-400 font-bold">{selectedEnquiry.urgency}</span> • <strong>Budget:</strong> {selectedEnquiry.budget}</div>
+              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                <strong className="text-slate-400 block mb-1">Clinical Triage Notes:</strong>
+                {selectedEnquiry.notes}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+              <button
+                onClick={() => setSelectedEnquiry(null)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  const enq = selectedEnquiry;
+                  setSelectedEnquiry(null);
+                  handleConvertCase(enq);
+                }}
+                className="px-4 py-2 bg-[#0E82FD] hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow"
+              >
+                Convert to Medical Case
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
