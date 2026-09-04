@@ -215,6 +215,26 @@ export default function AdminLayout({
                 </div>
               </div>
             ))}
+
+            {/* Highly Visible Sign Out in Admin Navigation (Below Settings) */}
+            <div className="pt-2 border-t border-slate-800">
+              <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                Session Control
+              </div>
+              <Link
+                href="/auth/login"
+                onClick={() => setMobileDrawerOpen(false)}
+                className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold text-rose-400 hover:text-white bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 transition-all shadow-xs group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <LogOut className="w-4 h-4 text-rose-400 group-hover:text-white transition-colors" />
+                  <span>Sign Out</span>
+                </div>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 group-hover:bg-white/20 group-hover:text-white">
+                  Exit
+                </span>
+              </Link>
+            </div>
           </nav>
         </div>
 
