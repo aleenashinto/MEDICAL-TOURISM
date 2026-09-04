@@ -1178,26 +1178,70 @@ export default function DoctorManagementPage() {
                 </div>
               </div>
 
-              {/* Row 6: Avatar Image URL */}
+              {/* Row 6: Doctor Profile Photo Upload */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
-                  Doctor Profile Avatar (Image URL)
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                  Doctor Profile Photo (Upload Image File) <span className="text-rose-400">*</span>
                 </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="url"
-                    placeholder="https://images.unsplash.com/photo-..."
-                    value={formData.avatar || ""}
-                    onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD] font-mono"
-                  />
-                  {formData.avatar && (
+                
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  {/* Photo Preview */}
+                  <div className="relative group shrink-0">
                     <img 
-                      src={formData.avatar} 
-                      alt="Preview" 
-                      className="w-10 h-10 rounded-xl object-cover border border-slate-700 shrink-0" 
+                      src={formData.avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80"} 
+                      alt="Doctor Preview" 
+                      className="w-20 h-20 rounded-2xl object-cover border-2 border-slate-700 shadow-md group-hover:border-[#0E82FD] transition-colors" 
                     />
-                  )}
+                    {formData.avatar && (
+                      <span className="absolute -bottom-1 -right-1 bg-emerald-500 text-slate-950 p-0.5 rounded-full shadow">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Upload Controls */}
+                  <div className="flex-1 space-y-2 w-full">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0E82FD] hover:bg-blue-600 text-white rounded-xl text-xs font-bold cursor-pointer transition-all shadow-md shadow-blue-500/20 active:scale-95">
+                        <Upload className="w-4 h-4" />
+                        <span>Upload Photo from Device</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              if (file.size > 5 * 1024 * 1024) {
+                                setFormError("Uploaded image must be under 5MB.");
+                                return;
+                              }
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setFormData(prev => ({ ...prev, avatar: reader.result as string }));
+                                setFormError(null);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </label>
+
+                      {formData.avatar && (
+                        <button
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, avatar: "" }))}
+                          className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-rose-400 border border-slate-700 rounded-xl text-xs font-semibold transition"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+
+                    <p className="text-[11px] text-slate-400">
+                      Supports JPG, PNG, WEBP. High-resolution portrait images will be cropped and optimized automatically.
+                    </p>
+                  </div>
                 </div>
               </div>
 
