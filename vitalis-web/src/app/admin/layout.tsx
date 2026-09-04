@@ -122,7 +122,8 @@ export default function AdminLayout({
             <Settings className="w-4 h-4" />
           </Link>
           <Link
-            href="/auth/login"
+            href="/"
+            onClick={() => { if (typeof window !== 'undefined') localStorage.removeItem('maides_user_role'); }}
             className="p-2 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20"
             title="Sign Out"
           >
@@ -222,8 +223,13 @@ export default function AdminLayout({
                 Session Control
               </div>
               <Link
-                href="/auth/login"
-                onClick={() => setMobileDrawerOpen(false)}
+                href="/"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    localStorage.removeItem('maides_user_role');
+                  }
+                  setMobileDrawerOpen(false);
+                }}
                 className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold text-rose-400 hover:text-white bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 transition-all shadow-xs group"
               >
                 <div className="flex items-center gap-2.5">
@@ -262,7 +268,8 @@ export default function AdminLayout({
                 <Settings className="w-4 h-4" />
               </Link>
               <Link
-                href="/auth/login"
+                href="/"
+                onClick={() => { if (typeof window !== 'undefined') localStorage.removeItem('maides_user_role'); }}
                 title="Sign Out"
                 className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
               >
@@ -294,7 +301,8 @@ export default function AdminLayout({
           {/* Visible Sign Out Button Only */}
           <div className="flex items-center ml-4">
             <Link
-              href="/auth/login"
+              href="/"
+              onClick={() => { if (typeof window !== 'undefined') localStorage.removeItem('maides_user_role'); }}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/20 hover:border-rose-600 text-xs font-bold transition-all shadow-xs group"
             >
               <LogOut className="w-4 h-4 text-rose-400 group-hover:text-white transition-colors" />

@@ -87,7 +87,8 @@ export default function PatientLayout({
         </Link>
         <div className="flex items-center gap-2">
           <Link
-            href="/auth/login"
+            href="/"
+            onClick={() => { if (typeof window !== 'undefined') localStorage.removeItem('maides_user_role'); }}
             title="Sign Out"
             className="p-2 rounded-xl bg-white/10 text-rose-300 hover:bg-white/20 border border-white/10"
           >
@@ -180,8 +181,13 @@ export default function PatientLayout({
             {/* Prominent Highly Visible Sign Out Button Directly Below Settings */}
             <div className="pt-2 border-t border-slate-700/60 mt-2">
               <Link
-                href="/auth/login"
-                onClick={() => setMobileDrawerOpen(false)}
+                href="/"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    localStorage.removeItem('maides_user_role');
+                  }
+                  setMobileDrawerOpen(false);
+                }}
                 className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-rose-300 hover:text-white bg-rose-500/15 hover:bg-rose-600 border border-rose-500/30 hover:border-rose-500 transition-all shadow-xs group"
               >
                 <div className="flex items-center gap-2.5">
@@ -223,7 +229,8 @@ export default function PatientLayout({
           {/* Visible Sign Out Button Only */}
           <div className="flex items-center ml-4">
             <Link
-              href="/auth/login"
+              href="/"
+              onClick={() => { if (typeof window !== 'undefined') localStorage.removeItem('maides_user_role'); }}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 hover:border-rose-600 text-xs font-bold transition-all shadow-xs group"
             >
               <LogOut className="w-4 h-4 text-rose-500 group-hover:text-white transition-colors" />
