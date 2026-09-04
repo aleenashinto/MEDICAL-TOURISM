@@ -3,12 +3,13 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Shield, ArrowRight, Lock, Mail, User, KeyRound, ShieldAlert, CheckCircle2, UserPlus } from "lucide-react";
+import { Shield, ArrowRight, Lock, Mail, User, KeyRound, ShieldAlert, CheckCircle2, UserPlus, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("admin@gmail.com");
   const [password, setPassword] = useState("Admin1234");
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<"ADMIN" | "PATIENT">("ADMIN");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +34,7 @@ export default function LoginPage() {
     // Email format validation
     const emailRegex = /^[^s@]+@[^s@]+.[^s@]+$/;
     if (!emailRegex.test(trimmedEmail)) {
-      setError("Invalid email format.");
+      setError("Invalid email format. Please check your email address.");
       return;
     }
 
@@ -62,12 +63,12 @@ export default function LoginPage() {
           router.push("/admin/dashboard");
         } else {
           // Safe generic message to prevent user enumeration
-          setError("Invalid email or password. Please verify your administrator credentials.");
+          setError("Invalid email or password. Please verify your credentials.");
         }
       } else {
         // Patient authentication
         if (trimmedEmail === "deactivated@example.com") {
-          setError("Your account has been deactivated. Please contact support.");
+          setError("Your account has been deactivated. Please contact MAIDES support.");
           return;
         }
 
@@ -88,7 +89,7 @@ export default function LoginPage() {
         }
         router.push("/patient/dashboard");
       }
-    }, 600);
+    }, 500);
   };
 
   const setDemoRole = (selectedRole: "ADMIN" | "PATIENT") => {
@@ -206,13 +207,21 @@ export default function LoginPage() {
                   <Lock className="h-4 w-4" />
                 </div>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="block w-full pl-10 pr-3 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:border-transparent transition-all"
+                  className="block w-full pl-10 pr-10 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:border-transparent transition-all"
                   placeholder="Password"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 cursor-pointer"
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
             </div>
 
