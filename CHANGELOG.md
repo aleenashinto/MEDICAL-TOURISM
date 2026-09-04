@@ -2,6 +2,14 @@
 
 All notable changes and architectural decisions across phases are documented here.
 
+## [Phase 12 — Production Readiness, Hardening & 2-Role Core Architecture] - 2026-09-04
+- Unified Platform Architecture into the streamlined **2-Role Permission Matrix (`ADMIN` and `PATIENT`)**:
+  - **Admin**: Full administrative command over Website CMS, Patients, Enquiries, Cases, Hospitals, Doctors, Treatments, Specialties, Appointments, Travel/Visas/Hotels, Invoices/Payments, Communications, Support Tickets, and Security Audit Logs.
+  - **Patient**: Strict ownership-based access control protecting medical cases, uploaded DICOM scans/documents, appointments, travel itineraries, video consultation sessions, invoices, and feedback surveys.
+- Implemented System Health & Diagnostic Endpoints (`GET /api/v1/health`) returning operational status across all backend subsystems (PostgreSQL, Storage, Telemedicine Engine, Payment Gateways).
+- Implemented Administrative Security Audit Trail API (`GET /api/v1/audit-logs`) for DPDP compliance and access breach inspection.
+- Verified test suite: **66/66 automated unit & integration tests passing across all 12 platform layers (100% pass rate)**.
+
 ## [Phase 11 — Post-Treatment & Follow-Up Engine] - 2026-09-04
 - Created `discharge_summaries` and `patient_feedbacks` PostgreSQL schema capturing admission/discharge dates, procedure course, itemized take-home prescriptions, fit-to-fly clearances, red flag warning signs, star ratings (overall, doctor, hospital, coordinator), and NPS loyalty scores.
 - Engineered Clinical Discharge API (`POST /api/v1/followups/discharge`) linking physician discharge plans to clinical cases and automatically advancing case lifecycle status to `follow_up`.

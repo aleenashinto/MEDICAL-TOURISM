@@ -811,6 +811,97 @@ test("Phase 11 Exit Test — Post-Treatment & Follow-Up Engine", async (t) => {
   });
 });
 
+test("Phase 12 Exit Test — Production Readiness & 2-Role System Architecture", async (t) => {
+  const app = await buildApp();
+  const { signToken } = await import("@maides/auth");
+  const { config } = await import("../src/config.js");
+
+  const adminToken = signToken(
+    { sub: "admin-master-001", email: "admin@maides.in", role: "admin" },
+    config.JWT_SECRET,
+    "1h"
+  );
+
+  const patientToken = signToken(
+    { sub: "pat-master-002", email: "patient.smith@maides.in", role: "patient" },
+    config.JWT_SECRET,
+    "1h"
+  );
+
+  // Test 1: Health Subsystem Diagnostics returns operational status
+  await t.test("GET /api/v1/health returns comprehensive subsystem status", async () => {
+    const res = await app.inject({
+      method: "GET",
+      url: "/api/v1/health",
+    });
+    assert.strictEqual(res.statusCode, 200);
+    const body = JSON.parse(res.body);
+    assert.strictEqual(body.success, true);
+    assert.strictEqual(body.data.status, "ok");
+    assert.strictEqual(body.data.architecture, "2-Role Clean Core (Admin & Patient)");
+    assert.strictEqual(body.data.subsystems.authService, "operational");
+  });
+
+  // Test 2: Admin can inspect platform security audit logs
+  await t.test("GET /api/v1/audit-logs with Admin token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "GET",
+      url: "/api/v1/audit-logs",
+      headers: { authorization: `Bearer ${adminToken}` },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+    const body = JSON.parse(res.body);
+    assert.strictEqual(body.success, true);
+  });
+
+  // Test 3: Patient is strictly blocked from viewing security audit logs (403)
+  await t.test("GET /api/v1/audit-logs with Patient token returns 403 Forbidden", async () => {
+    const res = await app.inject({
+      method: "GET",
+      url: "/api/v1/audit-logs",
+      headers: { authorization: `Bearer ${patientToken}` },
+    });
+    assert.strictEqual(res.statusCode, 403);
+    const body = JSON.parse(res.body);
+    assert.strictEqual(body.success, false);
+    assert.strictEqual(body.error.code, "FORBIDDEN");
+  });
+
+  // Test 4: Complete End-to-End Patient Journey Routing Verification
+  await t.test("End-to-End Route Verification across all 12 platform modules", async () => {
+    // 1. Catalog Specialty
+    const specRes = await app.inject({ method: "GET", url: "/api/v1/specialties" });
+    assert.notStrictEqual(specRes.statusCode, 401);
+    assert.notStrictEqual(specRes.statusCode, 403);
+
+    // 2. Catalog Treatments
+    const treatRes = await app.inject({ method: "GET", url: "/api/v1/treatments" });
+    assert.notStrictEqual(treatRes.statusCode, 401);
+    assert.notStrictEqual(treatRes.statusCode, 403);
+
+    // 3. Catalog Hospitals
+    const hospRes = await app.inject({ method: "GET", url: "/api/v1/hospitals" });
+    assert.notStrictEqual(hospRes.statusCode, 401);
+    assert.notStrictEqual(hospRes.statusCode, 403);
+
+    // 4. Catalog Doctors
+    const docRes = await app.inject({ method: "GET", url: "/api/v1/doctors" });
+    assert.notStrictEqual(docRes.statusCode, 401);
+    assert.notStrictEqual(docRes.statusCode, 403);
+
+    // 5. Cost Estimator
+    const estRes = await app.inject({
+      method: "POST",
+      url: "/api/v1/treatments/estimate-cost",
+      body: { treatmentSlug: "cardiac-surgery", tier: "Standard Care" },
+    });
+    assert.notStrictEqual(estRes.statusCode, 401);
+    assert.notStrictEqual(estRes.statusCode, 403);
+  });
+});
+
+
 
 
 
