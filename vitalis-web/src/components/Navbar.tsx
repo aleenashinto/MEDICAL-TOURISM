@@ -1,13 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { 
   Menu, 
   X, 
   ArrowUpRight,
   HeartPulse,
-  ChevronDown
+  ChevronDown,
+  Sparkles,
+  Phone,
+  ShieldCheck,
+  Globe2,
+  Stethoscope
 } from "lucide-react";
 
 interface NavbarProps {
@@ -18,7 +24,20 @@ interface NavbarProps {
 
 export function Navbar({ onOpenIntake, onOpenConcierge, style = "transparent" }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<string>("Home");
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const navItems = [
     { name: "Home", href: "/" },
@@ -26,76 +45,127 @@ export function Navbar({ onOpenIntake, onOpenConcierge, style = "transparent" }:
     { name: "Treatments", href: "/treatments" },
     { name: "Hospitals", href: "/hospitals" },
     { name: "Doctors", href: "/doctors" },
-    { name: "International", href: "/international-patients" },
     { name: "Ayurveda", href: "/ayurveda" },
-    { name: "Blog", href: "/blog" },
+    { name: "Packages", href: "/packages" },
     { name: "14 Districts", href: "/destinations" },
+    { name: "International", href: "/international-patients" },
   ];
 
+  const isWhite = style === "white" || (style === "transparent" && scrolled);
+
   return (
-    <header className={`${style === "white" ? "sticky top-0 bg-white border-b border-slate-200 shadow-sm" : "absolute top-0 left-0 right-0 bg-transparent"} z-50 w-full`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+    <header 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isWhite 
+          ? "bg-white/95 backdrop-blur-md shadow-[0_4px_25px_rgba(15,32,66,0.08)] border-b border-slate-100 py-3.5" 
+          : "bg-gradient-to-b from-black/40 via-black/10 to-transparent py-5"
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2.5 group">
-            <div className="flex items-center">
-              <div className="relative flex items-center justify-center w-8 h-8 mr-1">
-                <div className="w-8 h-8 rounded-lg bg-[#0E82FD] flex items-center justify-center text-white shadow-lg">
-                  <span className="text-xl font-black">+</span>
-                </div>
+          {/* Logo Brand */}
+          <Link href="/" className="flex items-center space-x-3 group">
+            <div className="relative flex items-center justify-center">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#0E82FD] to-[#38BDF8] flex items-center justify-center text-white shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-all duration-300">
+                <HeartPulse className="w-5 h-5 animate-pulse text-white" />
               </div>
-              <span className={`text-2xl font-black tracking-tight ${style === "white" ? "text-[#0F2042]" : "text-white"}`}>MAIDES</span>
-              <span className={`text-[10px] font-bold uppercase tracking-widest ml-2 px-1.5 py-0.5 rounded ${style === "white" ? "text-[#0E82FD] bg-blue-50" : "text-blue-200 bg-white/10"}`}>KERALA</span>
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center">
+                <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+              </div>
+            </div>
+            
+            <div className="flex flex-col">
+              <div className="flex items-center space-x-2">
+                <span className={`text-2xl font-black tracking-tight transition-colors ${
+                  isWhite ? "text-[#0F2042]" : "text-white"
+                }`}>
+                  MAIDES
+                </span>
+                <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full transition-all ${
+                  isWhite 
+                    ? "bg-blue-50 text-[#0E82FD] border border-blue-200/60" 
+                    : "bg-white/15 text-blue-200 border border-white/20 backdrop-blur-sm"
+                }`}>
+                  KERALA
+                </span>
+              </div>
+              <span className={`text-[9px] font-semibold tracking-wider uppercase ${
+                isWhite ? "text-slate-500" : "text-blue-100/80"
+              }`}>
+                Medical Travel Assistance
+              </span>
             </div>
           </Link>
 
-          {/* Nav Pills Center */}
-          <nav className={`hidden lg:flex items-center space-x-1 px-2 py-1.5 rounded-full border ${style === "white" ? "bg-slate-50 border-slate-200" : "bg-black/25 backdrop-blur-md border-white/15"}`}>
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={() => setActiveMenu(item.name)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                  activeMenu === item.name
-                    ? "bg-[#0E82FD] text-white shadow-md shadow-blue-500/30"
-                    : style === "white"
-                    ? "text-slate-600 hover:text-[#0E82FD] hover:bg-blue-50"
-                    : "text-white/90 hover:text-white hover:bg-white/10"
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
+          {/* Nav Pills Center - Sleek Glass Capsule */}
+          <nav className={`hidden xl:flex items-center space-x-1 px-3 py-1.5 rounded-full transition-all duration-300 ${
+            isWhite 
+              ? "bg-slate-100/90 border border-slate-200/80 shadow-inner" 
+              : "bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl"
+          }`}>
+            {navItems.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 relative ${
+                    isActive
+                      ? "bg-[#0E82FD] text-white shadow-md shadow-blue-500/30 scale-105"
+                      : isWhite
+                      ? "text-slate-600 hover:text-[#0E82FD] hover:bg-white"
+                      : "text-white/90 hover:text-white hover:bg-white/15"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
           </nav>
 
-          {/* Right Action Button - GET MEDICAL ASSISTANCE */}
-          <div className="hidden lg:flex items-center space-x-2">
+          {/* Right Action Section */}
+          <div className="hidden lg:flex items-center space-x-3">
+            {/* Quick Portal Switcher */}
+            <Link
+              href="/portal"
+              className={`text-xs font-bold px-4 py-2 rounded-full transition-all duration-200 ${
+                isWhite 
+                  ? "text-slate-600 hover:text-[#0E82FD] hover:bg-blue-50/60" 
+                  : "text-white/80 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              Patient Portal
+            </Link>
+
+            {/* Primary Action Button */}
             <button
               onClick={onOpenIntake}
-              className="flex items-center space-x-2 group"
+              className="flex items-center pl-4 pr-1.5 py-1.5 rounded-full bg-gradient-to-r from-[#0E82FD] to-[#0284C7] hover:from-[#0360D9] hover:to-[#0E82FD] text-white text-xs font-black shadow-[0_8px_20px_rgba(14,130,253,0.35)] hover:shadow-[0_10px_25px_rgba(14,130,253,0.5)] hover:scale-[1.02] transition-all duration-300 group cursor-pointer"
             >
-              <div className="px-5 py-2.5 rounded-full bg-[#0E82FD] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-lg shadow-blue-500/25">
-                Get Medical Assistance
-              </div>
-              <div className="w-9 h-9 rounded-full bg-[#0E82FD] group-hover:bg-blue-600 text-white flex items-center justify-center transition-all shadow-lg shadow-blue-500/25 group-hover:rotate-45">
-                <ArrowUpRight className="w-4 h-4" />
+              <span className="mr-2.5">Get Medical Assistance</span>
+              <div className="w-8 h-8 rounded-full bg-white text-[#0E82FD] flex items-center justify-center transition-transform duration-300 group-hover:rotate-45 shadow-sm">
+                <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
               </div>
             </button>
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="flex lg:hidden items-center space-x-2">
+          {/* Mobile Actions & Hamburger */}
+          <div className="flex xl:hidden items-center space-x-2">
             <button
               onClick={onOpenIntake}
-              className="px-3.5 py-1.5 rounded-full bg-[#0E82FD] text-white text-xs font-bold"
+              className="px-3.5 py-2 rounded-full bg-[#0E82FD] text-white text-[11px] font-bold shadow-md shadow-blue-500/30"
             >
-              Get Assistance
+              Assistance
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl bg-white/10 backdrop-blur-md text-white border border-white/20"
+              className={`p-2 rounded-xl transition-all ${
+                isWhite 
+                  ? "bg-slate-100 text-slate-700 hover:bg-slate-200" 
+                  : "bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/20"
+              }`}
+              aria-label="Toggle Navigation"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -103,32 +173,43 @@ export function Navbar({ onOpenIntake, onOpenConcierge, style = "transparent" }:
 
         </div>
 
-        {/* Mobile Dropdown */}
+        {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden mt-3 p-4 rounded-3xl bg-[#0F2042]/95 backdrop-blur-xl border border-white/20 shadow-2xl text-white space-y-2 animate-in fade-in slide-in-from-top-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={() => {
-                  setActiveMenu(item.name);
-                  setMobileMenuOpen(false);
-                }}
-                className={`block px-4 py-2.5 rounded-2xl text-xs font-bold transition-colors ${
-                  activeMenu === item.name ? "bg-[#0E82FD] text-white" : "hover:bg-white/10"
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
+          <div className="xl:hidden mt-3 p-5 rounded-3xl bg-[#0F2042]/98 backdrop-blur-2xl border border-white/15 shadow-2xl text-white space-y-3 animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="grid grid-cols-2 gap-2">
+              {navItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`block px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      isActive 
+                        ? "bg-[#0E82FD] text-white shadow-md shadow-blue-500/30" 
+                        : "text-slate-200 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </div>
 
-            <div className="pt-2 border-t border-white/10">
+            <div className="pt-3 border-t border-white/10 flex flex-col space-y-2">
+              <Link
+                href="/portal"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full py-2.5 text-center rounded-xl bg-white/10 text-white text-xs font-bold hover:bg-white/20"
+              >
+                Patient Portal
+              </Link>
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
                   if (onOpenIntake) onOpenIntake();
                 }}
-                className="w-full py-3 rounded-2xl bg-[#0E82FD] text-white text-xs font-bold text-center shadow-lg shadow-blue-500/30"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-[#0E82FD] to-[#38BDF8] text-white text-xs font-black text-center shadow-lg shadow-blue-500/40"
               >
                 Get Medical Assistance
               </button>

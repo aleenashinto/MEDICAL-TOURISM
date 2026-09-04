@@ -173,95 +173,175 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
   return (
     <div className="space-y-24 pb-0 bg-[#F8FAFC]">
       
-      {/* 1. HERO SECTION (SPEC SECTION 9) */}
-      <section className="relative min-h-[640px] lg:min-h-[720px] bg-gradient-to-r from-[#17468A] via-[#1E5DAE] to-[#1C5098] overflow-hidden pt-28 pb-16 flex items-center">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="absolute top-1/4 right-10 w-96 h-96 rounded-full border border-white/40" />
-          <div className="absolute top-1/3 right-1/4 w-72 h-72 rounded-full border border-white/30" />
-          <div className="absolute bottom-10 left-10 w-80 h-80 rounded-full border border-white/20" />
+      {/* 1. HERO SECTION (HIGH-END MODERN HEALTHCARE REDESIGN) */}
+      <section className="relative min-h-[720px] lg:min-h-[820px] bg-gradient-to-br from-[#0F2042] via-[#163974] to-[#0A1628] overflow-hidden pt-32 pb-20 flex items-center">
+        
+        {/* Background Radial Glows & Grid Mesh */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#0E82FD]/20 blur-[120px]" />
+          <div className="absolute top-1/3 -right-20 w-[500px] h-[500px] rounded-full bg-[#38BDF8]/15 blur-[140px]" />
+          <div className="absolute bottom-0 left-1/3 w-[450px] h-[450px] rounded-full bg-[#0E82FD]/10 blur-[100px]" />
+          
+          {/* Subtle Grid Accent */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             
-            {/* Left Column: Eyebrow, Headline, Avatar Stat */}
-            <div className="lg:col-span-4 space-y-6 text-white text-left z-20">
-              <div className="space-y-2">
-                <span className="text-xs font-bold tracking-wider text-blue-200 uppercase bg-white/10 px-3.5 py-1 rounded-full backdrop-blur-md inline-block">
-                  MEDICAL TOURISM IN KERALA, INDIA
+            {/* Left Column: Eyebrow, Main Headline, Subtext, Doctor Social Proof, Quick Search */}
+            <div className="lg:col-span-6 space-y-7 text-white text-left z-20">
+              
+              {/* Eyebrow Pill */}
+              <div className="inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full bg-white/10 border border-white/15 backdrop-blur-md shadow-inner">
+                <span className="flex h-2 w-2 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-[1.08]">
-                  Your Health Deserves <br />
-                  <span className="text-white">the Right Journey</span>
-                </h1>
+                <span className="text-[11px] font-black tracking-widest text-blue-100 uppercase">
+                  Kerala's Quaternary Healthcare Gateway
+                </span>
               </div>
 
-              <p className="text-xs sm:text-sm text-blue-100 font-medium max-w-sm leading-relaxed">
-                Trusted healthcare coordination, personalised patient support and travel assistance for patients seeking medical care in Kerala.
-              </p>
-
-              <div className="pt-2 space-y-3">
-                <div className="flex items-center -space-x-2">
-                  <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=120&q=80" alt="Doctor 1" className="w-11 h-11 rounded-full border-2 border-white object-cover" />
-                  <img src="https://images.unsplash.com/photo-1594824813581-2292f7b88496?auto=format&fit=crop&w=120&q=80" alt="Doctor 2" className="w-11 h-11 rounded-full border-2 border-white object-cover" />
-                  <img src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=120&q=80" alt="Doctor 3" className="w-11 h-11 rounded-full border-2 border-white object-cover" />
-                  <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=120&q=80" alt="Doctor 4" className="w-11 h-11 rounded-full border-2 border-white object-cover" />
-                </div>
-
-                <div>
-                  <div className="text-3xl sm:text-4xl font-black text-white">220K+</div>
-                  <p className="text-xs text-blue-100 font-medium max-w-xs mt-0.5">
-                    Patients assisted worldwide across Kerala healthcare hubs.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Center Column: Cutout Doctor Portrait with Arch */}
-            <div className="lg:col-span-5 flex justify-center items-end relative min-h-[420px] lg:min-h-[560px]">
-              <div className="relative z-10 w-full flex justify-center">
-                <img 
-                  src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=800&q=80" 
-                  alt="MAIDES Specialist Doctor" 
-                  className="w-full max-w-[420px] h-[480px] lg:h-[580px] object-cover object-top drop-shadow-2xl rounded-t-full border-b-0 border-4 border-white/20"
-                />
-              </div>
-            </div>
-
-            {/* Right Column: Actions (CTAs from Section 9) */}
-            <div className="lg:col-span-3 space-y-5 text-white text-left lg:pl-4 z-20">
+              {/* Main Headline */}
               <div className="space-y-3">
-                {/* Primary CTA: GET MEDICAL ASSISTANCE */}
-                <button onClick={onOpenIntake} className="w-full flex items-center justify-between p-1.5 rounded-full bg-white hover:bg-slate-100 text-[#0F2042] font-bold text-xs uppercase tracking-wider transition-all shadow-xl group">
-                  <span className="pl-4">Get Medical Assistance</span>
-                  <div className="w-9 h-9 rounded-full bg-[#0E82FD] text-white flex items-center justify-center transition-all group-hover:rotate-45 shrink-0">
-                    <ArrowUpRight className="w-4 h-4 text-white" />
+                <h1 className="text-4xl sm:text-6xl xl:text-[68px] font-black text-white tracking-tight leading-[1.05]">
+                  Your Health <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-sky-200 to-emerald-300">
+                    Deserves the Right
+                  </span> <br />
+                  Journey.
+                </h1>
+                <p className="text-sm sm:text-base text-blue-100/90 font-normal max-w-lg leading-relaxed pt-1">
+                  Seamless medical travel coordination connecting international patients with JCI-accredited hospitals, leading surgical directors, and authentic Ayurveda in Kerala, India.
+                </p>
+              </div>
+
+              {/* Action Buttons Group */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
+                <button
+                  onClick={onOpenIntake}
+                  className="flex items-center justify-between pl-6 pr-2 py-2 rounded-full bg-gradient-to-r from-[#0E82FD] to-[#38BDF8] hover:from-[#0360D9] hover:to-[#0E82FD] text-white font-black text-xs uppercase tracking-wider transition-all duration-300 shadow-[0_10px_30px_rgba(14,130,253,0.45)] hover:shadow-[0_15px_35px_rgba(14,130,253,0.6)] hover:scale-[1.02] group cursor-pointer"
+                >
+                  <span className="pr-4 font-bold text-[13px]">Get Medical Assistance</span>
+                  <div className="w-10 h-10 rounded-full bg-white text-[#0E82FD] flex items-center justify-center transition-all duration-300 group-hover:rotate-45 shadow-sm">
+                    <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />
                   </div>
                 </button>
 
-                {/* Secondary CTA: EXPLORE TREATMENTS */}
-                <a href="#treatments" className="w-full block py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider text-center border border-white/20 transition-all">
-                  Explore Treatments
-                </a>
+                <Link
+                  href="/treatments"
+                  className="px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider text-center border border-white/20 backdrop-blur-md transition-all duration-300 flex items-center justify-center space-x-2"
+                >
+                  <span>Explore Treatments</span>
+                </Link>
 
-                {/* Additional CTA: CHAT ON WHATSAPP */}
-                <a 
-                  href="https://wa.me" 
-                  target="_blank" 
+                <a
+                  href="https://wa.me"
+                  target="_blank"
                   rel="noreferrer"
-                  className="w-full flex items-center justify-center space-x-2 py-3 rounded-full bg-[#0E82FD] hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-wider text-center shadow-lg transition-all"
+                  className="px-4 py-3.5 rounded-full bg-emerald-600/90 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider text-center transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-emerald-900/30"
                 >
                   <MessageSquare className="w-4 h-4" />
-                  <span>Chat on WhatsApp</span>
+                  <span className="hidden sm:inline">WhatsApp</span>
                 </a>
               </div>
 
-              <div className="pt-4 border-t border-white/15 flex items-center space-x-3 text-xs text-blue-200">
-                <div className="w-6 h-6 rounded-full bg-white/15 flex items-center justify-center font-bold text-white text-[10px]">
-                  ✓
+              {/* Patient Trust Stats & Avatars */}
+              <div className="pt-4 border-t border-white/15 flex flex-wrap items-center gap-6">
+                <div className="flex items-center -space-x-3">
+                  <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=120&q=80" alt="Doctor 1" className="w-12 h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
+                  <img src="https://images.unsplash.com/photo-1594824813581-2292f7b88496?auto=format&fit=crop&w=120&q=80" alt="Doctor 2" className="w-12 h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
+                  <img src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=120&q=80" alt="Doctor 3" className="w-12 h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
+                  <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=120&q=80" alt="Doctor 4" className="w-12 h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#0E82FD] to-[#38BDF8] border-2 border-[#0F2042] flex items-center justify-center text-white text-xs font-black ring-2 ring-blue-400/30">
+                    +500
+                  </div>
                 </div>
-                <span>JCI & NABH Accredited Kerala Hospitals</span>
+
+                <div>
+                  <div className="flex items-center space-x-1.5">
+                    <span className="text-2xl font-black text-white">220,000+</span>
+                    <div className="flex text-amber-400">
+                      <Star className="w-3.5 h-3.5 fill-amber-400" />
+                      <Star className="w-3.5 h-3.5 fill-amber-400" />
+                      <Star className="w-3.5 h-3.5 fill-amber-400" />
+                      <Star className="w-3.5 h-3.5 fill-amber-400" />
+                      <Star className="w-3.5 h-3.5 fill-amber-400" />
+                    </div>
+                  </div>
+                  <p className="text-xs text-blue-200/90 font-medium">
+                    Patients assisted across 14 Kerala healthcare districts.
+                  </p>
+                </div>
               </div>
+
+            </div>
+
+            {/* Right Column: Dynamic Visual Centerpiece with Floating Badges */}
+            <div className="lg:col-span-6 relative flex justify-center items-center">
+              
+              {/* Outer Glowing Rings */}
+              <div className="absolute w-[440px] h-[440px] sm:w-[540px] sm:h-[540px] rounded-full border border-blue-400/20 animate-[spin_40s_linear_infinite]" />
+              <div className="absolute w-[360px] h-[360px] sm:w-[440px] sm:h-[440px] rounded-full border border-sky-300/15" />
+
+              {/* Main Cutout Doctor Arch Frame */}
+              <div className="relative z-10 w-full max-w-[420px] rounded-t-[200px] rounded-b-3xl bg-gradient-to-b from-blue-500/20 via-white/5 to-white/10 p-2.5 backdrop-blur-xl border border-white/25 shadow-2xl overflow-hidden">
+                <div className="w-full h-[460px] sm:h-[540px] rounded-t-[190px] rounded-b-2xl overflow-hidden relative">
+                  <img 
+                    src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=1000&q=80" 
+                    alt="MAIDES Kerala Specialist Doctor" 
+                    className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0F2042]/90 via-transparent to-transparent" />
+                  
+                  {/* Overlay Bottom Doctor Label */}
+                  <div className="absolute bottom-4 left-4 right-4 p-3.5 rounded-2xl bg-black/40 backdrop-blur-md border border-white/15 text-white flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-black">Dr. Muralidharan V. Nair</div>
+                      <div className="text-[10px] text-blue-200">Director of Cardiothoracic Surgery</div>
+                    </div>
+                    <span className="px-2.5 py-1 rounded-full bg-emerald-500/90 text-[10px] font-bold text-white flex items-center space-x-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                      <span>Online</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating Badge 1: 4-Hour Visa Guarantee */}
+              <div className="absolute -top-4 -left-2 sm:-left-6 z-20 p-3.5 rounded-2xl bg-white/95 backdrop-blur-xl shadow-xl border border-slate-100 flex items-center space-x-3 animate-bounce [animation-duration:5s]">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#0E82FD] shadow-inner">
+                  <ShieldCheck className="w-6 h-6 stroke-[2.5]" />
+                </div>
+                <div>
+                  <div className="text-xs font-black text-[#0F2042]">JCI & NABH</div>
+                  <div className="text-[10px] font-semibold text-slate-500">Accredited Network</div>
+                </div>
+              </div>
+
+              {/* Floating Badge 2: Cost Savings */}
+              <div className="absolute bottom-12 -left-4 sm:-left-8 z-20 p-3.5 rounded-2xl bg-[#0F2042]/90 backdrop-blur-xl shadow-2xl border border-white/20 text-white flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs font-black text-white">70% Cost Advantage</div>
+                  <div className="text-[10px] text-blue-200">vs US, UK & GCC Care</div>
+                </div>
+              </div>
+
+              {/* Floating Badge 3: 14 Kerala Hubs */}
+              <div className="absolute top-1/2 -right-4 sm:-right-8 -translate-y-1/2 z-20 p-3.5 rounded-2xl bg-white/95 backdrop-blur-xl shadow-xl border border-slate-100 flex items-center space-x-3 hidden sm:flex">
+                <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#0E82FD] flex items-center justify-center">
+                  <MapPin className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs font-black text-[#0F2042]">14 Kerala Districts</div>
+                  <div className="text-[10px] font-semibold text-slate-500">COK • TRV • CCJ Airports</div>
+                </div>
+              </div>
+
             </div>
 
           </div>
