@@ -804,7 +804,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
 
             <div className="lg:col-span-5">
               <div className="rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl">
-                <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80" alt="Ayurveda Herbal Therapy" className="w-full h-80 object-cover" />
+                <img src="https://media.istockphoto.com/id/468945616/photo/woman-having-massage-with-pouch.jpg?s=612x612&w=0&k=20&c=_jL4fYTtDMnJ4_lqhL9m154AdeTSOfQ_aU3GYvuJpF4=" alt="Ayurveda Herbal Therapy" className="w-full h-80 object-cover" />
               </div>
             </div>
 
