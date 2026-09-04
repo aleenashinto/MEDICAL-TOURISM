@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   ShieldCheck, 
@@ -67,6 +67,50 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
   const [apptDate, setApptDate] = useState("2026-09-12");
   const [apptPhone, setApptPhone] = useState("");
   const [apptSuccess, setApptSuccess] = useState("");
+  const [landingDoctors, setLandingDoctors] = useState<any[]>(KERALA_DOCTORS);
+
+  // Load and hydrate Admin-uploaded doctors in real-time
+  useEffect(() => {
+    const loadDoctors = () => {
+      try {
+        const stored = localStorage.getItem("maides_admin_doctors");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const activeAdminDocs = parsed
+            .filter((d: any) => d.status === "ACTIVE")
+            .map((d: any) => ({
+              id: d.id,
+              name: d.name,
+              title: d.title || "Senior Specialist Doctor",
+              qualifications: d.education || "MBBS, MS, Board Certified",
+              hospitalName: d.hospital || "Aster Medcity, Kochi",
+              district: d.hospital?.includes("Kovalam") ? "Thiruvananthapuram" : d.hospital?.includes("Aluva") ? "Ernakulam" : "Ernakulam",
+              experienceYears: parseInt(d.experience) || 15,
+              rating: d.rating || "4.95",
+              avatar: d.avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400",
+              specialty: d.specialty || "Specialty"
+            }));
+          
+          // Merge admin doctors first, then existing
+          const merged = [...activeAdminDocs];
+          KERALA_DOCTORS.forEach(kd => {
+            if (!merged.some(m => m.name.toLowerCase() === kd.name.toLowerCase())) {
+              merged.push(kd);
+            }
+          });
+          setLandingDoctors(merged);
+        } else {
+          setLandingDoctors(KERALA_DOCTORS);
+        }
+      } catch (e) {
+        setLandingDoctors(KERALA_DOCTORS);
+      }
+    };
+
+    loadDoctors();
+    window.addEventListener("storage", loadDoctors);
+    return () => window.removeEventListener("storage", loadDoctors);
+  }, []);
 
   const handleBookAppointment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -959,12 +1003,12 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {KERALA_DOCTORS.map((doc) => (
+          {landingDoctors.map((doc) => (
             <div key={doc.id} className="rounded-3xl bg-white border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#0E82FD] transition-all p-5 flex flex-col justify-between space-y-4">
               <div className="space-y-3">
-                <div className="relative rounded-2xl overflow-hidden h-44">
+                <div className="relative rounded-2xl overflow-hidden h-44 bg-slate-100">
                   <img src={doc.avatar} alt={doc.name} className="w-full h-full object-cover" />
-                  <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-white/95 backdrop-blur-md text-[10px] font-bold text-slate-800 flex items-center space-x-1">
+                  <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-white/95 backdrop-blur-md text-[10px] font-bold text-slate-800 flex items-center space-x-1 shadow-sm">
                     <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
                     <span>{doc.rating}</span>
                   </div>
@@ -972,8 +1016,8 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
 
                 <div>
                   <h3 className="text-sm font-bold text-[#0F2042]">{doc.name}</h3>
-                  <p className="text-[11px] text-[#0E82FD] font-semibold">{doc.title}</p>
-                  <p className="text-[10px] text-slate-500 mt-1">{doc.hospitalName} • {doc.district}</p>
+                  <p className="text-[11px] text-[#0E82FD] font-semibold">{doc.title || doc.specialty}</p>
+                  <p className="text-[10px] text-slate-500 mt-1">{doc.hospitalName} • {doc.district || "Kerala"}</p>
                 </div>
 
                 <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-600 space-y-1">
@@ -982,15 +1026,27 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                 </div>
               </div>
 
-              <button 
-                onClick={onOpenIntake}
-                className="w-full py-2.5 rounded-xl bg-blue-50 hover:bg-[#0E82FD] hover:text-white text-xs font-bold text-[#0E82FD] transition-all flex items-center justify-center space-x-1"
-              >
-                <span>Request Appointment</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
+              <div className="space-y-2">
+                <button 
+                  onClick={onOpenIntake}
+                  className="w-full py-2.5 rounded-xl bg-blue-50 hover:bg-[#0E82FD] hover:text-white text-xs font-bold text-[#0E82FD] transition-all flex items-center justify-center space-x-1 cursor-pointer"
+                >
+                  <span>Request Appointment</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           ))}
+        </div>
+
+        <div className="mt-8 text-center">
+          <Link
+            href="/doctors"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-slate-900 hover:bg-[#0E82FD] text-white text-xs font-bold transition-all shadow-md hover:shadow-blue-500/20"
+          >
+            <span>Explore Full Kerala Medical Faculty Directory</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </section>
 
