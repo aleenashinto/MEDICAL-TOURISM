@@ -72,11 +72,13 @@ export function Navbar({ onOpenIntake, onOpenConcierge, style = "transparent" }:
             </div>
             
             <div className="flex flex-col">
-              <span className={`text-2xl font-black tracking-tight transition-colors ${
-                isWhite ? "text-[#0F2042]" : "text-white"
-              }`}>
-                MAIDES
-              </span>
+              <div className="flex items-center space-x-2">
+                <span className={`text-2xl font-black tracking-tight transition-colors ${
+                  isWhite ? "text-[#0F2042]" : "text-white"
+                }`}>
+                  MAIDES
+                </span>
+              </div>
               <span className={`text-[9px] font-semibold tracking-wider uppercase ${
                 isWhite ? "text-slate-500" : "text-blue-100/80"
               }`}>
