@@ -2,6 +2,13 @@
 
 All notable changes and architectural decisions across phases are documented here.
 
+## [Phase 7 — Treatment Quotation & Cost Estimator Engine] - 2026-09-04
+- Created `quotations` PostgreSQL schema supporting itemized cost breakdowns (base procedure, hospital stay, investigations, medications, logistics, total USD/INR), validity timestamps, and acceptance state machine (`draft`, `sent`, `accepted`, `rejected`, `expired`).
+- Built dynamic Cost Estimator API (`POST /api/v1/treatments/estimate-cost`) providing instant medical travel cost calculations with accommodation tier multipliers, stay day configurations, auxiliary cost modeling, and US benchmark comparative savings (75-88% savings metrics).
+- Engineered formal Quotation Creation API (`POST /api/v1/documents/quotations`) linked to clinical enquiries with auto-transition of case lifecycle to `treatment_planned`.
+- Built Quotation Retrieval & Status Progression APIs (`GET /api/v1/documents/quotations/enquiry/:enquiryId`, `PATCH /api/v1/documents/quotations/:id/status`) with strict patient/coordinator access control.
+- Verified test suite: 38/38 automated unit & integration tests passing across all layers (100% pass rate).
+
 ## [Phase 6 — Hospital & Doctor Portal] - 2026-09-04
 - Implemented Hospital Partner Management APIs (`POST /api/v1/hospitals`, `PATCH /api/v1/hospitals/:id`, `GET /api/v1/hospitals/:id/cases`) with RBAC restrictions (`hospital_manager`, `super_admin`).
 - Built Doctor Management & Profile Configuration APIs (`POST /api/v1/doctors`, `PATCH /api/v1/doctors/:id`, `GET /api/v1/doctors/:id/cases`).

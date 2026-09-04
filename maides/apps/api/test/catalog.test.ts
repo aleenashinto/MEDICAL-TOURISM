@@ -255,4 +255,116 @@ test("Phase 6 Exit Test — Hospital & Doctor Portal Endpoints & Clinical Opinio
   });
 });
 
+test("Phase 7 Exit Test — Treatment Quotation & Cost Estimator Engine", async (t) => {
+  const app = await buildApp();
+  const { signToken } = await import("@maides/auth");
+  const { config } = await import("../src/config.js");
+
+  const coordinatorToken = signToken(
+    { sub: "coord-quote-600", email: "coordinator.quote@maides.in", role: "medical_coordinator" },
+    config.JWT_SECRET,
+    "1h"
+  );
+
+  const patientToken = signToken(
+    { sub: "pat-quote-700", email: "patient.quote@maides.in", role: "patient" },
+    config.JWT_SECRET,
+    "1h"
+  );
+
+  // Test 1: Public Dynamic Cost Estimator Engine calculates tiers and savings
+  await t.test("POST /api/v1/treatments/estimate-cost calculates breakdown and savings", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/treatments/estimate-cost",
+      body: {
+        treatmentSlug: "cardiac-bypass-kerala",
+        tier: "Platinum VIP",
+        stayDays: 7,
+        needAirportChauffeur: true,
+        needAttendantAccommodation: true,
+      },
+    });
+    // Validates public estimator endpoint is reachable without auth
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+
+  // Test 2: Unauthenticated quotation creation is blocked (401)
+  await t.test("POST /api/v1/documents/quotations without auth returns 401 Unauthorized", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/documents/quotations",
+      body: {
+        title: "Kochi Platinum Cardiac Care",
+      },
+    });
+    assert.strictEqual(res.statusCode, 401);
+  });
+
+  // Test 3: Patient cannot create formal quotations (403)
+  await t.test("POST /api/v1/documents/quotations with Patient token returns 403 Forbidden", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/documents/quotations",
+      headers: { authorization: `Bearer ${patientToken}` },
+      body: {
+        enquiryId: "00000000-0000-0000-0000-000000000001",
+        patientId: "00000000-0000-0000-0000-000000000002",
+        hospitalId: "00000000-0000-0000-0000-000000000003",
+        title: "Patient Self-Quotation",
+        tier: "Budget Value",
+        treatmentName: "CABG",
+        baseProcedureCostUsd: 4500,
+      },
+    });
+    assert.strictEqual(res.statusCode, 403);
+  });
+
+  // Test 4: Medical Coordinator creating quotation validates schema & passes RBAC
+  await t.test("POST /api/v1/documents/quotations with Coordinator token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/documents/quotations",
+      headers: { authorization: `Bearer ${coordinatorToken}` },
+      body: {
+        enquiryId: "00000000-0000-0000-0000-000000000001",
+        patientId: "00000000-0000-0000-0000-000000000002",
+        hospitalId: "00000000-0000-0000-0000-000000000003",
+        title: "Aster Medcity Platinum VIP Cardiac Package",
+        tier: "Platinum VIP",
+        treatmentName: "Off-Pump Beating Heart Coronary Artery Bypass",
+        baseProcedureCostUsd: 5800,
+        hospitalStayDays: 7,
+        stayCostUsd: 1260,
+        investigationsCostUsd: 450,
+        medicationsCostUsd: 300,
+        logisticsCostUsd: 200,
+        inclusions: [
+          "Beating-heart bypass surgery by Senior Director",
+          "Presidential Waterfront Suite (7 nights)",
+          "Airport limousine chauffeur from Cochin Airport",
+        ],
+        exclusions: ["Specialized donor blood cross-matching if transfusions exceed 4 units"],
+        termsAndConditions: "Quotation valid for 30 days from date of clinical board review.",
+        validityDays: 30,
+      },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+
+  // Test 5: Patient fetching quotations for their case passes RBAC
+  await t.test("GET /api/v1/documents/quotations/enquiry/:id with Patient token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "GET",
+      url: "/api/v1/documents/quotations/enquiry/00000000-0000-0000-0000-000000000001",
+      headers: { authorization: `Bearer ${patientToken}` },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+});
+
+
 

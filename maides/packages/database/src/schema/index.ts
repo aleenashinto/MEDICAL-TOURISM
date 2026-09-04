@@ -247,6 +247,43 @@ export const enquiryDocuments = pgTable("enquiry_documents", {
   uploadedAt: timestamp("uploaded_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const quotationStatusEnum = pgEnum("quotation_status", [
+  "draft",
+  "sent",
+  "accepted",
+  "rejected",
+  "expired",
+]);
+
+// ─── Quotations & Treatment Proposals ───────────────────────────────────────
+
+export const quotations = pgTable("quotations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  enquiryId: uuid("enquiry_id").references(() => enquiries.id, { onDelete: "cascade" }).notNull(),
+  patientId: uuid("patient_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  hospitalId: uuid("hospital_id").references(() => hospitals.id, { onDelete: "cascade" }).notNull(),
+  doctorId: uuid("doctor_id").references(() => doctors.id),
+  title: varchar("title", { length: 255 }).notNull(),
+  tier: varchar("tier", { length: 100 }).default("Standard Care").notNull(),
+  treatmentName: varchar("treatment_name", { length: 255 }).notNull(),
+  baseProcedureCostUsd: integer("base_procedure_cost_usd").notNull(),
+  hospitalStayDays: integer("hospital_stay_days").default(5).notNull(),
+  stayCostUsd: integer("stay_cost_usd").default(0).notNull(),
+  investigationsCostUsd: integer("investigations_cost_usd").default(0).notNull(),
+  medicationsCostUsd: integer("medications_cost_usd").default(0).notNull(),
+  logisticsCostUsd: integer("logistics_cost_usd").default(0).notNull(),
+  totalCostUsd: integer("total_cost_usd").notNull(),
+  totalCostInr: integer("total_cost_inr").notNull(),
+  currency: varchar("currency", { length: 10 }).default("USD").notNull(),
+  inclusions: jsonb("inclusions").$type<string[]>().default([]).notNull(),
+  exclusions: jsonb("exclusions").$type<string[]>().default([]).notNull(),
+  termsAndConditions: text("terms_and_conditions"),
+  status: quotationStatusEnum("status").default("draft").notNull(),
+  validUntil: timestamp("valid_until", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 // ─── Audit Logs ──────────────────────────────────────────────────────────────
 
 export const auditLogs = pgTable("audit_logs", {

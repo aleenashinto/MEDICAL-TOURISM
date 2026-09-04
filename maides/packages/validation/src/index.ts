@@ -327,6 +327,41 @@ export const LeadConvertSchema = z.object({
   notes: z.string().max(2000).optional(),
 });
 
+// ─── Quotation & Cost Estimator Schemas ───────────────────────────────────────
+
+export const QuotationCreateSchema = z.object({
+  enquiryId: z.string().uuid("Enquiry ID is required"),
+  patientId: z.string().uuid("Patient ID is required"),
+  hospitalId: z.string().uuid("Hospital ID is required"),
+  doctorId: z.string().uuid().optional(),
+  title: z.string().min(3).max(255),
+  tier: z.enum(["Budget Value", "Standard Care", "Platinum VIP", "Ayurvedic Rejuvenation"]).default("Standard Care"),
+  treatmentName: z.string().min(2).max(255),
+  baseProcedureCostUsd: z.number().int().min(0),
+  hospitalStayDays: z.number().int().min(1).default(5),
+  stayCostUsd: z.number().int().min(0).default(0),
+  investigationsCostUsd: z.number().int().min(0).default(0),
+  medicationsCostUsd: z.number().int().min(0).default(0),
+  logisticsCostUsd: z.number().int().min(0).default(0),
+  inclusions: z.array(z.string()).default([]),
+  exclusions: z.array(z.string()).default([]),
+  termsAndConditions: z.string().optional(),
+  validityDays: z.number().int().min(1).max(180).default(30),
+});
+
+export const QuotationUpdateSchema = z.object({
+  status: z.enum(["draft", "sent", "accepted", "rejected", "expired"]).optional(),
+  termsAndConditions: z.string().optional(),
+});
+
+export const CostEstimateCalculatorSchema = z.object({
+  treatmentSlug: z.string().min(2),
+  tier: z.enum(["Budget Value", "Standard Care", "Platinum VIP", "Ayurvedic Rejuvenation"]).default("Standard Care"),
+  stayDays: z.number().int().min(1).optional(),
+  needAirportChauffeur: z.boolean().default(true),
+  needAttendantAccommodation: z.boolean().default(true),
+});
+
 // ─── Inferred Types ───────────────────────────────────────────────────────────
 
 export type RegisterInput = z.infer<typeof RegisterSchema>;
@@ -343,3 +378,7 @@ export type LeadStatusUpdateInput = z.infer<typeof LeadStatusUpdateSchema>;
 export type LeadAssignInput = z.infer<typeof LeadAssignSchema>;
 export type LeadNoteInput = z.infer<typeof LeadNoteSchema>;
 export type LeadConvertInput = z.infer<typeof LeadConvertSchema>;
+export type QuotationCreateInput = z.infer<typeof QuotationCreateSchema>;
+export type QuotationUpdateInput = z.infer<typeof QuotationUpdateSchema>;
+export type CostEstimateCalculatorInput = z.infer<typeof CostEstimateCalculatorSchema>;
+

@@ -61,32 +61,76 @@ export async function treatmentRoutes(app: FastifyInstance) {
     return successResponse(treatment);
   });
 
-  // ─── Admin Create ─────────────────────────────────────────────────────────
-  app.post(
-    "/",
-    { preHandler: requireRole("super_admin", "admin") },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const parseResult = CreateTreatmentSchema.safeParse(request.body);
-      if (!parseResult.success) {
-        return reply.status(400).send(errorResponse("VALIDATION_ERROR", "Invalid input", parseResult.error.format()));
-      }
-
-      const [created] = await db
-        .insert(treatments)
-        .values(parseResult.data)
-        .returning();
-
-      await recordAuditLog({
-        userId: request.user?.sub,
-        userEmail: request.user?.email,
-        userRole: request.user?.role,
-        action: "TREATMENT_CREATED",
-        entityType: "TREATMENT",
-        entityId: created.id,
-        details: parseResult.data,
-      });
-
-      return reply.status(201).send(successResponse(created));
+  // ─── Public: Dynamic Treatment Cost Estimator Calculator ──────────────────
+  app.post("/estimate-cost", async (request: FastifyRequest, reply: FastifyReply) => {
+    const { CostEstimateCalculatorSchema } = await import("@maides/validation");
+    const parseResult = CostEstimateCalculatorSchema.safeParse(request.body);
+    if (!parseResult.success) {
+      return reply.status(400).send(errorResponse("VALIDATION_ERROR", "Invalid input", parseResult.error.format()));
     }
-  );
+
+    const { treatmentSlug, tier, stayDays, needAirportChauffeur, needAttendantAccommodation } = parseResult.data;
+
+    const treatment = await db.query.treatments.findFirst({
+      where: eq(treatments.slug, treatmentSlug),
+    });
+
+    if (!treatment) {
+      return reply.status(404).send(errorResponse("NOT_FOUND", "Treatment protocol not found"));
+    }
+
+    const tierMultipliers: Record<string, number> = {
+      "Budget Value": 0.85,
+      "Standard Care": 1.0,
+      "Platinum VIP": 1.45,
+      "Ayurvedic Rejuvenation": 0.95,
+    };
+
+    const multiplier = tierMultipliers[tier] || 1.0;
+    const baseCostUsd = Math.round(treatment.minUsd * multiplier);
+    const duration = stayDays || treatment.typicalStayDays;
+    
+    // Auxiliary estimates
+    const stayDailyRateUsd = tier === "Platinum VIP" ? 180 : tier === "Budget Value" ? 45 : 90;
+    const stayCostUsd = duration * stayDailyRateUsd;
+    const chauffeurCostUsd = needAirportChauffeur ? (tier === "Platinum VIP" ? 150 : 60) : 0;
+    const attendantCostUsd = needAttendantAccommodation ? duration * 40 : 0;
+    const preOpInvestigationsUsd = Math.round(baseCostUsd * 0.08);
+
+    const totalEstimatedUsd = baseCostUsd + stayCostUsd + chauffeurCostUsd + attendantCostUsd + preOpInvestigationsUsd;
+    const inrConversionRate = 88;
+    const totalEstimatedInr = totalEstimatedUsd * inrConversionRate;
+    const usBenchmarkCostUsd = treatment.usComparisonCostUsd || totalEstimatedUsd * 8;
+    const savingsPercentage = Math.round(((usBenchmarkCostUsd - totalEstimatedUsd) / usBenchmarkCostUsd) * 100);
+
+    return successResponse({
+      estimate: {
+        treatmentName: treatment.name,
+        category: treatment.tagline,
+        selectedTier: tier,
+        stayDays: duration,
+        costBreakdownUsd: {
+          procedureBase: baseCostUsd,
+          hospitalAndSuiteStay: stayCostUsd,
+          preOpDiagnostics: preOpInvestigationsUsd,
+          airportAndLocalChauffeur: chauffeurCostUsd,
+          attendantHospitality: attendantCostUsd,
+        },
+        totalEstimatedUsd,
+        totalEstimatedInr,
+        usBenchmarkCostUsd,
+        potentialSavingsUsd: usBenchmarkCostUsd - totalEstimatedUsd,
+        savingsPercentage: `${savingsPercentage}%`,
+        currency: "USD",
+        inclusions: [
+          "Specialist surgeon & anesthesia fees",
+          "Operating theater and robotic navigation charges",
+          "Dedicated Arabic/English medical coordinator",
+          "Airport meet & greet assistance",
+          "Complimentary 12-month telemedicine follow-up",
+        ],
+      },
+    });
+  });
 }
+

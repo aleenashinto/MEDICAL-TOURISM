@@ -3,7 +3,7 @@ import { DocumentUploadSchema } from "@maides/validation";
 import { db } from "../../db.js";
 import { enquiryDocuments, enquiries, eq } from "@maides/database";
 import { successResponse, errorResponse } from "../../utils/response.js";
-import { requireAuth } from "../../middleware/auth.js";
+import { requireAuth, requireRole } from "../../middleware/auth.js";
 
 export async function documentRoutes(app: FastifyInstance) {
   // ─── Upload Document Metadata (S3 Integration Hook) ───────────────────────
@@ -58,18 +58,159 @@ export async function documentRoutes(app: FastifyInstance) {
     }
   );
 
-  // ─── Get Documents For Enquiry ────────────────────────────────────────────
-  app.get(
-    "/enquiry/:enquiryId",
-    { preHandler: requireAuth },
-    async (request: FastifyRequest, _reply: FastifyReply) => {
-      const { enquiryId } = request.params as { enquiryId: string };
+  // ─── Staff: Create Formal Treatment Quotation ────────────────────────────
+  app.post(
+    "/quotations",
+    { preHandler: requireRole("super_admin", "admin", "medical_coordinator", "hospital_manager") },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { QuotationCreateSchema } = await import("@maides/validation");
+      const { quotations, enquiries } = await import("@maides/database");
+      const { recordAuditLog } = await import("../../utils/audit.js");
 
-      const docs = await db.query.enquiryDocuments.findMany({
-        where: eq(enquiryDocuments.enquiryId, enquiryId),
+      const parseResult = QuotationCreateSchema.safeParse(request.body);
+      if (!parseResult.success) {
+        return reply.status(400).send(errorResponse("VALIDATION_ERROR", "Invalid input", parseResult.error.format()));
+      }
+
+      const data = parseResult.data;
+
+      const totalCostUsd =
+        data.baseProcedureCostUsd +
+        data.stayCostUsd +
+        data.investigationsCostUsd +
+        data.medicationsCostUsd +
+        data.logisticsCostUsd;
+
+      const totalCostInr = totalCostUsd * 88;
+      const validUntil = new Date(Date.now() + (data.validityDays || 30) * 24 * 60 * 60 * 1000);
+
+      const [newQuotation] = await db
+        .insert(quotations)
+        .values({
+          enquiryId: data.enquiryId,
+          patientId: data.patientId,
+          hospitalId: data.hospitalId,
+          doctorId: data.doctorId,
+          title: data.title,
+          tier: data.tier,
+          treatmentName: data.treatmentName,
+          baseProcedureCostUsd: data.baseProcedureCostUsd,
+          hospitalStayDays: data.hospitalStayDays,
+          stayCostUsd: data.stayCostUsd,
+          investigationsCostUsd: data.investigationsCostUsd,
+          medicationsCostUsd: data.medicationsCostUsd,
+          logisticsCostUsd: data.logisticsCostUsd,
+          totalCostUsd,
+          totalCostInr,
+          currency: "USD",
+          inclusions: data.inclusions,
+          exclusions: data.exclusions,
+          termsAndConditions: data.termsAndConditions,
+          status: "sent",
+          validUntil,
+        })
+        .returning();
+
+      // Update case status to quotation_sent
+      await db
+        .update(enquiries)
+        .set({ status: "treatment_planned", updatedAt: new Date() })
+        .where(eq(enquiries.id, data.enquiryId));
+
+      await recordAuditLog({
+        userId: request.user?.sub,
+        userEmail: request.user?.email,
+        userRole: request.user?.role,
+        action: "QUOTATION_CREATED",
+        entityType: "QUOTATION",
+        entityId: newQuotation.id,
+        details: { totalCostUsd, tier: data.tier, hospitalId: data.hospitalId },
+        ipAddress: request.ip,
+        userAgent: request.headers["user-agent"],
       });
 
-      return successResponse({ documents: docs });
+      return reply.status(201).send(successResponse({ quotation: newQuotation }));
+    }
+  );
+
+  // ─── Patient / Staff: Get Quotations For Case ─────────────────────────────
+  app.get(
+    "/quotations/enquiry/:enquiryId",
+    { preHandler: requireAuth },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { quotations, enquiries } = await import("@maides/database");
+      const { enquiryId } = request.params as { enquiryId: string };
+
+      const enquiry = await db.query.enquiries.findFirst({
+        where: eq(enquiries.id, enquiryId),
+      });
+
+      if (!enquiry) {
+        return reply.status(404).send(errorResponse("NOT_FOUND", "Enquiry case not found"));
+      }
+
+      if (request.user!.role === "patient" && enquiry.patientId !== request.user!.sub) {
+        return reply.status(403).send(errorResponse("FORBIDDEN", "Access denied"));
+      }
+
+      const quoteList = await db.query.quotations.findMany({
+        where: eq(quotations.enquiryId, enquiryId),
+      });
+
+      return successResponse({ quotations: quoteList });
+    }
+  );
+
+  // ─── Patient: Accept / Reject Quotation ───────────────────────────────────
+  app.patch(
+    "/quotations/:id/status",
+    { preHandler: requireAuth },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { QuotationUpdateSchema } = await import("@maides/validation");
+      const { quotations } = await import("@maides/database");
+      const { recordAuditLog } = await import("../../utils/audit.js");
+      const { id } = request.params as { id: string };
+
+      const parseResult = QuotationUpdateSchema.safeParse(request.body);
+      if (!parseResult.success) {
+        return reply.status(400).send(errorResponse("VALIDATION_ERROR", "Invalid input", parseResult.error.format()));
+      }
+
+      const quote = await db.query.quotations.findFirst({
+        where: eq(quotations.id, id),
+      });
+
+      if (!quote) {
+        return reply.status(404).send(errorResponse("NOT_FOUND", "Quotation not found"));
+      }
+
+      if (request.user!.role === "patient" && quote.patientId !== request.user!.sub) {
+        return reply.status(403).send(errorResponse("FORBIDDEN", "Access denied"));
+      }
+
+      const [updated] = await db
+        .update(quotations)
+        .set({
+          status: parseResult.data.status || quote.status,
+          updatedAt: new Date(),
+        })
+        .where(eq(quotations.id, id))
+        .returning();
+
+      await recordAuditLog({
+        userId: request.user?.sub,
+        userEmail: request.user?.email,
+        userRole: request.user?.role,
+        action: "QUOTATION_STATUS_UPDATED",
+        entityType: "QUOTATION",
+        entityId: id,
+        details: { status: parseResult.data.status },
+        ipAddress: request.ip,
+        userAgent: request.headers["user-agent"],
+      });
+
+      return successResponse({ quotation: updated });
     }
   );
 }
+
