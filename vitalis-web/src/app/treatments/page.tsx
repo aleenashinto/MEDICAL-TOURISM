@@ -13,9 +13,9 @@ const CATEGORY_IMAGES: Record<string, string> = {
   "Oncology": "https://images.unsplash.com/photo-1631815589968-fdb09a223b1e?auto=format&fit=crop&w=800&q=80",
   "Neurology": "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=800&q=80",
   "Ayurveda & Wellness": "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=800&q=80",
-  "Organ Transplant": "https://images.unsplash.com/photo-1582560475093-ba66accbc095?auto=format&fit=crop&w=800&q=80",
+  "Organ Transplant": "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80",
   "Fertility": "https://images.unsplash.com/photo-1597764690523-15bea4c581c9?auto=format&fit=crop&w=800&q=80",
-  "Urology": "https://images.unsplash.com/photo-1576669801775-b95ce3fb4e62?auto=format&fit=crop&w=800&q=80",
+  "Urology": "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=80",
   "Gastroenterology": "https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=800&q=80",
   "Neurosurgery": "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=800&q=80",
 };

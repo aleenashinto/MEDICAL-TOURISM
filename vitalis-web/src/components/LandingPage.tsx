@@ -251,7 +251,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               <div className="pt-4 border-t border-white/15 flex flex-wrap items-center gap-6">
                 <div className="flex items-center -space-x-3">
                   <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=120&q=80" alt="Doctor 1" className="w-12 h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
-                  <img src="https://images.unsplash.com/photo-1594824813581-2292f7b88496?auto=format&fit=crop&w=120&q=80" alt="Doctor 2" className="w-12 h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
+                  <img src="https://images.unsplash.com/photo-1622902046580-2b47f47f5471?auto=format&fit=crop&w=120&q=80" alt="Doctor 2" className="w-12 h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
                   <img src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=120&q=80" alt="Doctor 3" className="w-12 h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
                   <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=120&q=80" alt="Doctor 4" className="w-12 h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
                   <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#0E82FD] to-[#38BDF8] border-2 border-[#0F2042] flex items-center justify-center text-white text-xs font-black ring-2 ring-blue-400/30">

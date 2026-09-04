@@ -32,7 +32,7 @@ const TREATMENTS = [
   {
     name: "Pizhichil",
     duration: "14–21 days",
-    image: "https://images.unsplash.com/photo-1487412840181-9af02abe45f6?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80",
     desc: "Royal oil bath — medicated warm oil poured continuously over the body by four therapists simultaneously, the ultimate treatment for paralytic and rheumatic conditions.",
     benefits: ["Stroke & hemiplegia rehabilitation", "Rheumatoid arthritis relief", "Post-surgical muscle recovery", "Complete nervous revitalization"],
     priceFrom: "$1,200"

@@ -557,7 +557,7 @@ export const KERALA_DOCTORS: Doctor[] = [
     reviewCount: 1120,
     consultationFeeInr: 1000,
     consultationFeeUsd: 15,
-    avatar: 'https://images.unsplash.com/photo-1594824813581-2292f7b88496?auto=format&fit=crop&w=600&q=80',
+    avatar: 'https://images.unsplash.com/photo-1622902046580-2b47f47f5471?auto=format&fit=crop&w=600&q=80',
     bio: 'Over three decades of expertise in authentic Kerala Panchakarma, providing restorative protocols for arthritis, stroke paralysis rehabilitation, and post-surgical immune revival.',
     areasOfExpertise: ['Panchakarma Detox (Vamana, Virechana, Basti)', 'Pizhichil & Njavarakizhi', 'Degenerative Joint Chikitsa', 'Post-Chemotherapy Herbal Revitalization'],
     publicationsCount: 28,
