@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { KERALA_HOSPITALS } from "@/lib/mockData";
 import { Search, ArrowUpRight, Star, MapPin, Filter, BadgeCheck, Bed, Users } from "lucide-react";
@@ -12,16 +12,70 @@ export default function HospitalsPage() {
   const [query, setQuery] = useState("");
   const [region, setRegion] = useState("All");
   const [type, setType] = useState("All");
+  const [allHospitals, setAllHospitals] = useState<any[]>(KERALA_HOSPITALS);
+
+  useEffect(() => {
+    const loadHospitals = () => {
+      try {
+        const stored = localStorage.getItem("maides_admin_hospitals");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const activeHosps = parsed
+            .filter((h: any) => h.status === "ACTIVE")
+            .map((h: any) => ({
+              id: h.id,
+              name: h.name,
+              tagline: `${h.accreditations?.[0] || "Accredited"} quaternary medical campus in ${h.city || "Kerala"}`,
+              accreditations: Array.isArray(h.accreditations) ? h.accreditations : [h.accreditations || "NABH Certified"],
+              region: h.region || "Central Kerala",
+              district: h.district || "Ernakulam / Kochi",
+              city: h.city || "Kochi",
+              type: h.specialties?.includes("Classical Ayurveda") ? "Ayurveda & Wellness" : "Multispecialty",
+              establishedYear: 2018,
+              bedsCount: parseInt(h.beds) || 500,
+              internationalPatientsAnnual: 18500,
+              languages: ["English", "Arabic", "Malayalam", "Hindi"],
+              specialties: Array.isArray(h.specialties) ? h.specialties : ["Multispecialty Healthcare"],
+              rating: h.rating || 4.92,
+              reviewCount: h.reviewCount || 1280,
+              image: h.image || "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=1200&q=80",
+              description: h.description || `${h.name} is a premier accredited hospital campus in Kerala.`,
+              nearestAirport: "Cochin International Airport (COK)",
+              airportDistanceKm: 25,
+              vipRoomsAvailable: true,
+              ayurvedaWingAvailable: true,
+              featured: true
+            }));
+
+          const merged = [...activeHosps];
+          KERALA_HOSPITALS.forEach(kh => {
+            if (!merged.some(m => m.name.toLowerCase() === kh.name.toLowerCase() || m.id === kh.id)) {
+              merged.push(kh);
+            }
+          });
+          setAllHospitals(merged);
+        } else {
+          setAllHospitals(KERALA_HOSPITALS);
+        }
+      } catch (e) {
+        setAllHospitals(KERALA_HOSPITALS);
+      }
+    };
+
+    loadHospitals();
+    window.addEventListener("storage", loadHospitals);
+    return () => window.removeEventListener("storage", loadHospitals);
+  }, []);
 
   return (
     <PublicPageLayout navbarStyle="white">
       {({ onOpenIntake }) => {
-        const filtered = KERALA_HOSPITALS.filter((h) => {
+        const filtered = allHospitals.filter((h) => {
           const matchesSearch =
             query === "" ||
             h.name.toLowerCase().includes(query.toLowerCase()) ||
             h.district.toLowerCase().includes(query.toLowerCase()) ||
-            h.specialties.some((s) => s.toLowerCase().includes(query.toLowerCase()));
+            (h.specialties && h.specialties.some((s: string) => s.toLowerCase().includes(query.toLowerCase())));
           const matchesRegion = region === "All" || h.region === region;
           const matchesType = type === "All" || h.type === type;
           return matchesSearch && matchesRegion && matchesType;
@@ -101,7 +155,7 @@ export default function HospitalsPage() {
 
                     <div className="p-5 space-y-4 flex-1 flex flex-col">
                       <div className="flex flex-wrap gap-1.5">
-                        {h.accreditations.map((a) => (
+                        {h.accreditations.map((a: string) => (
                           <span key={a} className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
                             <BadgeCheck className="w-3 h-3" />{a}
                           </span>
@@ -116,7 +170,7 @@ export default function HospitalsPage() {
                       </div>
 
                       <div className="flex flex-wrap gap-1.5">
-                        {h.specialties.slice(0, 3).map((s) => (
+                        {h.specialties.slice(0, 3).map((s: string) => (
                           <span key={s} className="text-[10px] font-medium text-[#0E82FD] bg-blue-50 px-2.5 py-1 rounded-full">{s}</span>
                         ))}
                         {h.specialties.length > 3 && (

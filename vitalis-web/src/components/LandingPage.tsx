@@ -68,10 +68,12 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
   const [apptPhone, setApptPhone] = useState("");
   const [apptSuccess, setApptSuccess] = useState("");
   const [landingDoctors, setLandingDoctors] = useState<any[]>(KERALA_DOCTORS);
+  const [landingHospitals, setLandingHospitals] = useState<any[]>(KERALA_HOSPITALS);
 
-  // Load and hydrate Admin-uploaded doctors in real-time
+  // Load and hydrate Admin-uploaded doctors & hospitals in real-time
   useEffect(() => {
-    const loadDoctors = () => {
+    const loadDynamicData = () => {
+      // 1. Load Admin Doctors
       try {
         const stored = localStorage.getItem("maides_admin_doctors");
         if (stored) {
@@ -105,11 +107,51 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       } catch (e) {
         setLandingDoctors(KERALA_DOCTORS);
       }
+
+      // 2. Load Admin Hospitals
+      try {
+        const storedHosps = localStorage.getItem("maides_admin_hospitals");
+        if (storedHosps) {
+          const parsed = JSON.parse(storedHosps);
+          const activeAdminHosps = parsed
+            .filter((h: any) => h.status === "ACTIVE")
+            .map((h: any) => ({
+              id: h.id,
+              name: h.name,
+              city: h.city || "Kochi, Kerala",
+              district: h.district || "Ernakulam / Kochi",
+              region: h.region || "Central Kerala",
+              accreditations: Array.isArray(h.accreditations) ? h.accreditations : [h.accreditations || "NABH Accredited"],
+              specialties: Array.isArray(h.specialties) ? h.specialties : ["Multispecialty Healthcare"],
+              rating: h.rating || 4.92,
+              reviewCount: h.reviewCount || 1450,
+              image: h.image || "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=1200&q=80",
+              description: h.description || `${h.name} is a leading NABH/JCI accredited quaternary healthcare destination in Kerala providing world-class medical tourism care.`,
+              internationalServices: h.internationalServices || [
+                "24/7 International Patient Concierge Desk",
+                "Direct Airport Limousine Escort",
+                "Medical eVisa Fast-Track Letter in 4 Hours"
+              ]
+            }));
+
+          const mergedHosps = [...activeAdminHosps];
+          KERALA_HOSPITALS.forEach(kh => {
+            if (!mergedHosps.some(m => m.name.toLowerCase() === kh.name.toLowerCase() || m.id === kh.id)) {
+              mergedHosps.push(kh);
+            }
+          });
+          setLandingHospitals(mergedHosps);
+        } else {
+          setLandingHospitals(KERALA_HOSPITALS);
+        }
+      } catch (e) {
+        setLandingHospitals(KERALA_HOSPITALS);
+      }
     };
 
-    loadDoctors();
-    window.addEventListener("storage", loadDoctors);
-    return () => window.removeEventListener("storage", loadDoctors);
+    loadDynamicData();
+    window.addEventListener("storage", loadDynamicData);
+    return () => window.removeEventListener("storage", loadDynamicData);
   }, []);
 
   const handleBookAppointment = (e: React.FormEvent) => {
@@ -225,9 +267,9 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
     { num: "10", title: "Follow-Up & Convalescence", desc: "Backwater resort recovery, fit-to-fly clearance, and 12-month tele-reviews." }
   ];
 
-  const filteredHospitals = KERALA_HOSPITALS.filter((h) => {
-    const matchesDistrict = selectedDistrict === "All" || h.district === selectedDistrict;
-    const matchesSpecialty = selectedSpecialty === "All" || h.specialties.includes(selectedSpecialty);
+  const filteredHospitals = landingHospitals.filter((h) => {
+    const matchesDistrict = selectedDistrict === "All" || h.district === selectedDistrict || (selectedDistrict === "Ernakulam / Kochi" && (h.district === "Ernakulam" || h.district === "Ernakulam / Kochi"));
+    const matchesSpecialty = selectedSpecialty === "All" || (h.specialties && (Array.isArray(h.specialties) ? h.specialties.some((s: string) => s.toLowerCase().includes(selectedSpecialty.toLowerCase())) : true));
     const matchesRegion = selectedRegion === "All" || h.region === selectedRegion;
     return matchesDistrict && matchesSpecialty && matchesRegion;
   });
@@ -953,7 +995,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                     <span>{h.rating} ({h.reviewCount})</span>
                   </div>
                   <div className="absolute bottom-3 left-3 flex gap-1.5 flex-wrap">
-                    {h.accreditations.map((acc, i) => (
+                    {h.accreditations.map((acc: string, i: number) => (
                       <span key={i} className="px-2.5 py-0.5 rounded-full bg-[#0E82FD] text-white text-[10px] font-bold shadow-sm">
                         {acc}
                       </span>
@@ -985,6 +1027,16 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="mt-8 text-center">
+          <Link
+            href="/hospitals"
+            className="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-white hover:bg-blue-50 text-[#0E82FD] font-bold text-sm border border-blue-200 shadow-sm hover:shadow transition-all group"
+          >
+            <span>Explore Complete Kerala Hospital Network & Quaternary Centers</span>
+            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
       </section>
 
