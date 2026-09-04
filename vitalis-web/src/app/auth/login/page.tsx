@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -8,13 +8,30 @@ import { Shield, ArrowRight, Lock, Mail, CheckCircle2, User, KeyRound } from "lu
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("admin@vitalis.health");
-  const [password, setPassword] = useState("••••••••");
+  const [password, setPassword] = useState("â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢");
   const [role, setRole] = useState<"ADMIN" | "PATIENT">("ADMIN");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    if (typeof window !== "undefined") {
+      const trimmedEmail = email.trim();
+      localStorage.setItem("maides_user_email", trimmedEmail);
+
+      // Extract username before @ and format cleanly, or use existing name if matches
+      const rawPrefix = trimmedEmail.split("@")[0] || "User";
+      const formattedName = rawPrefix
+        .split(/[._-]/)
+        .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+        .join(" ");
+
+      localStorage.setItem("maides_user_name", formattedName);
+      if (!localStorage.getItem("maides_user_location")) {
+        localStorage.setItem("maides_user_location", "India");
+      }
+    }
 
     setTimeout(() => {
       setIsLoading(false);
@@ -136,7 +153,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   className="block w-full pl-10 pr-3 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:border-transparent transition-all"
-                  placeholder="••••••••"
+                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                 />
               </div>
             </div>
