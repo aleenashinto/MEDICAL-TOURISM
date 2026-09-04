@@ -116,25 +116,25 @@ export function Navbar({ onOpenIntake, onOpenConcierge, style = "transparent" }:
           {/* Right Action Section */}
           <div className="hidden lg:flex items-center space-x-3">
             {/* Primary Action Button */}
-            <button
-              onClick={onOpenIntake}
+            <Link
+              href="/auth/login"
               className="flex items-center pl-5 pr-1.5 py-1.5 rounded-full bg-gradient-to-r from-[#0E82FD] to-[#0284C7] hover:from-[#0360D9] hover:to-[#0E82FD] text-white text-xs font-black shadow-[0_8px_20px_rgba(14,130,253,0.35)] hover:shadow-[0_10px_25px_rgba(14,130,253,0.5)] hover:scale-[1.02] transition-all duration-300 group cursor-pointer"
             >
               <span className="mr-3">Get Medical Assistance</span>
               <div className="w-8 h-8 rounded-full bg-white text-[#0E82FD] flex items-center justify-center transition-transform duration-300 group-hover:rotate-45 shadow-sm">
                 <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
               </div>
-            </button>
+            </Link>
           </div>
 
           {/* Mobile Actions & Hamburger */}
           <div className="flex xl:hidden items-center space-x-2">
-            <button
-              onClick={onOpenIntake}
+            <Link
+              href="/auth/login"
               className="px-3.5 py-2 rounded-full bg-[#0E82FD] text-white text-[11px] font-bold shadow-md shadow-blue-500/30"
             >
-              Assistance
-            </button>
+              Sign In
+            </Link>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`p-2 rounded-xl transition-all ${

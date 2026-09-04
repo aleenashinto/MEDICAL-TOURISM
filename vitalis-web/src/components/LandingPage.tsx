@@ -219,15 +219,15 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
 
               {/* Action Buttons Group */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
-                <button
-                  onClick={onOpenIntake}
+                <Link
+                  href="/auth/login"
                   className="flex items-center justify-between pl-6 pr-2 py-2 rounded-full bg-gradient-to-r from-[#0E82FD] to-[#38BDF8] hover:from-[#0360D9] hover:to-[#0E82FD] text-white font-black text-xs uppercase tracking-wider transition-all duration-300 shadow-[0_10px_30px_rgba(14,130,253,0.45)] hover:shadow-[0_15px_35px_rgba(14,130,253,0.6)] hover:scale-[1.02] group cursor-pointer"
                 >
                   <span className="pr-4 font-bold text-[13px]">Get Medical Assistance</span>
                   <div className="w-10 h-10 rounded-full bg-white text-[#0E82FD] flex items-center justify-center transition-all duration-300 group-hover:rotate-45 shadow-sm">
                     <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />
                   </div>
-                </button>
+                </Link>
 
                 <Link
                   href="/treatments"
