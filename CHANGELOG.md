@@ -2,6 +2,13 @@
 
 All notable changes and architectural decisions across phases are documented here.
 
+## [Phase 11 — Post-Treatment & Follow-Up Engine] - 2026-09-04
+- Created `discharge_summaries` and `patient_feedbacks` PostgreSQL schema capturing admission/discharge dates, procedure course, itemized take-home prescriptions, fit-to-fly clearances, red flag warning signs, star ratings (overall, doctor, hospital, coordinator), and NPS loyalty scores.
+- Engineered Clinical Discharge API (`POST /api/v1/followups/discharge`) linking physician discharge plans to clinical cases and automatically advancing case lifecycle status to `follow_up`.
+- Built Post-Treatment Case Retrieval API (`GET /api/v1/followups/enquiry/:enquiryId`) with patient and coordinator access scoping.
+- Built Patient Experience & NPS Feedback API (`POST /api/v1/followups/feedback`) recording patient testimonials, ratings, and feedback metrics.
+- Verified test suite: 61/61 automated unit & integration tests passing across all layers (100% pass rate).
+
 ## [Phase 10 — Billing, Payments & Forex Handling] - 2026-09-04
 - Created `invoices` and `payments` PostgreSQL schema supporting itemized billing line items, real-time multi-currency conversion (`USD`, `INR`, `AED`, `EUR`, `GBP`), deposit tracking, balance dues, and payment state machines (`draft`, `issued`, `partially_paid`, `paid`, `void`).
 - Built Invoice Generation & Retrieval APIs (`POST /api/v1/billing/invoices`, `GET /api/v1/billing/invoices/enquiry/:enquiryId`) with access controls for coordinators, hospital managers, and patients.

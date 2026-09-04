@@ -477,6 +477,48 @@ export const PaymentWebhookSchema = z.object({
   metadata: z.record(z.any()).default({}),
 });
 
+// ─── Post-Treatment, Discharge & Follow-Up ─────────────────────────────────
+
+export const MedicationPrescriptionSchema = z.object({
+  name: z.string().min(2).max(150),
+  dosage: z.string().min(1).max(100),
+  frequency: z.string().min(1).max(100),
+  duration: z.string().min(1).max(100),
+});
+
+export const DischargeSummaryCreateSchema = z.object({
+  enquiryId: z.string().uuid("Enquiry ID is required"),
+  patientId: z.string().uuid("Patient ID is required"),
+  hospitalId: z.string().uuid("Hospital ID is required"),
+  doctorId: z.string().uuid("Doctor ID is required"),
+  admissionDate: z.string().datetime(),
+  dischargeDate: z.string().datetime(),
+  finalDiagnosis: z.string().min(5).max(1000),
+  procedurePerformed: z.string().min(5).max(1000),
+  hospitalCourse: z.string().min(10).max(3000),
+  medicationsOnDischarge: z.array(MedicationPrescriptionSchema).default([]),
+  dietaryInstructions: z.string().max(1000).optional(),
+  activityRestrictions: z.string().max(1000).optional(),
+  emergencyWarningSigns: z.array(z.string()).default([]),
+  fitToFlyDate: z.string().datetime().optional(),
+  fitToFlyCertified: z.boolean().default(true),
+  nextFollowupDate: z.string().datetime().optional(),
+});
+
+export const PatientFeedbackCreateSchema = z.object({
+  enquiryId: z.string().uuid("Enquiry ID is required"),
+  patientId: z.string().uuid("Patient ID is required"),
+  hospitalId: z.string().uuid("Hospital ID is required"),
+  doctorId: z.string().uuid().optional(),
+  overallRating: z.number().int().min(1).max(5),
+  hospitalRating: z.number().int().min(1).max(5),
+  doctorRating: z.number().int().min(1).max(5),
+  coordinatorRating: z.number().int().min(1).max(5),
+  npsScore: z.number().int().min(0).max(10),
+  reviewComments: z.string().max(2000).optional(),
+  testimonialPermissionGranted: z.boolean().default(false),
+});
+
 // ─── Inferred Types ───────────────────────────────────────────────────────────
 
 export type RegisterInput = z.infer<typeof RegisterSchema>;
@@ -504,6 +546,9 @@ export type TelemedicineCompleteInput = z.infer<typeof TelemedicineCompleteSchem
 export type InvoiceCreateInput = z.infer<typeof InvoiceCreateSchema>;
 export type PaymentInitiateInput = z.infer<typeof PaymentInitiateSchema>;
 export type PaymentWebhookInput = z.infer<typeof PaymentWebhookSchema>;
+export type DischargeSummaryCreateInput = z.infer<typeof DischargeSummaryCreateSchema>;
+export type PatientFeedbackCreateInput = z.infer<typeof PatientFeedbackCreateSchema>;
+
 
 
 

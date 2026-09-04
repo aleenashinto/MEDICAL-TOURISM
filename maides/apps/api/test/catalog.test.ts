@@ -704,6 +704,114 @@ test("Phase 10 Exit Test — Billing, Payments & Forex Handling", async (t) => {
   });
 });
 
+test("Phase 11 Exit Test — Post-Treatment & Follow-Up Engine", async (t) => {
+  const app = await buildApp();
+  const { signToken } = await import("@maides/auth");
+  const { config } = await import("../src/config.js");
+
+  const patientId = "00000000-0000-0000-0000-000000000002";
+  const doctorId = "00000000-0000-0000-0000-000000000004";
+
+  const doctorToken = signToken(
+    { sub: doctorId, email: "doctor.followup@maides.in", role: "doctor" },
+    config.JWT_SECRET,
+    "1h"
+  );
+
+  const patientToken = signToken(
+    { sub: patientId, email: "patient.followup@maides.in", role: "patient" },
+    config.JWT_SECRET,
+    "1h"
+  );
+
+  const unauthHeader = {};
+
+  // Test 1: Unauthorized access to discharge creation is blocked (401)
+  await t.test("POST /api/v1/followups/discharge without auth token returns 401", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/followups/discharge",
+      headers: unauthHeader,
+      body: {
+        enquiryId: "00000000-0000-0000-0000-000000000001",
+        patientId,
+        hospitalId: "00000000-0000-0000-0000-000000000003",
+        doctorId,
+      },
+    });
+    assert.strictEqual(res.statusCode, 401);
+  });
+
+  // Test 2: Doctor issues formal discharge summary and recovery protocol
+  await t.test("POST /api/v1/followups/discharge with Doctor token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/followups/discharge",
+      headers: { authorization: `Bearer ${doctorToken}` },
+      body: {
+        enquiryId: "00000000-0000-0000-0000-000000000001",
+        patientId,
+        hospitalId: "00000000-0000-0000-0000-000000000003",
+        doctorId,
+        admissionDate: "2026-10-15T08:00:00.000Z",
+        dischargeDate: "2026-10-22T11:00:00.000Z",
+        finalDiagnosis: "Coronary Artery Disease - Triple Vessel Disease s/p uneventful OPCABG x 3 grafts",
+        procedurePerformed: "Off-Pump Coronary Artery Bypass Grafting (LIMA-LAD, SVG-OM, SVG-PDA)",
+        hospitalCourse: "Patient tolerated surgery excellently without inotropic support. Extubated on Day 1. Mobilized with cardiac rehab.",
+        medicationsOnDischarge: [
+          { name: "Aspirin", dosage: "75mg", frequency: "Once daily with food", duration: "Indefinite" },
+          { name: "Clopidogrel", dosage: "75mg", frequency: "Once daily", duration: "12 months" },
+          { name: "Rosuvastatin", dosage: "20mg", frequency: "Once daily at bedtime", duration: "Indefinite" },
+        ],
+        dietaryInstructions: "Low sodium (<2g/day), low saturated fat, high fiber Mediterranean/Kerala heart diet",
+        activityRestrictions: "No lifting >5kg for 6 weeks. Sternal precautions strictly maintained.",
+        emergencyWarningSigns: ["Chest pain unresponsive to rest", "Fever >101F", "Wound redness or discharge", "Severe shortness of breath"],
+        fitToFlyDate: "2026-10-25T00:00:00.000Z",
+        fitToFlyCertified: true,
+        nextFollowupDate: "2026-11-05T10:00:00.000Z",
+      },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+
+  // Test 3: Patient views discharge summary and recovery protocol
+  await t.test("GET /api/v1/followups/enquiry/:id with Patient token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "GET",
+      url: "/api/v1/followups/enquiry/00000000-0000-0000-0000-000000000001",
+      headers: { authorization: `Bearer ${patientToken}` },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+
+  // Test 4: Patient submits hospital rating and NPS feedback
+  await t.test("POST /api/v1/followups/feedback with Patient token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/followups/feedback",
+      headers: { authorization: `Bearer ${patientToken}` },
+      body: {
+        enquiryId: "00000000-0000-0000-0000-000000000001",
+        patientId,
+        hospitalId: "00000000-0000-0000-0000-000000000003",
+        doctorId,
+        overallRating: 5,
+        hospitalRating: 5,
+        doctorRating: 5,
+        coordinatorRating: 5,
+        npsScore: 10,
+        reviewComments: "Outstanding care at Aster Medcity! The entire medical coordination in Kerala from airport pickup to surgery was seamless.",
+        testimonialPermissionGranted: true,
+      },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+});
+
+
 
 
 

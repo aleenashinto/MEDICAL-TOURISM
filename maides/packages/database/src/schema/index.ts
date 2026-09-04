@@ -444,6 +444,46 @@ export const payments = pgTable("payments", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+// ─── Post-Treatment, Discharge & Follow-Up ─────────────────────────────────
+
+export const dischargeSummaries = pgTable("discharge_summaries", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  enquiryId: uuid("enquiry_id").references(() => enquiries.id, { onDelete: "cascade" }).notNull(),
+  patientId: uuid("patient_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  hospitalId: uuid("hospital_id").references(() => hospitals.id, { onDelete: "cascade" }).notNull(),
+  doctorId: uuid("doctor_id").references(() => doctors.id).notNull(),
+  dischargeDate: timestamp("discharge_date", { withTimezone: true }).notNull(),
+  admissionDate: timestamp("admission_date", { withTimezone: true }).notNull(),
+  finalDiagnosis: text("final_diagnosis").notNull(),
+  procedurePerformed: text("procedure_performed").notNull(),
+  hospitalCourse: text("hospital_course").notNull(),
+  medicationsOnDischarge: jsonb("medications_on_discharge").$type<{ name: string; dosage: string; frequency: string; duration: string }[]>().default([]).notNull(),
+  dietaryInstructions: text("dietary_instructions"),
+  activityRestrictions: text("activity_restrictions"),
+  emergencyWarningSigns: jsonb("emergency_warning_signs").$type<string[]>().default([]).notNull(),
+  fitToFlyDate: timestamp("fit_to_fly_date", { withTimezone: true }),
+  fitToFlyCertified: boolean("fit_to_fly_certified").default(true).notNull(),
+  nextFollowupDate: timestamp("next_followup_date", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const patientFeedbacks = pgTable("patient_feedbacks", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  enquiryId: uuid("enquiry_id").references(() => enquiries.id, { onDelete: "cascade" }).notNull(),
+  patientId: uuid("patient_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  hospitalId: uuid("hospital_id").references(() => hospitals.id, { onDelete: "cascade" }).notNull(),
+  doctorId: uuid("doctor_id").references(() => doctors.id),
+  overallRating: integer("overall_rating").notNull(), // 1 - 5
+  hospitalRating: integer("hospital_rating").notNull(), // 1 - 5
+  doctorRating: integer("doctor_rating").notNull(), // 1 - 5
+  coordinatorRating: integer("coordinator_rating").notNull(), // 1 - 5
+  npsScore: integer("nps_score").notNull(), // 0 - 10
+  reviewComments: text("review_comments"),
+  testimonialPermissionGranted: boolean("testimonial_permission_granted").default(false).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 // ─── Audit Logs ──────────────────────────────────────────────────────────────
 
 export const auditLogs = pgTable("audit_logs", {
