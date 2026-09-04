@@ -152,7 +152,7 @@ export const KERALA_DISTRICTS: KeralaDistrictInfo[] = [
     name: "Idukki",
     region: "Central Kerala",
     tagline: "High-Altitude Hill Sanatoriums, Medicinal Herbs & Post-Treatment Rehabilitation",
-    image: "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1200&q=80",
+    image: "https://img.mathrubhumi.com/view/acePublic/alias/contentid/1i4idjvif2elzeuuawb/8/idukki.webp",
     nearestAirport: "Cochin International Airport (COK) - 110km",
     topSpecialties: ["Pulmonary Rehabilitation", "Herbal Wellness & Detox", "Stress Management"],
     hospitalsCount: 4,
