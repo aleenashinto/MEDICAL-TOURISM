@@ -98,9 +98,13 @@ const getSpecialtyIcon = (iconName?: string) => {
 export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps) {
   const [selectedDistrict, setSelectedDistrict] = useState<string>("All");
   const [apptFullName, setApptFullName] = useState("");
-  const [apptService, setApptService] = useState("cardiology");
+  const [apptSpecialty, setApptSpecialty] = useState("Cardiology & Bypass");
+  const [apptService, setApptService] = useState("Specialist Consultation");
+  const [apptHospital, setApptHospital] = useState("");
+  const [apptDoctor, setApptDoctor] = useState("");
   const [apptEmail, setApptEmail] = useState("");
-  const [apptDate, setApptDate] = useState("2026-09-12");
+  const [apptDate, setApptDate] = useState("2026-09-15");
+  const [apptTime, setApptTime] = useState("10:00 IST");
   const [apptPhone, setApptPhone] = useState("");
   const [apptSuccess, setApptSuccess] = useState("");
   const [landingDoctors, setLandingDoctors] = useState<any[]>(KERALA_DOCTORS);
@@ -227,19 +231,27 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
     e.preventDefault();
     if (!apptFullName.trim() || !apptEmail.trim()) return;
 
+    const assignedHosp = apptHospital || landingHospitals[0]?.name || "Aster Medcity, Kochi";
+    const assignedDoc = apptDoctor || landingDoctors[0]?.name || "Dr. Muralidharan V. Nair";
+    const selectedSpec = apptSpecialty || "Cardiology & Cardiac Surgery";
+    const selectedSrv = apptService || "Specialist Clinical Consultation";
+    const appointmentId = "APT-" + Math.floor(1000 + Math.random() * 9000);
+    const caseId = "CAS-2026-0" + Math.floor(85 + Math.random() * 10);
+    const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
+
     const newEnq = {
       id: "ENQ-" + Math.floor(1000 + Math.random() * 9000),
       name: apptFullName.trim(),
       email: apptEmail.trim(),
       phone: apptPhone.trim() || "+971 50 123 4567",
       country: "International Patient",
-      treatment: apptService.charAt(0).toUpperCase() + apptService.slice(1) + " Consultation",
+      treatment: `${selectedSpec} — ${selectedSrv}`,
       budget: "$5,000",
       urgency: "HIGH",
-      submittedAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
+      submittedAt: now,
       status: "NEW",
-      assignedHospital: "Aster Medcity, Kochi",
-      notes: "Direct booking request submitted from Homepage for date: " + apptDate
+      assignedHospital: assignedHosp,
+      notes: `Direct consultation request submitted from Homepage for ${assignedDoc} on ${apptDate} at ${apptTime}`
     };
 
     if (typeof window !== "undefined") {
@@ -251,32 +263,45 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       }
       localStorage.setItem("maides_admin_enquiries", JSON.stringify([newEnq, ...enqList]));
 
-      // 2. Appointments Queue
+      // 2. Appointments Queue (Comprehensive Enterprise Model)
       const existingAppt = localStorage.getItem("maides_admin_appointments");
       let apptList = [];
       if (existingAppt) {
         try { apptList = JSON.parse(existingAppt); } catch(err){}
       }
       const newAppt = {
-        id: "APT-" + Math.floor(1000 + Math.random() * 9000),
+        id: appointmentId,
         patient: apptFullName.trim(),
-        caseId: "CAS-2026-0" + Math.floor(85 + Math.random() * 10),
-        doctor: "Dr. Vijay Anand (Orthopaedics)",
-        hospital: "Aster Medcity, Kochi",
+        patientEmail: apptEmail.trim(),
+        patientPhone: apptPhone.trim() || "+971 50 123 4567",
+        patientCountry: "International Patient",
+        caseId: caseId,
+        specialty: selectedSpec,
+        service: selectedSrv,
+        hospital: assignedHosp,
+        doctor: assignedDoc,
         type: "VIDEO_CONSULTATION",
-        dateTime: apptDate + " 10:00 IST",
+        dateTime: `${apptDate} ${apptTime}`,
+        preferredTime: apptTime,
         status: "REQUESTED",
-        meetLink: "https://vitalis.health/meet/apt-" + Math.floor(100 + Math.random() * 900),
-        notes: `Landing page booking request: ${apptService} (${apptPhone || "No Phone"})`
+        meetLink: `https://meet.google.com/xyz-maides-${Math.floor(100 + Math.random() * 900)}`,
+        notes: `Landing page booking request: ${selectedSpec} / ${selectedSrv} (${apptPhone || "No Phone"})`,
+        createdAt: now,
+        updatedAt: now,
+        consultationFeeUsd: 50,
+        consultationFeeInr: 4200,
+        history: [
+          { status: "REQUESTED", timestamp: now, updatedBy: "Public Visitor", notes: "Submitted via Homepage Consultation Form" }
+        ]
       };
       localStorage.setItem("maides_admin_appointments", JSON.stringify([newAppt, ...apptList]));
     }
 
-    setApptSuccess(`Thank you ${apptFullName.trim()}! Your appointment request has been scheduled and forwarded to the MAIDES Clinical Coordinator team.`);
+    setApptSuccess(`Thank you ${apptFullName.trim()}! Your consultation request with ${assignedDoc} at ${assignedHosp} on ${apptDate} (${apptTime}) has been scheduled. Your MAIDES Clinical Coordinator will confirm your slot.`);
     setApptFullName("");
     setApptEmail("");
     setApptPhone("");
-    setTimeout(() => setApptSuccess(""), 6000);
+    setTimeout(() => setApptSuccess(""), 7000);
   };
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>("All");
   const [selectedRegion, setSelectedRegion] = useState<'All' | 'South Kerala' | 'Central Kerala' | 'North Kerala'>('All');
@@ -1298,71 +1323,127 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               </div>
             )}
 
-            {/* 2-Column Appointment Input Form */}
-            <form onSubmit={handleBookAppointment} className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
-              <div>
-                <input
-                  type="text"
-                  required
-                  placeholder="Full Name..."
-                  value={apptFullName}
-                  onChange={(e) => setApptFullName(e.target.value)}
-                  className="w-full px-5 py-3.5 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
-                />
+            {/* 2-Column Responsive Appointment Input Form with Relational Selects */}
+            <form onSubmit={handleBookAppointment} className="space-y-4 relative z-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Full Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Sarah Jenkins"
+                    value={apptFullName}
+                    onChange={(e) => setApptFullName(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Email Address *</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="sarah@example.com"
+                    value={apptEmail}
+                    onChange={(e) => setApptEmail(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
+                  />
+                </div>
               </div>
 
-              <div>
-                <select
-                  value={apptService}
-                  onChange={(e) => setApptService(e.target.value)}
-                  className="w-full px-5 py-3.5 rounded-xl bg-[#163863] border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
-                >
-                  {landingSpecialties.map((spec) => (
-                    <option key={spec.id || spec.name} value={spec.name || spec.title} className="bg-[#0F2D54] text-white">
-                      {spec.name || spec.title}
-                    </option>
-                  ))}
-                  <option value="Emergency Consultation" className="bg-[#0F2D54] text-white">Emergency Consultation</option>
-                </select>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                <div>
+                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Medical Specialty</label>
+                  <select
+                    value={apptSpecialty}
+                    onChange={(e) => setApptSpecialty(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-[#163863] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all"
+                  >
+                    {landingSpecialties.map((spec) => (
+                      <option key={spec.id || spec.name} value={spec.name || spec.title} className="bg-[#0F2D54] text-white">
+                        {spec.name || spec.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Partner Hospital</label>
+                  <select
+                    value={apptHospital}
+                    onChange={(e) => setApptHospital(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-[#163863] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all"
+                  >
+                    <option value="">First Available Accredited Hospital</option>
+                    {landingHospitals.map((hosp) => (
+                      <option key={hosp.id || hosp.name} value={hosp.name} className="bg-[#0F2D54] text-white">
+                        {hosp.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Preferred Doctor</label>
+                  <select
+                    value={apptDoctor}
+                    onChange={(e) => setApptDoctor(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-[#163863] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all"
+                  >
+                    <option value="">Department Chief / Senior Specialist</option>
+                    {landingDoctors.map((doc) => (
+                      <option key={doc.id || doc.name} value={doc.name} className="bg-[#0F2D54] text-white">
+                        {doc.name} ({doc.specialty})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              <div>
-                <input
-                  type="email"
-                  required
-                  placeholder="Email Address..."
-                  value={apptEmail}
-                  onChange={(e) => setApptEmail(e.target.value)}
-                  className="w-full px-5 py-3.5 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
-                />
-              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                <div>
+                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Preferred Date *</label>
+                  <input
+                    type="date"
+                    required
+                    value={apptDate}
+                    onChange={(e) => setApptDate(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all [color-scheme:dark]"
+                  />
+                </div>
 
-              <div>
-                <input
-                  type="date"
-                  required
-                  value={apptDate}
-                  onChange={(e) => setApptDate(e.target.value)}
-                  className="w-full px-5 py-3.5 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all [color-scheme:dark]"
-                />
-              </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Preferred Time *</label>
+                  <select
+                    value={apptTime}
+                    onChange={(e) => setApptTime(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-[#163863] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all"
+                  >
+                    <option value="10:00 IST" className="bg-[#0F2D54] text-white">10:00 AM IST (Morning Slot)</option>
+                    <option value="11:30 IST" className="bg-[#0F2D54] text-white">11:30 AM IST (Late Morning)</option>
+                    <option value="14:00 IST" className="bg-[#0F2D54] text-white">02:00 PM IST (Afternoon Slot)</option>
+                    <option value="16:00 IST" className="bg-[#0F2D54] text-white">04:00 PM IST (Evening Telehealth)</option>
+                  </select>
+                </div>
 
-              <div>
-                <input
-                  type="tel"
-                  placeholder="Phone Number..."
-                  value={apptPhone}
-                  onChange={(e) => setApptPhone(e.target.value)}
-                  className="w-full px-5 py-3.5 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
-                />
+                <div>
+                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Phone / WhatsApp</label>
+                  <input
+                    type="tel"
+                    placeholder="+971 50 123 4567"
+                    value={apptPhone}
+                    onChange={(e) => setApptPhone(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all"
+                  />
+                </div>
               </div>
 
               <div>
                 <button
                   type="submit"
-                  className="w-full py-3.5 px-6 rounded-xl bg-[#0E82FD] hover:bg-blue-600 text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center space-x-2 cursor-pointer"
+                  className="w-full py-4 px-6 rounded-xl bg-[#0E82FD] hover:bg-blue-500 text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-xl shadow-blue-500/30 flex items-center justify-center space-x-2 cursor-pointer active:scale-95"
                 >
-                  <span>Schedule An Appointment</span>
+                  <span>Request Specialist Appointment</span>
                 </button>
               </div>
             </form>
