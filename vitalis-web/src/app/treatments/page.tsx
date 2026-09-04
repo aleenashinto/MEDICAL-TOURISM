@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { KERALA_TREATMENTS } from "@/lib/mockData";
 import { ChevronRight, Search, ArrowUpRight, Filter, Clock, MapPin, DollarSign } from "lucide-react";
@@ -23,11 +23,72 @@ const CATEGORY_IMAGES: Record<string, string> = {
 export default function TreatmentsPage() {
   const [query, setQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [treatmentsList, setTreatmentsList] = useState<any[]>(KERALA_TREATMENTS as any[]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("maides_admin_treatments");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const formatted: any[] = parsed
+            .filter((t: any) => t.status === "ACTIVE" || t.status === "SPECIALIZED")
+            .map((t: any) => {
+              // Extract category
+              let cat: any = "Orthopaedics";
+              const spec = (t.specialty || "").toLowerCase();
+              if (spec.includes("cardio")) cat = "Cardiology";
+              else if (spec.includes("onco")) cat = "Oncology";
+              else if (spec.includes("neuro")) cat = "Neurology";
+              else if (spec.includes("ayurveda")) cat = "Ayurveda & Wellness";
+              else if (spec.includes("transplant")) cat = "Organ Transplant";
+              else if (spec.includes("fertility") || spec.includes("ivf")) cat = "Fertility";
+              else if (spec.includes("uro") || spec.includes("nephro")) cat = "Urology";
+              else if (spec.includes("gastro") || spec.includes("bari")) cat = "Gastroenterology";
+              else if (spec.includes("ortho")) cat = "Orthopaedics";
+
+              const stayMatch = t.duration ? parseInt(t.duration.replace(/[^0-9]/g, '')) || 5 : 5;
+              const cost = t.costUSD || 5000;
+
+              return {
+                id: t.id,
+                name: t.name,
+                category: cat,
+                tagline: t.description || "Specialized international healthcare procedure in accredited Kerala hospitals.",
+                overview: t.description || "",
+                whoRequires: t.inclusions || ["International Patients requiring specialized treatment"],
+                costRangeUsd: {
+                  min: Math.round(cost * 0.9),
+                  max: Math.round(cost * 1.15),
+                  averageUsComparison: t.usCostUSD || cost * 4,
+                  averageInr: t.costINR || cost * 83
+                },
+                typicalStayDays: stayMatch,
+                recoveryDays: stayMatch * 2,
+                topKeralaDistricts: t.hospitals && t.hospitals.length ? t.hospitals.map((h: string) => h.includes("Kochi") ? "Ernakulam" : h.includes("Aluva") ? "Ernakulam" : h.includes("Trivandrum") || h.includes("Kovalam") ? "Thiruvananthapuram" : "Ernakulam") : ["Ernakulam", "Thiruvananthapuram"],
+                faqs: [] as any[],
+                featured: t.status === "SPECIALIZED"
+              };
+            });
+
+          const merged: any[] = [...formatted];
+          KERALA_TREATMENTS.forEach((kt: any) => {
+            if (!merged.some(m => m.name.toLowerCase() === kt.name.toLowerCase())) {
+              merged.push(kt);
+            }
+          });
+          setTreatmentsList(merged);
+        }
+      }
+    } catch (e) {
+      setTreatmentsList(KERALA_TREATMENTS);
+    }
+  }, []);
 
   return (
     <PublicPageLayout navbarStyle="white">
       {({ onOpenIntake }) => {
-        const filtered = KERALA_TREATMENTS.filter((t) => {
+        const filtered = treatmentsList.filter((t) => {
           const matchesSearch =
             query === "" ||
             t.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -114,7 +175,7 @@ export default function TreatmentsPage() {
                       </div>
 
                       <div className="flex items-center gap-1 flex-wrap">
-                        {t.topKeralaDistricts.slice(0, 2).map((d) => (
+                        {t.topKeralaDistricts.slice(0, 2).map((d: string) => (
                           <span key={d} className="flex items-center gap-0.5 text-[10px] text-slate-500 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">
                             <MapPin className="w-2.5 h-2.5" />{d}
                           </span>
