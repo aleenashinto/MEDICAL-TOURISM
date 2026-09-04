@@ -33,65 +33,45 @@ export interface AuthTokenPayload {
   exp?: number;
 }
 
-// ─── Enquiry & Cases ──────────────────────────────────────────────────────────
+// ─── Specialty ────────────────────────────────────────────────────────────────
 
-export type LeadStatus =
-  | "new"
-  | "contacted"
-  | "qualified"
-  | "medical_review"
-  | "hospital_matching"
-  | "quotation_sent"
-  | "appointment_requested"
-  | "converted"
-  | "lost"
-  | "closed";
-
-export type CaseStatus =
-  | "new"
-  | "medical_review"
-  | "document_review"
-  | "doctor_assigned"
-  | "opinion_requested"
-  | "opinion_received"
-  | "hospital_selected"
-  | "treatment_planned"
-  | "appointment_scheduled"
-  | "treatment_in_progress"
-  | "treatment_completed"
-  | "follow_up"
-  | "closed"
-  | "cancelled";
-
-export type EnquiryBudget =
-  | "under_3000_usd"
-  | "3000_8000_usd"
-  | "8000_20000_usd"
-  | "20000_50000_usd"
-  | "over_50000_usd"
-  | "flexible";
-
-export type EnquiryTimeline =
-  | "asap"
-  | "1_3_months"
-  | "3_6_months"
-  | "flexible";
-
-export interface Enquiry {
+export interface Specialty {
   id: string;
-  patientId: string;
-  status: CaseStatus;
-  specialty: string;
-  medicalSummary: string;
-  preferredDistrict: string | null;
-  budget: EnquiryBudget | null;
-  timeline: EnquiryTimeline | null;
-  assignedCoordinatorId: string | null;
-  assignedHospitalId: string | null;
-  assignedDoctorId: string | null;
-  internalNotes: string | null;
+  slug: string;
+  name: string;
+  description: string;
+  iconName?: string | null;
+  imageUrl?: string | null;
+  active: boolean;
   createdAt: Date;
-  updatedAt: Date;
+}
+
+// ─── Treatment ────────────────────────────────────────────────────────────────
+
+export interface TreatmentCostRange {
+  minUsd: number;
+  maxUsd: number;
+  averageInr: number;
+  usComparisonCostUsd?: number;
+}
+
+export interface Treatment {
+  id: string;
+  slug: string;
+  specialtyId: string;
+  name: string;
+  tagline: string;
+  description: string;
+  whoRequires: string[];
+  procedureOverview: string;
+  typicalStayDays: number;
+  recoveryDays: number;
+  costRange: TreatmentCostRange;
+  topKeralaDistricts: string[];
+  faqs: { question: string; answer: string }[];
+  featured: boolean;
+  active: boolean;
+  createdAt: Date;
 }
 
 // ─── Hospital ─────────────────────────────────────────────────────────────────
@@ -158,6 +138,67 @@ export interface Doctor {
   featured: boolean;
   active: boolean;
   createdAt: Date;
+}
+
+// ─── Enquiry & Cases ──────────────────────────────────────────────────────────
+
+export type LeadStatus =
+  | "new"
+  | "contacted"
+  | "qualified"
+  | "medical_review"
+  | "hospital_matching"
+  | "quotation_sent"
+  | "appointment_requested"
+  | "converted"
+  | "lost"
+  | "closed";
+
+export type CaseStatus =
+  | "new"
+  | "medical_review"
+  | "document_review"
+  | "doctor_assigned"
+  | "opinion_requested"
+  | "opinion_received"
+  | "hospital_selected"
+  | "treatment_planned"
+  | "appointment_scheduled"
+  | "treatment_in_progress"
+  | "treatment_completed"
+  | "follow_up"
+  | "closed"
+  | "cancelled";
+
+export type EnquiryBudget =
+  | "under_3000_usd"
+  | "3000_8000_usd"
+  | "8000_20000_usd"
+  | "20000_50000_usd"
+  | "over_50000_usd"
+  | "flexible";
+
+export type EnquiryTimeline =
+  | "asap"
+  | "1_3_months"
+  | "3_6_months"
+  | "flexible";
+
+export interface Enquiry {
+  id: string;
+  patientId: string;
+  status: CaseStatus;
+  specialty: string;
+  medicalSummary: string;
+  preferredDistrict: string | null;
+  budget: EnquiryBudget | null;
+  timeline: EnquiryTimeline | null;
+  assignedCoordinatorId: string | null;
+  assignedHospitalId: string | null;
+  assignedDoctorId: string | null;
+  internalNotes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // ─── Document ─────────────────────────────────────────────────────────────────

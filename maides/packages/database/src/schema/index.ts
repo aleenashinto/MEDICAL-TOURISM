@@ -98,6 +98,43 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+// ─── Specialties ─────────────────────────────────────────────────────────────
+
+export const specialties = pgTable("specialties", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  slug: varchar("slug", { length: 150 }).notNull().unique(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  iconName: varchar("icon_name", { length: 100 }),
+  imageUrl: text("image_url"),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// ─── Treatments ──────────────────────────────────────────────────────────────
+
+export const treatments = pgTable("treatments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  slug: varchar("slug", { length: 150 }).notNull().unique(),
+  specialtyId: uuid("specialty_id").references(() => specialties.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  tagline: text("tagline").notNull(),
+  description: text("description").notNull(),
+  whoRequires: jsonb("who_requires").$type<string[]>().default([]).notNull(),
+  procedureOverview: text("procedure_overview").notNull(),
+  typicalStayDays: integer("typical_stay_days").default(7).notNull(),
+  recoveryDays: integer("recovery_days").default(14).notNull(),
+  minUsd: integer("min_usd").default(2000).notNull(),
+  maxUsd: integer("max_usd").default(8000).notNull(),
+  averageInr: integer("average_inr").default(250000).notNull(),
+  usComparisonCostUsd: integer("us_comparison_cost_usd").default(45000),
+  topKeralaDistricts: jsonb("top_kerala_districts").$type<string[]>().default([]).notNull(),
+  faqs: jsonb("faqs").$type<{ question: string; answer: string }[]>().default([]).notNull(),
+  featured: boolean("featured").default(false).notNull(),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 // ─── Hospitals ───────────────────────────────────────────────────────────────
 
 export const hospitals = pgTable("hospitals", {
