@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   LifeBuoy, 
   Search, 
@@ -9,25 +9,35 @@ import {
   Clock, 
   AlertCircle, 
   Plus, 
-  MessageSquare,
-  ArrowRight,
-  Eye,
-  Edit,
-  Trash2,
-  X,
-  Send,
-  User,
-  Shield,
-  AlertTriangle,
-  Paperclip,
-  FileText,
-  Download,
-  RotateCcw,
-  Check,
-  Tag,
-  Calendar,
-  Building2,
-  UserCheck
+  MessageSquare, 
+  ArrowRight, 
+  Eye, 
+  Edit, 
+  Trash2, 
+  X, 
+  Send, 
+  User, 
+  Shield, 
+  AlertTriangle, 
+  Paperclip, 
+  FileText, 
+  Download, 
+  RotateCcw, 
+  Check, 
+  Tag, 
+  Calendar, 
+  Building2, 
+  UserCheck,
+  ChevronRight,
+  MoreVertical,
+  SlidersHorizontal,
+  Flame,
+  CheckCircle,
+  HelpCircle,
+  Plane,
+  CreditCard,
+  HeartPulse,
+  Sparkles
 } from "lucide-react";
 
 export type TicketStatus = "Open" | "In Progress" | "Waiting for Patient" | "Resolved" | "Closed";
@@ -176,18 +186,17 @@ export default function SupportTicketsAdminPage() {
   const [replyText, setReplyText] = useState("");
   const [internalNoteText, setInternalNoteText] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  
-  // Create Ticket Form State
-  const [newTicketData, setNewTicketData] = useState({
-    patientName: "",
-    patientEmail: "",
-    patientCountry: "United States",
-    category: "Medical Case & Doctor Review",
-    subject: "",
-    description: "",
-    priority: "Medium" as TicketPriority,
-    assignedTo: "Care Coordinator Desk"
-  });
+  const [activeTab, setActiveTab] = useState<"thread" | "notes">("thread");
+
+  const chatBottomRef = useRef<HTMLDivElement>(null);
+
+  // Quick Preset Replies
+  const QUICK_TEMPLATES = [
+    "Thank you for contacting MAIDES. Your coordinator has been assigned and is verifying your flight details.",
+    "Your hospital admission and doctor consultation are confirmed. Chauffeur will meet you at Kochi Airport Terminal 3.",
+    "The required hospital invoice and FRRO invitation documents have been uploaded to your document locker.",
+    "We have reviewed your inquiry and marked this ticket as resolved. Please reach out anytime if further assistance is needed!"
+  ];
 
   // Load from LocalStorage
   useEffect(() => {
@@ -216,6 +225,10 @@ export default function SupportTicketsAdminPage() {
       setSelectedTicket(updatedSel);
     }
   };
+
+  useEffect(() => {
+    chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [selectedTicket?.replies]);
 
   // Filter Logic
   const filteredTickets = tickets.filter(t => {
@@ -294,131 +307,123 @@ export default function SupportTicketsAdminPage() {
     saveTickets(updated);
   };
 
-  // Create New Ticket
-  const handleCreateTicket = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTicketData.patientName || !newTicketData.subject || !newTicketData.description) {
-      alert("Please fill in patient name, subject, and description.");
-      return;
+  const getPriorityBadge = (priority: TicketPriority) => {
+    switch (priority) {
+      case "Critical":
+        return "bg-rose-500/15 text-rose-400 border border-rose-500/30";
+      case "High":
+        return "bg-amber-500/15 text-amber-400 border border-amber-500/30";
+      case "Medium":
+        return "bg-blue-500/15 text-blue-400 border border-blue-500/30";
+      default:
+        return "bg-slate-800 text-slate-400 border border-slate-700";
     }
+  };
 
-    const timeStr = new Date().toISOString().replace("T", " ").substring(0, 16);
-    const newTicket: SupportTicket = {
-      id: "TCK-" + Math.floor(800 + Math.random() * 200),
-      patientId: "pat-" + Math.floor(100 + Math.random() * 900),
-      patientName: newTicketData.patientName,
-      patientEmail: newTicketData.patientEmail || "patient@example.com",
-      patientCountry: newTicketData.patientCountry,
-      category: newTicketData.category,
-      subject: newTicketData.subject,
-      description: newTicketData.description,
-      priority: newTicketData.priority,
-      status: "Open",
-      assignedTo: newTicketData.assignedTo,
-      createdAt: timeStr,
-      updatedAt: timeStr,
-      replies: [
-        {
-          id: "REP-" + Date.now(),
-          sender: "Admin (Created on behalf of patient)",
-          role: "Admin",
-          message: newTicketData.description,
-          timestamp: timeStr
-        }
-      ],
-      internalNotes: []
-    };
-
-    saveTickets([newTicket, ...tickets]);
-    setSelectedTicket(newTicket);
-    setIsCreateModalOpen(false);
-    setNewTicketData({
-      patientName: "",
-      patientEmail: "",
-      patientCountry: "United States",
-      category: "Medical Case & Doctor Review",
-      subject: "",
-      description: "",
-      priority: "Medium",
-      assignedTo: "Care Coordinator Desk"
-    });
+  const getStatusBadge = (status: TicketStatus) => {
+    switch (status) {
+      case "Open":
+        return "bg-blue-500/15 text-blue-400 border border-blue-500/30";
+      case "In Progress":
+        return "bg-amber-500/15 text-amber-400 border border-amber-500/30";
+      case "Waiting for Patient":
+        return "bg-purple-500/15 text-purple-400 border border-purple-500/30";
+      case "Resolved":
+        return "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30";
+      default:
+        return "bg-slate-800 text-slate-400 border border-slate-700";
+    }
   };
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/60 p-6 rounded-3xl border border-slate-800/80 backdrop-blur-md">
+      {/* Top Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-slate-950 p-6 rounded-3xl border border-slate-800/80 backdrop-blur-md shadow-xl">
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1">
-            <LifeBuoy className="w-4 h-4" />
-            MAIDES Support Ticket Operations & Resolution Hub
+            <LifeBuoy className="w-4 h-4 text-blue-400" />
+            MAIDES Patient Support Operations & Live Escalation Desk
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">
-            Support Tickets & Escalation Desk
+          <h1 className="text-2xl font-black text-white tracking-tight">
+            Support Tickets & Escalation Hub
           </h1>
-          <p className="text-xs text-slate-400 mt-1 max-w-2xl">
-            Unified ticketing system connecting international patients and care coordinators for clinical reviews, visa clearances, and logistics inquiries.
+          <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+            Manage inquiries, assign medical coordinators, resolve patient tickets, and synchronize bidirectional updates with patients in real time.
           </p>
         </div>
 
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="flex items-center gap-1.5 px-4 py-2.5 bg-[#0E82FD] hover:bg-blue-600 text-white text-xs font-semibold rounded-xl shadow-md transition-all active:scale-95"
+          className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-[#0E82FD] to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-xs font-bold rounded-2xl shadow-lg shadow-blue-500/20 transition-all active:scale-95 shrink-0"
         >
           <Plus className="w-4 h-4" />
           Create Support Ticket
         </button>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="bg-slate-950/80 border border-slate-800/80 p-4 rounded-2xl">
-          <div className="text-xs font-medium text-slate-400">Total Active Tickets</div>
-          <div className="text-2xl font-bold text-white mt-2">{tickets.length}</div>
-          <div className="text-[11px] text-slate-500 mt-0.5">Across all healthcare tracks</div>
+      {/* Modern Metrics Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-slate-950/80 border border-slate-800/80 p-5 rounded-2xl relative overflow-hidden group hover:border-slate-700 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-400">Total Registered Cases</span>
+            <span className="p-2 rounded-xl bg-blue-500/10 text-blue-400"><LifeBuoy className="w-4 h-4" /></span>
+          </div>
+          <div className="text-2xl font-black text-white mt-3">{tickets.length}</div>
+          <div className="text-[11px] text-slate-500 mt-1">Global medical tourism tracking</div>
         </div>
 
-        <div className="bg-slate-950/80 border border-slate-800/80 p-4 rounded-2xl">
-          <div className="text-xs font-medium text-slate-400">Open & In-Progress</div>
-          <div className="text-2xl font-bold text-amber-400 mt-2">
+        <div className="bg-slate-950/80 border border-slate-800/80 p-5 rounded-2xl relative overflow-hidden group hover:border-slate-700 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-400">Open & In Progress</span>
+            <span className="p-2 rounded-xl bg-amber-500/10 text-amber-400"><Clock className="w-4 h-4" /></span>
+          </div>
+          <div className="text-2xl font-black text-amber-400 mt-3">
             {tickets.filter(t => t.status === "Open" || t.status === "In Progress").length}
           </div>
-          <div className="text-[11px] text-amber-500/80 mt-0.5">Requires coordinator action</div>
+          <div className="text-[11px] text-amber-500/80 mt-1">Requires coordinator attention</div>
         </div>
 
-        <div className="bg-slate-950/80 border border-slate-800/80 p-4 rounded-2xl">
-          <div className="text-xs font-medium text-slate-400">Waiting for Patient</div>
-          <div className="text-2xl font-bold text-blue-400 mt-2">
+        <div className="bg-slate-950/80 border border-slate-800/80 p-5 rounded-2xl relative overflow-hidden group hover:border-slate-700 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-400">Waiting for Patient</span>
+            <span className="p-2 rounded-xl bg-purple-500/10 text-purple-400"><UserCheck className="w-4 h-4" /></span>
+          </div>
+          <div className="text-2xl font-black text-purple-400 mt-3">
             {tickets.filter(t => t.status === "Waiting for Patient").length}
           </div>
-          <div className="text-[11px] text-blue-500/80 mt-0.5">Pending patient document upload</div>
+          <div className="text-[11px] text-purple-400/80 mt-1">Awaiting traveler reply/docs</div>
         </div>
 
-        <div className="bg-slate-950/80 border border-slate-800/80 p-4 rounded-2xl">
-          <div className="text-xs font-medium text-slate-400">Resolved & Closed</div>
-          <div className="text-2xl font-bold text-emerald-400 mt-2">
+        <div className="bg-slate-950/80 border border-slate-800/80 p-5 rounded-2xl relative overflow-hidden group hover:border-slate-700 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-400">Resolved & Closed</span>
+            <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400"><CheckCircle className="w-4 h-4" /></span>
+          </div>
+          <div className="text-2xl font-black text-emerald-400 mt-3">
             {tickets.filter(t => t.status === "Resolved" || t.status === "Closed").length}
           </div>
-          <div className="text-[11px] text-emerald-500/80 mt-0.5">Successfully concluded</div>
+          <div className="text-[11px] text-emerald-500/80 mt-1 flex items-center gap-1">
+            <Check className="w-3 h-3" /> Successfully concluded
+          </div>
         </div>
       </div>
 
-      {/* 2-Column Canvas */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[720px] bg-slate-950/90 border border-slate-800/90 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-sm">
+      {/* Main Dual-Pane Ticket Studio */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[760px] bg-slate-950/90 border border-slate-800/90 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-md">
         
-        {/* Left Column: Tickets Queue */}
-        <div className="lg:col-span-5 border-r border-slate-800/80 flex flex-col justify-between bg-slate-950/60">
+        {/* Left Pane: Ticket Queue & Filters (5 cols) */}
+        <div className="lg:col-span-5 border-r border-slate-800/80 flex flex-col justify-between bg-slate-950/70">
           
-          {/* Filters Bar */}
-          <div className="p-3.5 border-b border-slate-800 space-y-2.5 bg-slate-900/40">
+          {/* Search and Filters Header */}
+          <div className="p-4 border-b border-slate-800 space-y-3 bg-slate-900/50">
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search ticket #, patient, subject..."
+                placeholder="Search ticket ID, patient, subject, email..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-all"
               />
             </div>
 
@@ -426,7 +431,7 @@ export default function SupportTicketsAdminPage() {
               <select
                 value={statusFilter}
                 onChange={e => setStatusFilter(e.target.value)}
-                className="px-2 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-[11px] text-slate-300 focus:outline-none focus:border-blue-500"
+                className="px-2.5 py-2 bg-slate-900 border border-slate-800 rounded-xl text-[11px] font-medium text-slate-300 focus:outline-none focus:border-blue-500"
               >
                 <option value="ALL">All Status</option>
                 <option value="OPEN">Open</option>
@@ -439,7 +444,7 @@ export default function SupportTicketsAdminPage() {
               <select
                 value={priorityFilter}
                 onChange={e => setPriorityFilter(e.target.value)}
-                className="px-2 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-[11px] text-slate-300 focus:outline-none focus:border-blue-500"
+                className="px-2.5 py-2 bg-slate-900 border border-slate-800 rounded-xl text-[11px] font-medium text-slate-300 focus:outline-none focus:border-blue-500"
               >
                 <option value="ALL">All Priority</option>
                 <option value="CRITICAL">Critical</option>
@@ -451,22 +456,21 @@ export default function SupportTicketsAdminPage() {
               <select
                 value={categoryFilter}
                 onChange={e => setCategoryFilter(e.target.value)}
-                className="px-2 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-[11px] text-slate-300 focus:outline-none focus:border-blue-500"
+                className="px-2.5 py-2 bg-slate-900 border border-slate-800 rounded-xl text-[11px] font-medium text-slate-300 focus:outline-none focus:border-blue-500"
               >
                 <option value="ALL">All Topics</option>
                 <option value="TRAVEL & AIRPORT LOGISTICS">Travel</option>
                 <option value="BILLING & INVOICES">Billing</option>
                 <option value="MEDICAL CASE & DOCTOR REVIEW">Medical</option>
-                <option value="VISA & FRRO ASSISTANCE">Visa</option>
               </select>
             </div>
           </div>
 
-          {/* Tickets List */}
-          <div className="flex-1 overflow-y-auto divide-y divide-slate-800/50">
+          {/* Ticket Queue List */}
+          <div className="flex-1 overflow-y-auto divide-y divide-slate-800/60 p-2 space-y-1">
             {filteredTickets.length === 0 ? (
-              <div className="p-8 text-center text-xs text-slate-500">
-                No tickets match current filters.
+              <div className="p-12 text-center text-xs text-slate-500">
+                No tickets match your filter criteria.
               </div>
             ) : (
               filteredTickets.map(t => {
@@ -475,34 +479,34 @@ export default function SupportTicketsAdminPage() {
                   <button
                     key={t.id}
                     onClick={() => setSelectedTicket(t)}
-                    className={`w-full text-left p-4 hover:bg-slate-900/60 transition-all flex flex-col gap-2 ${
-                      isSelected ? "bg-slate-900/90 border-l-4 border-[#0E82FD]" : ""
+                    className={`w-full text-left p-4 rounded-2xl transition-all flex flex-col gap-2.5 ${
+                      isSelected 
+                        ? "bg-slate-900 border border-blue-500/40 shadow-lg shadow-blue-500/5" 
+                        : "hover:bg-slate-900/60 border border-transparent"
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-xs text-blue-400">{t.id}</span>
-                        <span className="font-semibold text-xs text-white truncate">{t.patientName}</span>
+                        <span className="font-mono font-bold text-xs text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-500/20">
+                          {t.id}
+                        </span>
+                        <span className="font-bold text-xs text-white truncate max-w-[140px]">{t.patientName}</span>
                       </div>
-                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${
-                        t.priority === "Critical" ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" :
-                        t.priority === "High" ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" :
-                        "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                      }`}>
+                      <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${getPriorityBadge(t.priority)}`}>
                         {t.priority}
                       </span>
                     </div>
 
-                    <div className="text-xs font-semibold text-slate-200 line-clamp-1">{t.subject}</div>
+                    <div className="text-xs font-semibold text-slate-200 line-clamp-1">
+                      {t.subject}
+                    </div>
 
                     <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1">
-                      <span className="truncate max-w-[180px]">{t.category}</span>
-                      <span className={`px-2 py-0.5 rounded-md font-semibold ${
-                        t.status === "Open" ? "bg-blue-500/10 text-blue-400" :
-                        t.status === "In Progress" ? "bg-amber-500/10 text-amber-400" :
-                        t.status === "Resolved" ? "bg-emerald-500/10 text-emerald-400" :
-                        "bg-slate-800 text-slate-400"
-                      }`}>
+                      <span className="truncate max-w-[160px] text-slate-400 flex items-center gap-1">
+                        <Tag className="w-3 h-3 text-slate-500" />
+                        {t.category}
+                      </span>
+                      <span className={`px-2 py-0.5 rounded-md font-semibold ${getStatusBadge(t.status)}`}>
                         {t.status}
                       </span>
                     </div>
@@ -512,41 +516,47 @@ export default function SupportTicketsAdminPage() {
             )}
           </div>
 
-          <div className="p-3 bg-slate-900/50 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between">
-            <span>{tickets.length} Registered Support Cases</span>
+          {/* Bottom Live Sync Indicator */}
+          <div className="p-3.5 bg-slate-900/60 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between">
+            <span className="flex items-center gap-1.5 font-medium text-slate-400">
+              <Shield className="w-3.5 h-3.5 text-emerald-400" />
+              Patient-Isolated Ticket Vault
+            </span>
             <span className="text-emerald-400 font-semibold flex items-center gap-1">
-              <Check className="w-3.5 h-3.5" /> Synchronized
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Live Synchronized
             </span>
           </div>
         </div>
 
-        {/* Right Column: Ticket Conversation & Details */}
+        {/* Right Pane: Selected Ticket Thread & Action Studio (7 cols) */}
         <div className="lg:col-span-7 flex flex-col justify-between bg-slate-950/40">
           {selectedTicket ? (
             <>
-              {/* Ticket Top Header & Actions */}
-              <div className="p-5 border-b border-slate-800/80 bg-slate-900/50 space-y-3">
+              {/* Ticket Top Header & Action Controls */}
+              <div className="p-5 border-b border-slate-800/80 bg-slate-900/60 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-base font-bold text-white">{selectedTicket.subject}</span>
-                      <span className="font-mono text-xs text-blue-400 font-semibold bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-500/20">
+                    <div className="flex items-center gap-2.5">
+                      <h2 className="text-base font-bold text-white">{selectedTicket.subject}</h2>
+                      <span className="font-mono text-xs text-blue-400 font-bold bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-500/20">
                         {selectedTicket.id}
                       </span>
                     </div>
                     <div className="text-xs text-slate-400 flex items-center gap-2 mt-1">
-                      <span>Patient: <strong className="text-white">{selectedTicket.patientName}</strong> ({selectedTicket.patientEmail})</span>
+                      <span>Patient: <strong className="text-white font-semibold">{selectedTicket.patientName}</strong></span>
                       <span>•</span>
-                      <span>Created: {selectedTicket.createdAt}</span>
+                      <span>{selectedTicket.patientEmail}</span>
+                      <span>•</span>
+                      <span>{selectedTicket.createdAt}</span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {/* Status dropdown */}
+                    {/* Status Dropdown */}
                     <select
                       value={selectedTicket.status}
                       onChange={e => handleStatusChange(e.target.value as any)}
-                      className="px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500 font-semibold"
+                      className="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-blue-500 font-bold shadow-sm"
                     >
                       <option value="Open">Open</option>
                       <option value="In Progress">In Progress</option>
@@ -555,11 +565,11 @@ export default function SupportTicketsAdminPage() {
                       <option value="Closed">Closed</option>
                     </select>
 
-                    {/* Priority dropdown */}
+                    {/* Priority Dropdown */}
                     <select
                       value={selectedTicket.priority}
                       onChange={e => handlePriorityChange(e.target.value as any)}
-                      className="px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500 font-semibold"
+                      className="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-blue-500 font-bold shadow-sm"
                     >
                       <option value="Critical">Critical</option>
                       <option value="High">High</option>
@@ -569,97 +579,151 @@ export default function SupportTicketsAdminPage() {
                   </div>
                 </div>
 
-                {/* Meta details bar */}
+                {/* Sub-Header Metadata Chips */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/60 text-xs text-slate-400">
-                  <div>Category: <span className="text-white font-medium">{selectedTicket.category}</span></div>
-                  <div>Assigned: <span className="text-blue-400 font-medium">{selectedTicket.assignedTo}</span></div>
+                  <div className="flex items-center gap-3">
+                    <span>Category: <strong className="text-slate-200">{selectedTicket.category}</strong></span>
+                    <span>•</span>
+                    <span>Assigned: <strong className="text-blue-400">{selectedTicket.assignedTo}</strong></span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => setActiveTab("thread")}
+                      className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                        activeTab === "thread" ? "bg-blue-600 text-white" : "bg-slate-900 text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      Conversation Thread ({selectedTicket.replies.length})
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("notes")}
+                      className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                        activeTab === "notes" ? "bg-amber-600/30 text-amber-300 border border-amber-500/30" : "bg-slate-900 text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      Staff Notes ({selectedTicket.internalNotes?.length || 0})
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Thread Feed */}
-              <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-gradient-to-b from-slate-950/20 to-slate-900/10">
-                {selectedTicket.replies.map(rep => {
-                  const isAdmin = rep.role === "Coordinator" || rep.role === "Admin";
-                  return (
-                    <div
-                      key={rep.id}
-                      className={`flex flex-col ${isAdmin ? "items-end" : "items-start"}`}
-                    >
-                      <div className="flex items-center gap-1.5 mb-1 px-1 text-[10px] text-slate-400">
-                        <span className="font-semibold text-slate-300">{rep.sender}</span>
-                        <span>•</span>
-                        <span>{rep.timestamp}</span>
-                      </div>
-
+              {/* Message Feed & Thread */}
+              {activeTab === "thread" ? (
+                <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-gradient-to-b from-slate-950/20 to-slate-900/10">
+                  {selectedTicket.replies.map((rep) => {
+                    const isAdmin = rep.role === "Coordinator" || rep.role === "Admin";
+                    return (
                       <div
-                        className={`max-w-xl p-4 rounded-2xl text-xs leading-relaxed shadow-md ${
-                          isAdmin
-                            ? "bg-[#0E82FD] text-white rounded-tr-none"
-                            : "bg-slate-900 text-slate-200 border border-slate-800/80 rounded-tl-none"
-                        }`}
+                        key={rep.id}
+                        className={`flex flex-col ${isAdmin ? "items-end" : "items-start"}`}
                       >
-                        <p className="whitespace-pre-wrap">{rep.message}</p>
-                      </div>
-                    </div>
-                  );
-                })}
+                        <div className="flex items-center gap-1.5 mb-1 px-1 text-[10px] text-slate-400">
+                          <span className="font-semibold text-slate-300">{rep.sender}</span>
+                          <span>•</span>
+                          <span>{rep.timestamp}</span>
+                        </div>
 
-                {/* Internal Notes Section */}
-                {selectedTicket.internalNotes && selectedTicket.internalNotes.length > 0 && (
-                  <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl space-y-1.5">
-                    <div className="text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
-                      <Shield className="w-3.5 h-3.5" /> Staff Internal Notes (Confidential)
-                    </div>
-                    {selectedTicket.internalNotes.map((note, idx) => (
-                      <div key={idx} className="text-xs text-amber-200/90 pl-2 border-l-2 border-amber-500/40">
-                        {note}
+                        <div
+                          className={`max-w-xl p-4 rounded-2xl text-xs leading-relaxed shadow-md ${
+                            isAdmin
+                              ? "bg-gradient-to-r from-[#0E82FD] to-blue-600 text-white rounded-tr-none font-normal"
+                              : "bg-slate-900 text-slate-200 border border-slate-800/80 rounded-tl-none font-normal"
+                          }`}
+                        >
+                          <p className="whitespace-pre-wrap">{rep.message}</p>
+                        </div>
                       </div>
-                    ))}
+                    );
+                  })}
+                  <div ref={chatBottomRef} />
+                </div>
+              ) : (
+                /* Internal Staff Notes Tab */
+                <div className="flex-1 p-5 overflow-y-auto space-y-3 bg-slate-950/60">
+                  <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-xs text-amber-300 flex items-center gap-2 mb-2">
+                    <Shield className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>Internal Staff Notes are strictly confidential and completely invisible to patients.</span>
                   </div>
+
+                  {(!selectedTicket.internalNotes || selectedTicket.internalNotes.length === 0) ? (
+                    <div className="p-8 text-center text-xs text-slate-500">
+                      No internal notes recorded yet. Use the input below to log confidential clinical instructions.
+                    </div>
+                  ) : (
+                    selectedTicket.internalNotes.map((note, idx) => (
+                      <div key={idx} className="p-3.5 bg-slate-900 border border-slate-800 rounded-2xl text-xs text-slate-200 space-y-1">
+                        <div className="flex items-center justify-between text-[10px] text-amber-400 font-bold uppercase tracking-wider">
+                          <span>Internal Staff Note #{idx + 1}</span>
+                          <span className="text-slate-500 font-normal">Confidential</span>
+                        </div>
+                        <p className="text-slate-300">{note}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {/* Bottom Response Bar */}
+              <div className="p-4 border-t border-slate-800/80 bg-slate-900/70 space-y-2.5">
+                
+                {/* Quick Templates bar */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[10px]">
+                  <span className="text-slate-500 font-bold uppercase shrink-0 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-blue-400" /> Quick Replies:
+                  </span>
+                  {QUICK_TEMPLATES.map((tpl, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setReplyText(tpl)}
+                      className="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 whitespace-nowrap transition-all"
+                    >
+                      {tpl.substring(0, 32)}...
+                    </button>
+                  ))}
+                </div>
+
+                {activeTab === "thread" ? (
+                  <form onSubmit={handleSendReply} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder="Type response to patient (press Enter to send)..."
+                      value={replyText}
+                      onChange={e => setReplyText(e.target.value)}
+                      className="flex-1 px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-all"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!replyText.trim()}
+                      className="px-5 py-2.5 bg-[#0E82FD] hover:bg-blue-600 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-1.5 shrink-0"
+                    >
+                      <Send className="w-3.5 h-3.5" /> Reply to Patient
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleAddInternalNote} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder="Add private staff note (hidden from patient)..."
+                      value={internalNoteText}
+                      onChange={e => setInternalNoteText(e.target.value)}
+                      className="flex-1 px-4 py-2.5 bg-slate-950 border border-amber-500/30 rounded-xl text-xs text-amber-200 placeholder-slate-600 focus:outline-none focus:border-amber-500 transition-all"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!internalNoteText.trim()}
+                      className="px-4 py-2.5 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 text-xs font-bold rounded-xl transition-all shrink-0"
+                    >
+                      Save Internal Note
+                    </button>
+                  </form>
                 )}
-              </div>
-
-              {/* Reply & Note Input Bar */}
-              <div className="p-4 border-t border-slate-800/80 bg-slate-900/60 space-y-3">
-                <form onSubmit={handleSendReply} className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    placeholder="Type official response to patient..."
-                    value={replyText}
-                    onChange={e => setReplyText(e.target.value)}
-                    className="flex-1 px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!replyText.trim()}
-                    className="px-4 py-2.5 bg-[#0E82FD] hover:bg-blue-600 disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 shrink-0 shadow-md"
-                  >
-                    <Send className="w-3.5 h-3.5" /> Reply
-                  </button>
-                </form>
-
-                {/* Internal Staff Note Input */}
-                <form onSubmit={handleAddInternalNote} className="flex items-center gap-2 pt-1 border-t border-slate-800/50">
-                  <input
-                    type="text"
-                    placeholder="Add private staff note (hidden from patient)..."
-                    value={internalNoteText}
-                    onChange={e => setInternalNoteText(e.target.value)}
-                    className="flex-1 px-3 py-1.5 bg-slate-950 border border-amber-500/20 rounded-lg text-xs text-amber-300 placeholder-slate-600 focus:outline-none focus:border-amber-500"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!internalNoteText.trim()}
-                    className="px-3 py-1.5 bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 text-xs font-semibold rounded-lg transition-all"
-                  >
-                    Add Note
-                  </button>
-                </form>
               </div>
             </>
           ) : (
-            <div className="p-12 text-center text-xs text-slate-500">
-              Select a support ticket from the list to review the thread.
+            <div className="p-16 text-center text-xs text-slate-500">
+              Select a support ticket from the left list to review its complete thread.
             </div>
           )}
         </div>
@@ -668,7 +732,7 @@ export default function SupportTicketsAdminPage() {
       {/* CREATE TICKET MODAL */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-950 border border-slate-800 rounded-3xl max-w-lg w-full p-6 space-y-4">
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-base font-bold text-white">Create Patient Support Ticket</h3>
               <button onClick={() => setIsCreateModalOpen(false)} className="p-1 text-slate-400 hover:text-white">
@@ -676,15 +740,52 @@ export default function SupportTicketsAdminPage() {
               </button>
             </div>
 
-            <form onSubmit={handleCreateTicket} className="space-y-3 text-xs">
+            <form onSubmit={e => {
+              e.preventDefault();
+              const form = e.target as any;
+              const patientName = form.patientName.value;
+              const subject = form.subject.value;
+              const description = form.description.value;
+              const category = form.category.value;
+              const priority = form.priority.value;
+
+              const timeStr = new Date().toISOString().replace("T", " ").substring(0, 16);
+              const newTicket: SupportTicket = {
+                id: "TCK-" + Math.floor(810 + Math.random() * 100),
+                patientId: "pat-" + Math.floor(100 + Math.random() * 900),
+                patientName,
+                patientEmail: "patient@example.com",
+                category,
+                subject,
+                description,
+                priority,
+                status: "Open",
+                assignedTo: "Care Coordinator Desk",
+                createdAt: timeStr,
+                updatedAt: timeStr,
+                replies: [
+                  {
+                    id: "REP-" + Date.now(),
+                    sender: "Admin Desk",
+                    role: "Admin",
+                    message: description,
+                    timestamp: timeStr
+                  }
+                ],
+                internalNotes: []
+              };
+
+              saveTickets([newTicket, ...tickets]);
+              setSelectedTicket(newTicket);
+              setIsCreateModalOpen(false);
+            }} className="space-y-3 text-xs">
               <div>
                 <label className="text-slate-400 font-semibold block mb-1">Patient Name</label>
                 <input
+                  name="patientName"
                   type="text"
                   required
                   placeholder="e.g. Sarah Jenkins"
-                  value={newTicketData.patientName}
-                  onChange={e => setNewTicketData({ ...newTicketData, patientName: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white"
                 />
               </div>
@@ -693,28 +794,25 @@ export default function SupportTicketsAdminPage() {
                 <div>
                   <label className="text-slate-400 font-semibold block mb-1">Category</label>
                   <select
-                    value={newTicketData.category}
-                    onChange={e => setNewTicketData({ ...newTicketData, category: e.target.value })}
+                    name="category"
                     className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white"
                   >
-                    <option value="Medical Case & Doctor Review">Medical Case</option>
                     <option value="Travel & Airport Logistics">Travel & Logistics</option>
+                    <option value="Medical Case & Doctor Review">Medical Case</option>
                     <option value="Billing & Invoices">Billing & Escrow</option>
                     <option value="Visa & FRRO Assistance">Visa & FRRO</option>
-                    <option value="Accommodation & Post-Op">Accommodation</option>
                   </select>
                 </div>
                 <div>
                   <label className="text-slate-400 font-semibold block mb-1">Priority</label>
                   <select
-                    value={newTicketData.priority}
-                    onChange={e => setNewTicketData({ ...newTicketData, priority: e.target.value as any })}
+                    name="priority"
                     className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white"
                   >
-                    <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
                     <option value="High">High</option>
                     <option value="Critical">Critical</option>
+                    <option value="Low">Low</option>
                   </select>
                 </div>
               </div>
@@ -722,11 +820,10 @@ export default function SupportTicketsAdminPage() {
               <div>
                 <label className="text-slate-400 font-semibold block mb-1">Subject</label>
                 <input
+                  name="subject"
                   type="text"
                   required
-                  placeholder="Brief summary of issue"
-                  value={newTicketData.subject}
-                  onChange={e => setNewTicketData({ ...newTicketData, subject: e.target.value })}
+                  placeholder="e.g. Chauffeur pickup confirmation"
                   className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white"
                 />
               </div>
@@ -734,11 +831,10 @@ export default function SupportTicketsAdminPage() {
               <div>
                 <label className="text-slate-400 font-semibold block mb-1">Description / Inquiry</label>
                 <textarea
+                  name="description"
                   rows={3}
                   required
-                  placeholder="Enter full details regarding the support request..."
-                  value={newTicketData.description}
-                  onChange={e => setNewTicketData({ ...newTicketData, description: e.target.value })}
+                  placeholder="Enter full inquiry details..."
                   className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white resize-none"
                 />
               </div>
@@ -753,9 +849,9 @@ export default function SupportTicketsAdminPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#0E82FD] hover:bg-blue-600 text-white font-semibold rounded-xl"
+                  className="px-5 py-2 bg-[#0E82FD] hover:bg-blue-600 text-white font-bold rounded-xl"
                 >
-                  Submit Ticket
+                  Create Ticket
                 </button>
               </div>
             </form>
