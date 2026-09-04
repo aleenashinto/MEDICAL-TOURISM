@@ -1016,6 +1016,120 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
         </div>
       </section>
 
+      {/* 10.5 BOOK AN APPOINTMENT & EMERGENCY MEDICAL SERVICE CONTAINER */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          
+          {/* Left Card: Get Emergency Medical Service */}
+          <div className="lg:col-span-4 relative rounded-3xl overflow-hidden min-h-[380px] shadow-xl flex flex-col justify-end p-8 text-white group">
+            {/* Background Image with Deep Blue Overlay */}
+            <img 
+              src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80" 
+              alt="Emergency Medical Doctors" 
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#081B38]/95 via-[#0E4B94]/60 to-transparent" />
+
+            <div className="relative z-10 space-y-3">
+              <h3 className="text-2xl sm:text-3xl font-black text-white leading-tight">
+                Get Emergency<br />Medical Service
+              </h3>
+              <p className="text-xs sm:text-sm text-blue-100/90 leading-relaxed max-w-xs">
+                Our Emergency and Critical Care Department is attention to patients conditions.
+              </p>
+            </div>
+          </div>
+
+          {/* Right Card: Book An Appointment Form Banner */}
+          <div className="lg:col-span-8 relative rounded-3xl bg-gradient-to-br from-[#12396B] via-[#0F2D54] to-[#0A1D36] p-8 sm:p-10 shadow-xl overflow-hidden flex flex-col justify-between text-white">
+            
+            {/* Ambient Background Glow / Medical Motif */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 right-4 w-44 sm:w-56 opacity-25 pointer-events-none hidden md:block">
+              {/* Stethoscope silhouette / SVG watermark */}
+              <svg viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full stroke-blue-300 stroke-2">
+                <path d="M100 20 V80 C100 130 160 130 160 80 V20" strokeLinecap="round" />
+                <path d="M100 80 C100 170 60 190 60 210" strokeLinecap="round" />
+                <circle cx="60" cy="220" r="12" fill="currentColor" fillOpacity="0.2" />
+                <circle cx="100" cy="18" r="6" fill="currentColor" />
+                <circle cx="160" cy="18" r="6" fill="currentColor" />
+              </svg>
+            </div>
+
+            {/* Header Row */}
+            <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-8 relative z-10">
+              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                Book An Appointment
+              </h2>
+              <p className="text-xs sm:text-sm text-blue-200/90 font-medium">
+                Schedule an appointment to have emergency healthcare
+              </p>
+            </div>
+
+            {/* 2-Column Appointment Input Form */}
+            <form onSubmit={(e) => { e.preventDefault(); onOpenIntake(); }} className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
+              <div>
+                <input
+                  type="text"
+                  placeholder="Full Name..."
+                  className="w-full px-5 py-3.5 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
+                />
+              </div>
+
+              <div>
+                <select
+                  defaultValue=""
+                  className="w-full px-5 py-3.5 rounded-xl bg-[#163863] border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
+                >
+                  <option value="" disabled className="bg-[#0F2D54] text-slate-300">Type Of Service</option>
+                  <option value="cardiology" className="bg-[#0F2D54] text-white">Cardiology & Cardiac Surgery</option>
+                  <option value="orthopaedics" className="bg-[#0F2D54] text-white">Orthopaedics & Joint Replacement</option>
+                  <option value="oncology" className="bg-[#0F2D54] text-white">Oncology & Cancer Care</option>
+                  <option value="neurology" className="bg-[#0F2D54] text-white">Neurology & Neurosurgery</option>
+                  <option value="ayurveda" className="bg-[#0F2D54] text-white">Ayurveda & Panchakarma</option>
+                  <option value="transplant" className="bg-[#0F2D54] text-white">Organ Transplantation</option>
+                  <option value="emergency" className="bg-[#0F2D54] text-white">Emergency Consultation</option>
+                </select>
+              </div>
+
+              <div>
+                <input
+                  type="email"
+                  placeholder="Email Address..."
+                  className="w-full px-5 py-3.5 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
+                />
+              </div>
+
+              <div>
+                <input
+                  type="date"
+                  className="w-full px-5 py-3.5 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all [color-scheme:dark]"
+                />
+              </div>
+
+              <div>
+                <input
+                  type="tel"
+                  placeholder="Phone Number..."
+                  className="w-full px-5 py-3.5 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
+                />
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  className="w-full py-3.5 px-6 rounded-xl bg-[#0E82FD] hover:bg-blue-600 text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center space-x-2"
+                >
+                  <span>Schedule An Appointment</span>
+                </button>
+              </div>
+            </form>
+
+          </div>
+
+        </div>
+      </section>
+
       {/* 11. "HEALTH SUPPORT FROM EXPERT DOCTORS" BANNER */}
       <section className="relative overflow-hidden pt-12 pb-0">
         <div className="relative rounded-t-[48px] bg-gradient-to-b from-[#D4E8FC] via-[#B9DCFE] to-[#0E82FD] pt-16 pb-0 px-4 sm:px-6 lg:px-8 text-center">
