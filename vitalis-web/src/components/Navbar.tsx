@@ -72,20 +72,11 @@ export function Navbar({ onOpenIntake, onOpenConcierge, style = "transparent" }:
             </div>
             
             <div className="flex flex-col">
-              <div className="flex items-center space-x-2">
-                <span className={`text-2xl font-black tracking-tight transition-colors ${
-                  isWhite ? "text-[#0F2042]" : "text-white"
-                }`}>
-                  MAIDES
-                </span>
-                <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full transition-all ${
-                  isWhite 
-                    ? "bg-blue-50 text-[#0E82FD] border border-blue-200/60" 
-                    : "bg-white/15 text-blue-200 border border-white/20 backdrop-blur-sm"
-                }`}>
-                  KERALA
-                </span>
-              </div>
+              <span className={`text-2xl font-black tracking-tight transition-colors ${
+                isWhite ? "text-[#0F2042]" : "text-white"
+              }`}>
+                MAIDES
+              </span>
               <span className={`text-[9px] font-semibold tracking-wider uppercase ${
                 isWhite ? "text-slate-500" : "text-blue-100/80"
               }`}>
