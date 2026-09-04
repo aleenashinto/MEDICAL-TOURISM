@@ -32,8 +32,12 @@ import {
   ArrowUpDown,
   BookOpen,
   Send,
-  MessageSquare
+  MessageSquare,
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
+import Link from "next/link";
 
 export interface Doctor {
   id: string;
@@ -443,7 +447,7 @@ export default function DoctorManagementPage() {
       education: formData.education || "MBBS, MD",
       certifications: formData.certifications || "Board Certified",
       consultationFee: formData.consultationFee || "$60 (₹5,000)",
-      registrationNumber: formData.registrationNumber || "KMC-" + Math.floor(10000 + Math.random() * 90000),
+      registrationNumber: formData.registrationNumber || ("KMC-" + Math.floor(10000 + Math.random() * 90000)),
       phone: formData.phone || "+91 484 669 9000",
       email: formData.email || "doctor@hospital.org",
       gender: formData.gender || "Male",
@@ -464,7 +468,7 @@ export default function DoctorManagementPage() {
     const updated = [newDoc, ...doctors];
     saveDoctorsToStorage(updated);
     setIsAddModalOpen(false);
-    showToast(`Dr. ${newDoc.name} created and added to clinical directory!`);
+    showToast("Doctor " + newDoc.name + " created and added to clinical directory!");
   };
 
   // Submit Edit
@@ -489,7 +493,7 @@ export default function DoctorManagementPage() {
 
     saveDoctorsToStorage(updated);
     setIsEditModalOpen(false);
-    showToast(`Profile for Dr. ${formData.name} updated successfully!`);
+    showToast("Profile for Dr. " + formData.name + " updated successfully!");
   };
 
   // Confirm Delete
@@ -498,7 +502,7 @@ export default function DoctorManagementPage() {
     const updated = doctors.filter(d => d.id !== selectedDoctor.id);
     saveDoctorsToStorage(updated);
     setIsDeleteModalOpen(false);
-    showToast(`Dr. ${selectedDoctor.name} removed from clinical faculty list.`);
+    showToast("Dr. " + selectedDoctor.name + " removed from clinical faculty list.");
     setSelectedDoctor(null);
   };
 
@@ -507,7 +511,7 @@ export default function DoctorManagementPage() {
     const nextStatus: "ACTIVE" | "ON_LEAVE" | "INACTIVE" = doc.status === "ACTIVE" ? "INACTIVE" : doc.status === "INACTIVE" ? "ON_LEAVE" : "ACTIVE";
     const updated = doctors.map(d => d.id === doc.id ? { ...d, status: nextStatus, updatedAt: new Date().toISOString() } as Doctor : d);
     saveDoctorsToStorage(updated);
-    showToast(`Dr. ${doc.name} status updated to ${nextStatus}`);
+    showToast("Dr. " + doc.name + " status updated to " + nextStatus);
   };
 
   // Quick Toggle Published
@@ -515,7 +519,7 @@ export default function DoctorManagementPage() {
     const nextPub: "PUBLISHED" | "DRAFT" = doc.published === "PUBLISHED" ? "DRAFT" : "PUBLISHED";
     const updated = doctors.map(d => d.id === doc.id ? { ...d, published: nextPub, updatedAt: new Date().toISOString() } as Doctor : d);
     saveDoctorsToStorage(updated);
-    showToast(`Dr. ${doc.name} ${nextPub === "PUBLISHED" ? "published to public website" : "unpublished (Draft mode)"}`);
+    showToast("Dr. " + doc.name + " " + (nextPub === "PUBLISHED" ? "published to public website" : "unpublished (Draft mode)"));
   };
 
   // Filtered & Sorted Doctors
@@ -556,143 +560,174 @@ export default function DoctorManagementPage() {
   }, [doctors]);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+    <div className="space-y-6">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-emerald-600 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4">
-          <CheckCircle2 className="w-5 h-5 shrink-0" />
-          <span className="text-xs font-bold">{toastMessage}</span>
+        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 border border-emerald-500/50 text-emerald-300 text-xs font-semibold shadow-2xl animate-fade-in">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-teal-950 to-emerald-950 rounded-3xl p-8 text-white border border-teal-800/30 shadow-2xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 text-xs font-semibold mb-3 border border-teal-500/30">
-              <Stethoscope className="w-3.5 h-3.5" />
-              <span>Medical Tourism Clinical Faculty Engine</span>
-            </div>
-            <h1 className="text-3xl font-extrabold tracking-tight">Doctor & Specialist Management</h1>
-            <p className="text-slate-300 text-sm mt-1 max-w-2xl">
-              Manage senior clinicians, surgeons, and Ayurvedic vaidyas. Control qualifications, hospital attachments, specialties, and live visibility on the public portal.
-            </p>
-          </div>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-2.5">
+            <Stethoscope className="w-5 h-5 text-[#0E82FD]" />
+            Doctor & Specialist Management
+          </h1>
+          <p className="text-xs text-slate-400 mt-1">
+            Manage senior clinicians, surgeons, and Ayurvedic vaidyas. Control qualifications, hospital attachments, specialties, and live visibility on the public portal.
+          </p>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <Link
+            href="/doctors"
+            target="_blank"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 text-xs font-semibold rounded-xl transition-all"
+          >
+            <Globe className="w-3.5 h-3.5 text-[#0E82FD]" />
+            <span>Public Directory</span>
+            <ExternalLink className="w-3 h-3 text-slate-500" />
+          </Link>
+          <button 
+            onClick={handleOpenAdd}
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-[#0E82FD] hover:bg-blue-600 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-95"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Add New Doctor
+          </button>
+        </div>
+      </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleOpenAdd}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 transition shadow-lg shadow-teal-500/20 active:scale-95 text-xs uppercase tracking-wider"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add New Doctor</span>
-            </button>
+      {/* KPI Highlights */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-[#0E82FD]">
+            <Stethoscope className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-xs text-slate-400 font-medium">Total Doctors</div>
+            <div className="text-lg font-bold text-white">{stats.total} Profiles</div>
           </div>
         </div>
 
-        {/* 4 Metric Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8 pt-6 border-t border-teal-800/40">
-          <div className="bg-slate-800/40 rounded-2xl p-4 border border-teal-700/20 backdrop-blur-sm">
-            <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Total Doctors</div>
-            <div className="text-2xl font-black text-white mt-1">{stats.total}</div>
-            <div className="text-slate-400 text-xs mt-0.5">Faculty profiles configured</div>
+        <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <Globe className="w-5 h-5" />
           </div>
-          <div className="bg-slate-800/40 rounded-2xl p-4 border border-teal-700/20 backdrop-blur-sm">
-            <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Active Faculty</div>
-            <div className="text-2xl font-black text-emerald-400 mt-1">{stats.active}</div>
-            <div className="text-slate-400 text-xs mt-0.5">Available for consultations</div>
+          <div>
+            <div className="text-xs text-slate-400 font-medium">Live On Public Portal</div>
+            <div className="text-lg font-bold text-emerald-400">{stats.livePublic} Live</div>
           </div>
-          <div className="bg-slate-800/40 rounded-2xl p-4 border border-teal-700/20 backdrop-blur-sm">
-            <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Live On Public Website</div>
-            <div className="text-2xl font-black text-teal-300 mt-1">{stats.livePublic}</div>
-            <div className="text-slate-400 text-xs mt-0.5">Active & Published on Landing/Directory</div>
+        </div>
+
+        <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+            <Award className="w-5 h-5" />
           </div>
-          <div className="bg-slate-800/40 rounded-2xl p-4 border border-teal-700/20 backdrop-blur-sm">
-            <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Surgeries & Cases Handled</div>
-            <div className="text-2xl font-black text-amber-300 mt-1">{stats.totalCases.toLocaleString()}+</div>
-            <div className="text-slate-400 text-xs mt-0.5">Cumulative clinical volume</div>
+          <div>
+            <div className="text-xs text-slate-400 font-medium">Active Faculty</div>
+            <div className="text-lg font-bold text-purple-400">{stats.active} Available</div>
+          </div>
+        </div>
+
+        <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-xs text-slate-400 font-medium">Surgeries & Cases</div>
+            <div className="text-lg font-bold text-amber-400">{stats.totalCases.toLocaleString()}+ Cases</div>
           </div>
         </div>
       </div>
 
       {/* Search & Filter Toolbar */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="bg-slate-950 border border-slate-800/80 rounded-2xl p-4 space-y-3">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           {/* Search */}
-          <div className="relative md:col-span-2">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search by doctor name, specialty, hospital..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-xs font-medium border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-slate-50/50"
+              className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
             />
           </div>
 
-          {/* Specialty Filter */}
-          <div>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Specialty Filter */}
             <select
               value={specialtyFilter}
               onChange={(e) => setSpecialtyFilter(e.target.value)}
-              className="w-full px-3 py-2 text-xs font-medium border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-slate-50/50"
+              className="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
             >
               <option value="ALL">All Specialties</option>
               {availableSpecialties.map(spec => (
-                <option key={spec} value={spec}>{spec}</option>
+                <option key={spec} value={spec} className="bg-slate-900">{spec}</option>
               ))}
             </select>
-          </div>
 
-          {/* Hospital Filter */}
-          <div>
+            {/* Hospital Filter */}
             <select
               value={hospitalFilter}
               onChange={(e) => setHospitalFilter(e.target.value)}
-              className="w-full px-3 py-2 text-xs font-medium border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-slate-50/50"
+              className="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
             >
               <option value="ALL">All Hospitals</option>
               {availableHospitals.map(h => (
-                <option key={h} value={h}>{h}</option>
+                <option key={h} value={h} className="bg-slate-900">{h}</option>
               ))}
             </select>
-          </div>
 
-          {/* Status & Pub Filter */}
-          <div>
+            {/* Status Filter */}
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="w-full px-3 py-2 text-xs font-medium border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-slate-50/50"
+              className="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
             >
-              <option value="ALL">All Status</option>
+              <option value="ALL">Status: All</option>
               <option value="ACTIVE">Active</option>
               <option value="ON_LEAVE">On Leave</option>
               <option value="INACTIVE">Inactive</option>
             </select>
-          </div>
 
-          {/* Sort By */}
-          <div>
+            {/* Published Filter */}
             <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="w-full px-3 py-2 text-xs font-medium border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-slate-50/50"
+              value={publishedFilter}
+              onChange={(e) => setPublishedFilter(e.target.value as any)}
+              className="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
             >
-              <option value="order">Sort: Display Order</option>
-              <option value="name">Sort: Name (A-Z)</option>
-              <option value="experience">Sort: Experience (High to Low)</option>
-              <option value="rating">Sort: Rating (High to Low)</option>
-              <option value="cases">Sort: Handled Cases</option>
+              <option value="ALL">Publish: All</option>
+              <option value="PUBLISHED">Published</option>
+              <option value="DRAFT">Draft / Hidden</option>
             </select>
+
+            {/* Sort By */}
+            <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-xl px-2 py-1">
+              <span className="text-[11px] text-slate-400 font-medium">Sort:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="bg-transparent text-xs text-white focus:outline-none cursor-pointer"
+              >
+                <option value="order" className="bg-slate-900">Display Order</option>
+                <option value="name" className="bg-slate-900">Name (A-Z)</option>
+                <option value="experience" className="bg-slate-900">Experience</option>
+                <option value="rating" className="bg-slate-900">Rating</option>
+                <option value="cases" className="bg-slate-900">Cases Handled</option>
+              </select>
+            </div>
           </div>
         </div>
 
         {/* Filter Badges Bar */}
-        <div className="flex flex-wrap items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
+        <div className="flex items-center justify-between text-xs text-slate-500 pt-1 border-t border-slate-900">
           <div className="flex items-center gap-2">
-            <span>Showing <strong className="text-slate-900">{filteredDoctors.length}</strong> of {doctors.length} doctors</span>
+            <span>Showing <strong className="text-white">{filteredDoctors.length}</strong> of {doctors.length} doctors</span>
             {(searchTerm || specialtyFilter !== "ALL" || hospitalFilter !== "ALL" || statusFilter !== "ALL" || publishedFilter !== "ALL") && (
               <button
                 onClick={() => {
@@ -702,37 +737,37 @@ export default function DoctorManagementPage() {
                   setStatusFilter("ALL");
                   setPublishedFilter("ALL");
                 }}
-                className="text-teal-600 hover:text-teal-700 font-bold ml-2 underline"
+                className="text-[#0E82FD] hover:underline ml-2"
               >
-                Clear all filters
+                Reset filters
               </button>
             )}
           </div>
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Active ({doctors.filter(d => d.status === "ACTIVE").length})</span>
             <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-500" /> On Leave ({doctors.filter(d => d.status === "ON_LEAVE").length})</span>
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-300" /> Inactive ({doctors.filter(d => d.status === "INACTIVE").length})</span>
+            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-500" /> Inactive ({doctors.filter(d => d.status === "INACTIVE").length})</span>
           </div>
         </div>
       </div>
 
-      {/* Doctors Grid / Table View */}
+      {/* Doctors Grid / Dark Card View */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredDoctors.map((doc) => (
           <div 
             key={doc.id}
-            className={`bg-white rounded-3xl border transition-all duration-300 hover:shadow-xl hover:border-teal-400/50 flex flex-col justify-between overflow-hidden relative group ${
+            className={`bg-slate-900/90 border rounded-2xl transition-all duration-300 hover:shadow-xl hover:border-slate-700 flex flex-col justify-between overflow-hidden relative group shadow-sm ${
               doc.status === "INACTIVE" 
-                ? "border-slate-200 opacity-60 bg-slate-50/50" 
+                ? "border-slate-800/50 opacity-60 bg-slate-950/50" 
                 : doc.published === "DRAFT"
-                  ? "border-amber-200"
-                  : "border-slate-200"
+                  ? "border-amber-500/30"
+                  : "border-slate-800/80"
             }`}
           >
             {/* Top Tag Bar */}
             <div className="p-5 pb-0">
               <div className="flex items-center justify-between gap-2 mb-3">
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200 font-mono">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-950 text-slate-400 border border-slate-800 font-mono">
                   #{doc.displayOrder} • {doc.id}
                 </span>
 
@@ -743,14 +778,14 @@ export default function DoctorManagementPage() {
                     title="Click to toggle status (Active / On Leave / Inactive)"
                     className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border transition cursor-pointer flex items-center gap-1 ${
                       doc.status === "ACTIVE"
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20"
                         : doc.status === "ON_LEAVE"
-                          ? "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
-                          : "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200"
+                          ? "bg-amber-500/10 text-amber-400 border-amber-500/30 hover:bg-amber-500/20"
+                          : "bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700"
                     }`}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full ${
-                      doc.status === "ACTIVE" ? "bg-emerald-500" : doc.status === "ON_LEAVE" ? "bg-amber-500" : "bg-slate-400"
+                      doc.status === "ACTIVE" ? "bg-emerald-400" : doc.status === "ON_LEAVE" ? "bg-amber-400" : "bg-slate-500"
                     }`} />
                     {doc.status}
                   </button>
@@ -761,8 +796,8 @@ export default function DoctorManagementPage() {
                     title="Click to toggle public portal publication"
                     className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border transition cursor-pointer ${
                       doc.published === "PUBLISHED"
-                        ? "bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100"
-                        : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200"
+                        ? "bg-blue-500/10 text-blue-400 border-blue-500/30 hover:bg-blue-500/20"
+                        : "bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700"
                     }`}
                   >
                     {doc.published}
@@ -771,85 +806,85 @@ export default function DoctorManagementPage() {
               </div>
 
               {/* Doctor Avatar & Identity */}
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-3.5">
                 <div className="relative">
                   <img
                     src={doc.avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80"}
                     alt={doc.name}
-                    className="w-16 h-16 rounded-2xl object-cover border-2 border-slate-100 shadow-sm shrink-0"
+                    className="w-16 h-16 rounded-2xl object-cover border border-slate-700 shadow-sm shrink-0"
                   />
-                  <div className="absolute -bottom-1 -right-1 bg-amber-400 text-slate-950 font-black text-[9px] px-1.5 py-0.2 rounded-md shadow flex items-center gap-0.5">
+                  <div className="absolute -bottom-1 -right-1 bg-amber-500 text-slate-950 font-black text-[9px] px-1.5 py-0.2 rounded-md shadow flex items-center gap-0.5">
                     <Star className="w-2.5 h-2.5 fill-slate-950" />
                     <span>{doc.rating}</span>
                   </div>
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-base font-bold text-slate-900 truncate group-hover:text-teal-700 transition">
+                  <h3 className="text-sm font-bold text-white truncate group-hover:text-[#0E82FD] transition-colors">
                     {doc.name}
                   </h3>
-                  <p className="text-xs font-semibold text-teal-700 truncate mt-0.5">
+                  <p className="text-xs font-medium text-blue-400 truncate mt-0.5">
                     {doc.title}
                   </p>
-                  <p className="text-[11px] text-slate-500 truncate mt-0.5 flex items-center gap-1">
-                    <Building2 className="w-3 h-3 shrink-0 text-slate-400" />
+                  <p className="text-[11px] text-slate-400 truncate mt-0.5 flex items-center gap-1">
+                    <Building2 className="w-3 h-3 shrink-0 text-slate-500" />
                     <span className="truncate">{doc.hospital}</span>
                   </p>
                 </div>
               </div>
 
               {/* Core Attributes */}
-              <div className="mt-4 pt-3 border-t border-slate-100 space-y-2">
+              <div className="mt-4 pt-3 border-t border-slate-800/80 space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500 flex items-center gap-1.5">
-                    <Stethoscope className="w-3.5 h-3.5 text-teal-600" />
+                  <span className="text-slate-400 flex items-center gap-1.5">
+                    <Stethoscope className="w-3.5 h-3.5 text-[#0E82FD]" />
                     <span>Specialty</span>
                   </span>
-                  <span className="font-semibold text-slate-800 truncate max-w-[170px] text-right">
+                  <span className="font-semibold text-slate-200 truncate max-w-[170px] text-right">
                     {doc.specialty}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500 flex items-center gap-1.5">
-                    <Award className="w-3.5 h-3.5 text-amber-500" />
+                  <span className="text-slate-400 flex items-center gap-1.5">
+                    <Award className="w-3.5 h-3.5 text-amber-400" />
                     <span>Experience</span>
                   </span>
-                  <span className="font-bold text-slate-800">
+                  <span className="font-bold text-slate-200">
                     {doc.experienceYears}+ Years ({doc.casesHandled}+ Cases)
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500 flex items-center gap-1.5">
-                    <GraduationCap className="w-3.5 h-3.5 text-indigo-500" />
+                  <span className="text-slate-400 flex items-center gap-1.5">
+                    <GraduationCap className="w-3.5 h-3.5 text-purple-400" />
                     <span>Qualifications</span>
                   </span>
-                  <span className="font-medium text-slate-700 truncate max-w-[170px] text-right" title={doc.education}>
+                  <span className="font-medium text-slate-300 truncate max-w-[170px] text-right" title={doc.education}>
                     {doc.education}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500 flex items-center gap-1.5">
-                    <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="text-slate-400 flex items-center gap-1.5">
+                    <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
                     <span>Consultation</span>
                   </span>
-                  <span className="font-bold text-emerald-700">
+                  <span className="font-bold text-emerald-400">
                     {doc.consultationFee}
                   </span>
                 </div>
               </div>
 
               {/* Bio snippet */}
-              <p className="text-xs text-slate-600 mt-3 line-clamp-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100 leading-relaxed">
+              <p className="text-xs text-slate-400 mt-3 line-clamp-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 leading-relaxed">
                 {doc.bio}
               </p>
 
               {/* Languages */}
               <div className="flex flex-wrap gap-1 mt-3">
                 {doc.languages.map((lang, idx) => (
-                  <span key={idx} className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-medium">
+                  <span key={idx} className="text-[10px] px-2 py-0.5 rounded-md bg-slate-950 text-slate-400 border border-slate-800 font-medium">
                     {lang}
                   </span>
                 ))}
@@ -857,10 +892,10 @@ export default function DoctorManagementPage() {
             </div>
 
             {/* Bottom Action Footer */}
-            <div className="p-4 bg-slate-50/80 border-t border-slate-100 mt-4 flex items-center justify-between">
+            <div className="p-4 bg-slate-950/80 border-t border-slate-800/80 mt-4 flex items-center justify-between">
               <button
                 onClick={() => handleOpenView(doc)}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-teal-700 hover:bg-teal-50 transition"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition"
               >
                 <Eye className="w-3.5 h-3.5" />
                 <span>View Full</span>
@@ -869,7 +904,7 @@ export default function DoctorManagementPage() {
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => handleOpenEdit(doc)}
-                  className="p-1.5 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition"
                   title="Edit Doctor Details"
                 >
                   <Edit className="w-4 h-4" />
@@ -877,7 +912,7 @@ export default function DoctorManagementPage() {
 
                 <button
                   onClick={() => handleOpenDelete(doc)}
-                  className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition"
                   title="Remove Doctor"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -888,10 +923,10 @@ export default function DoctorManagementPage() {
         ))}
 
         {filteredDoctors.length === 0 && (
-          <div className="col-span-full py-16 text-center bg-white rounded-3xl border border-slate-200">
-            <Stethoscope className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <h3 className="text-base font-bold text-slate-700">No doctors match your criteria</h3>
-            <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+          <div className="col-span-full py-16 text-center bg-slate-900/50 rounded-3xl border border-slate-800">
+            <Stethoscope className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+            <h3 className="text-base font-bold text-slate-300">No doctors match your criteria</h3>
+            <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
               Try changing your search terms, specialty selections, or status filters.
             </p>
             <button
@@ -902,7 +937,7 @@ export default function DoctorManagementPage() {
                 setStatusFilter("ALL");
                 setPublishedFilter("ALL");
               }}
-              className="mt-4 px-4 py-2 rounded-xl bg-teal-50 text-teal-700 font-bold text-xs hover:bg-teal-100 transition"
+              className="mt-4 px-4 py-2 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold text-xs hover:bg-blue-500/20 transition"
             >
               Reset All Filters
             </button>
@@ -912,19 +947,19 @@ export default function DoctorManagementPage() {
 
       {/* CREATE / EDIT MODAL */}
       {(isAddModalOpen || isEditModalOpen) && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-3xl w-full my-8 overflow-hidden animate-in fade-in zoom-in-95">
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl max-w-3xl w-full my-8 overflow-hidden animate-in fade-in zoom-in-95">
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-slate-900 to-teal-950 px-6 py-5 text-white flex items-center justify-between">
+            <div className="bg-slate-950 px-6 py-5 border-b border-slate-800 text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-teal-300">
+                <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-[#0E82FD]">
                   <Stethoscope className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold">
+                  <h2 className="text-base font-bold">
                     {isAddModalOpen ? "Add New Senior Clinician / Doctor" : `Edit Profile: Dr. ${formData.name}`}
                   </h2>
-                  <p className="text-xs text-slate-300 mt-0.5">
+                  <p className="text-xs text-slate-400 mt-0.5">
                     {isAddModalOpen ? "Register senior consultant and associate with hospitals" : "Update credentials, fees, bio, and portal visibility"}
                   </p>
                 </div>
@@ -934,7 +969,7 @@ export default function DoctorManagementPage() {
                   setIsAddModalOpen(false);
                   setIsEditModalOpen(false);
                 }}
-                className="w-8 h-8 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition"
+                className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -942,8 +977,8 @@ export default function DoctorManagementPage() {
 
             {/* Error Banner */}
             {formError && (
-              <div className="mx-6 mt-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0" />
+              <div className="mx-6 mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
                 <span>{formError}</span>
               </div>
             )}
@@ -953,8 +988,8 @@ export default function DoctorManagementPage() {
               {/* Row 1: Doctor Name & Title */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Doctor Full Name <span className="text-rose-500">*</span>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                    Doctor Full Name <span className="text-rose-400">*</span>
                   </label>
                   <input
                     type="text"
@@ -962,13 +997,13 @@ export default function DoctorManagementPage() {
                     placeholder="e.g. Dr. Harikrishnan Nair"
                     value={formData.name || ""}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Designation / Title <span className="text-rose-500">*</span>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                    Designation / Title <span className="text-rose-400">*</span>
                   </label>
                   <input
                     type="text"
@@ -976,7 +1011,7 @@ export default function DoctorManagementPage() {
                     placeholder="e.g. Senior Consultant & Head of Cardiac Surgery"
                     value={formData.title || ""}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
                   />
                 </div>
               </div>
@@ -984,31 +1019,31 @@ export default function DoctorManagementPage() {
               {/* Row 2: Specialty & Hospital Cross-Link */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Primary Medical Specialty <span className="text-rose-500">*</span>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                    Primary Medical Specialty <span className="text-rose-400">*</span>
                   </label>
                   <select
                     value={formData.specialty || availableSpecialties[0]}
                     onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-white"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
                   >
                     {availableSpecialties.map(spec => (
-                      <option key={spec} value={spec}>{spec}</option>
+                      <option key={spec} value={spec} className="bg-slate-900">{spec}</option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Affiliated Hospital <span className="text-rose-500">*</span>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                    Affiliated Hospital <span className="text-rose-400">*</span>
                   </label>
                   <select
                     value={formData.hospital || availableHospitals[0]}
                     onChange={(e) => setFormData({ ...formData, hospital: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-white"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
                   >
                     {availableHospitals.map(hosp => (
-                      <option key={hosp} value={hosp}>{hosp}</option>
+                      <option key={hosp} value={hosp} className="bg-slate-900">{hosp}</option>
                     ))}
                   </select>
                 </div>
@@ -1017,8 +1052,8 @@ export default function DoctorManagementPage() {
               {/* Row 3: Experience, Cases Handled, Display Order */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Experience (Years) <span className="text-rose-500">*</span>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                    Experience (Years) <span className="text-rose-400">*</span>
                   </label>
                   <input
                     type="number"
@@ -1027,12 +1062,12 @@ export default function DoctorManagementPage() {
                     required
                     value={formData.experienceYears ?? 15}
                     onChange={(e) => setFormData({ ...formData, experienceYears: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
                     Surgeries / Cases Handled
                   </label>
                   <input
@@ -1040,12 +1075,12 @@ export default function DoctorManagementPage() {
                     min="0"
                     value={formData.casesHandled ?? 500}
                     onChange={(e) => setFormData({ ...formData, casesHandled: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
                     Display Order (Sorting)
                   </label>
                   <input
@@ -1053,7 +1088,7 @@ export default function DoctorManagementPage() {
                     min="1"
                     value={formData.displayOrder ?? 1}
                     onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 1 })}
-                    className="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
                   />
                 </div>
               </div>
@@ -1061,8 +1096,8 @@ export default function DoctorManagementPage() {
               {/* Row 4: Qualifications, Certifications, Medical Council Reg */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Education & Degrees <span className="text-rose-500">*</span>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                    Education & Degrees <span className="text-rose-400">*</span>
                   </label>
                   <input
                     type="text"
@@ -1070,12 +1105,12 @@ export default function DoctorManagementPage() {
                     placeholder="MBBS, MS, MCh (UK)"
                     value={formData.education || ""}
                     onChange={(e) => setFormData({ ...formData, education: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
                     Certifications / Fellowships
                   </label>
                   <input
@@ -1083,12 +1118,12 @@ export default function DoctorManagementPage() {
                     placeholder="FRCS, FACS, ESMO Fellow"
                     value={formData.certifications || ""}
                     onChange={(e) => setFormData({ ...formData, certifications: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
                     Medical Council Reg No.
                   </label>
                   <input
@@ -1096,7 +1131,7 @@ export default function DoctorManagementPage() {
                     placeholder="KMC-48291 / TCMC-991"
                     value={formData.registrationNumber || ""}
                     onChange={(e) => setFormData({ ...formData, registrationNumber: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
                   />
                 </div>
               </div>
@@ -1104,7 +1139,7 @@ export default function DoctorManagementPage() {
               {/* Row 5: Fee, Email, Phone */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
                     Consultation Fee
                   </label>
                   <input
@@ -1112,12 +1147,12 @@ export default function DoctorManagementPage() {
                     placeholder="$60 (₹5,000)"
                     value={formData.consultationFee || ""}
                     onChange={(e) => setFormData({ ...formData, consultationFee: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
                     Direct Email
                   </label>
                   <input
@@ -1125,12 +1160,12 @@ export default function DoctorManagementPage() {
                     placeholder="doctor@hospital.org"
                     value={formData.email || ""}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
                     Phone / Desk Ext.
                   </label>
                   <input
@@ -1138,14 +1173,14 @@ export default function DoctorManagementPage() {
                     placeholder="+91 484 669 9000"
                     value={formData.phone || ""}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
                   />
                 </div>
               </div>
 
               {/* Row 6: Avatar Image URL */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
                   Doctor Profile Avatar (Image URL)
                 </label>
                 <div className="flex items-center gap-3">
@@ -1154,13 +1189,13 @@ export default function DoctorManagementPage() {
                     placeholder="https://images.unsplash.com/photo-..."
                     value={formData.avatar || ""}
                     onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 font-mono text-slate-600"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD] font-mono"
                   />
                   {formData.avatar && (
                     <img 
                       src={formData.avatar} 
                       alt="Preview" 
-                      className="w-10 h-10 rounded-xl object-cover border border-slate-200 shrink-0" 
+                      className="w-10 h-10 rounded-xl object-cover border border-slate-700 shrink-0" 
                     />
                   )}
                 </div>
@@ -1168,8 +1203,8 @@ export default function DoctorManagementPage() {
 
               {/* Row 7: Short Bio & Full Biography */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Executive Bio (Public Card Summary) <span className="text-rose-500">*</span>
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                  Executive Bio (Public Card Summary) <span className="text-rose-400">*</span>
                 </label>
                 <textarea
                   rows={2}
@@ -1177,12 +1212,12 @@ export default function DoctorManagementPage() {
                   placeholder="Concise 1-2 sentence overview for directory cards..."
                   value={formData.bio || ""}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
                   Full Clinical Biography & Research
                 </label>
                 <textarea
@@ -1190,26 +1225,26 @@ export default function DoctorManagementPage() {
                   placeholder="Comprehensive clinical achievements, international fellowships, and research background..."
                   value={formData.fullBiography || ""}
                   onChange={(e) => setFormData({ ...formData, fullBiography: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
                 />
               </div>
 
               {/* Row 8: Status & Published Radio Options */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-800">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                     Clinical Status
                   </label>
                   <div className="flex items-center gap-3">
                     {(["ACTIVE", "ON_LEAVE", "INACTIVE"] as const).map(s => (
-                      <label key={s} className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer">
+                      <label key={s} className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 cursor-pointer">
                         <input
                           type="radio"
                           name="status"
                           value={s}
                           checked={formData.status === s}
                           onChange={() => setFormData({ ...formData, status: s })}
-                          className="text-teal-600 focus:ring-teal-500"
+                          className="text-[#0E82FD] focus:ring-[#0E82FD]"
                         />
                         <span>{s}</span>
                       </label>
@@ -1218,19 +1253,19 @@ export default function DoctorManagementPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                     Portal Visibility
                   </label>
                   <div className="flex items-center gap-3">
                     {(["PUBLISHED", "DRAFT"] as const).map(p => (
-                      <label key={p} className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer">
+                      <label key={p} className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 cursor-pointer">
                         <input
                           type="radio"
                           name="published"
                           value={p}
                           checked={formData.published === p}
                           onChange={() => setFormData({ ...formData, published: p })}
-                          className="text-teal-600 focus:ring-teal-500"
+                          className="text-[#0E82FD] focus:ring-[#0E82FD]"
                         />
                         <span>{p === "PUBLISHED" ? "Published (Live)" : "Draft (Hidden)"}</span>
                       </label>
@@ -1240,20 +1275,20 @@ export default function DoctorManagementPage() {
               </div>
 
               {/* Submit Buttons */}
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+              <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setIsAddModalOpen(false);
                     setIsEditModalOpen(false);
                   }}
-                  className="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition"
+                  className="px-5 py-2.5 rounded-xl border border-slate-700 text-xs font-bold text-slate-300 hover:bg-slate-800 transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-teal-600 text-white text-xs font-bold hover:bg-teal-500 transition shadow-lg shadow-teal-600/20"
+                  className="px-6 py-2.5 rounded-xl bg-[#0E82FD] text-white text-xs font-bold hover:bg-blue-600 transition shadow-lg shadow-blue-500/20"
                 >
                   {isAddModalOpen ? "Create Doctor Profile" : "Save Changes"}
                 </button>
@@ -1265,12 +1300,12 @@ export default function DoctorManagementPage() {
 
       {/* VIEW MODAL */}
       {isViewModalOpen && selectedDoctor && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full my-8 overflow-hidden animate-in fade-in zoom-in-95">
-            <div className="bg-gradient-to-r from-slate-900 to-teal-950 p-6 text-white relative">
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl max-w-2xl w-full my-8 overflow-hidden animate-in fade-in zoom-in-95">
+            <div className="bg-slate-950 p-6 border-b border-slate-800 text-white relative">
               <button
                 onClick={() => setIsViewModalOpen(false)}
-                className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition"
+                className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1279,93 +1314,93 @@ export default function DoctorManagementPage() {
                 <img
                   src={selectedDoctor.avatar}
                   alt={selectedDoctor.name}
-                  className="w-20 h-20 rounded-2xl object-cover border-2 border-teal-400/40 shadow-md"
+                  className="w-20 h-20 rounded-2xl object-cover border border-slate-700 shadow-md"
                 />
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs px-2 py-0.5 rounded-md bg-teal-500/20 text-teal-300 font-mono font-bold">
+                    <span className="text-xs px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono font-bold">
                       {selectedDoctor.id}
                     </span>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
-                      selectedDoctor.status === "ACTIVE" ? "bg-emerald-500/20 text-emerald-300" : "bg-amber-500/20 text-amber-300"
+                      selectedDoctor.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                     }`}>
                       {selectedDoctor.status}
                     </span>
                   </div>
-                  <h2 className="text-xl font-extrabold mt-1">{selectedDoctor.name}</h2>
-                  <p className="text-xs text-teal-300">{selectedDoctor.title}</p>
+                  <h2 className="text-lg font-extrabold mt-1 text-white">{selectedDoctor.name}</h2>
+                  <p className="text-xs text-blue-400">{selectedDoctor.title}</p>
                 </div>
               </div>
             </div>
 
             <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-              <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100 text-xs">
+              <div className="grid grid-cols-2 gap-4 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-xs">
                 <div>
-                  <span className="text-slate-400 block font-semibold">Specialty:</span>
-                  <span className="font-bold text-slate-800">{selectedDoctor.specialty}</span>
+                  <span className="text-slate-500 block font-medium">Specialty:</span>
+                  <span className="font-bold text-slate-200">{selectedDoctor.specialty}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block font-semibold">Affiliated Hospital:</span>
-                  <span className="font-bold text-slate-800">{selectedDoctor.hospital}</span>
+                  <span className="text-slate-500 block font-medium">Affiliated Hospital:</span>
+                  <span className="font-bold text-slate-200">{selectedDoctor.hospital}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block font-semibold">Clinical Experience:</span>
-                  <span className="font-bold text-slate-800">{selectedDoctor.experienceYears}+ Years ({selectedDoctor.casesHandled}+ surgeries)</span>
+                  <span className="text-slate-500 block font-medium">Clinical Experience:</span>
+                  <span className="font-bold text-slate-200">{selectedDoctor.experienceYears}+ Years ({selectedDoctor.casesHandled}+ surgeries)</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block font-semibold">Consultation Fee:</span>
-                  <span className="font-bold text-emerald-700">{selectedDoctor.consultationFee}</span>
+                  <span className="text-slate-500 block font-medium">Consultation Fee:</span>
+                  <span className="font-bold text-emerald-400">{selectedDoctor.consultationFee}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block font-semibold">Council Registration:</span>
-                  <span className="font-mono font-bold text-slate-800">{selectedDoctor.registrationNumber || "KMC-Verified"}</span>
+                  <span className="text-slate-500 block font-medium">Council Registration:</span>
+                  <span className="font-mono font-bold text-slate-200">{selectedDoctor.registrationNumber || "KMC-Verified"}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block font-semibold">Rating:</span>
-                  <span className="font-bold text-amber-600 flex items-center gap-1">
-                    <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                  <span className="text-slate-500 block font-medium">Rating:</span>
+                  <span className="font-bold text-amber-400 flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                     <span>{selectedDoctor.rating} / 5.0</span>
                   </span>
                 </div>
               </div>
 
               <div>
-                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Education & Qualifications</h4>
-                <p className="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-100 font-medium">
+                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Education & Qualifications</h4>
+                <p className="text-xs text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800 font-medium">
                   {selectedDoctor.education}
                   {selectedDoctor.certifications && ` • ${selectedDoctor.certifications}`}
                 </p>
               </div>
 
               <div>
-                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Clinical Biography</h4>
-                <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Clinical Biography</h4>
+                <p className="text-xs text-slate-400 leading-relaxed bg-slate-950 p-3 rounded-xl border border-slate-800">
                   {selectedDoctor.fullBiography || selectedDoctor.bio}
                 </p>
               </div>
 
               <div>
-                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Direct Contact</h4>
-                <div className="flex items-center gap-4 text-xs text-slate-600">
-                  <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-slate-400" /> {selectedDoctor.email || "consult@hospital.org"}</span>
-                  <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-slate-400" /> {selectedDoctor.phone || "+91 484 669 9000"}</span>
+                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Direct Contact</h4>
+                <div className="flex items-center gap-4 text-xs text-slate-400">
+                  <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-slate-500" /> {selectedDoctor.email || "consult@hospital.org"}</span>
+                  <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-slate-500" /> {selectedDoctor.phone || "+91 484 669 9000"}</span>
                 </div>
               </div>
             </div>
 
-            <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2">
+            <div className="p-4 bg-slate-950 border-t border-slate-800 flex items-center justify-end gap-2">
               <button
                 onClick={() => {
                   setIsViewModalOpen(false);
                   handleOpenEdit(selectedDoctor);
                 }}
-                className="px-4 py-2 rounded-xl bg-teal-600 text-white text-xs font-bold hover:bg-teal-500 transition"
+                className="px-4 py-2 rounded-xl bg-[#0E82FD] text-white text-xs font-bold hover:bg-blue-600 transition"
               >
                 Edit Doctor
               </button>
               <button
                 onClick={() => setIsViewModalOpen(false)}
-                className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-100 transition"
+                className="px-4 py-2 rounded-xl border border-slate-700 text-xs font-bold text-slate-300 hover:bg-slate-800 transition"
               >
                 Close
               </button>
@@ -1376,20 +1411,20 @@ export default function DoctorManagementPage() {
 
       {/* DELETE CONFIRMATION MODAL */}
       {isDeleteModalOpen && selectedDoctor && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full p-6 text-center animate-in fade-in zoom-in-95">
-            <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto mb-4">
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl max-w-md w-full p-6 text-center animate-in fade-in zoom-in-95">
+            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto mb-4">
               <Trash2 className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-slate-900">Remove Doctor from Directory?</h3>
-            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-              Are you sure you want to remove <strong className="text-slate-800">Dr. {selectedDoctor.name}</strong> ({selectedDoctor.id})? This will also remove them from public landing and consultation matching.
+            <h3 className="text-base font-bold text-white">Remove Doctor from Directory?</h3>
+            <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+              Are you sure you want to remove <strong className="text-white">Dr. {selectedDoctor.name}</strong> ({selectedDoctor.id})? This will also remove them from public landing and consultation matching.
             </p>
 
             <div className="flex items-center justify-center gap-3 mt-6">
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition"
+                className="px-5 py-2.5 rounded-xl border border-slate-700 text-xs font-bold text-slate-300 hover:bg-slate-800 transition"
               >
                 Cancel
               </button>
