@@ -1,0 +1,42 @@
+name: MAIDES CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  validate:
+    name: Lint, Typecheck & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.6.0
+
+      - name: Install dependencies (Frontend)
+        working-directory: ./vitalis-web
+        run: npm ci
+
+      - name: Typecheck & Build Frontend
+        working-directory: ./vitalis-web
+        run: npm run build
+
+      - name: Install dependencies (Backend Monorepo)
+        working-directory: ./maides
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Build Monorepo (Packages & API)
+        working-directory: ./maides
+        run: pnpm build
