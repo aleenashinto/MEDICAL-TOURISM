@@ -88,12 +88,33 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
     };
 
     if (typeof window !== "undefined") {
-      const existing = localStorage.getItem("maides_admin_enquiries");
-      let list = [];
-      if (existing) {
-        try { list = JSON.parse(existing); } catch(err){}
+      // 1. Enquiries Queue
+      const existingEnq = localStorage.getItem("maides_admin_enquiries");
+      let enqList = [];
+      if (existingEnq) {
+        try { enqList = JSON.parse(existingEnq); } catch(err){}
       }
-      localStorage.setItem("maides_admin_enquiries", JSON.stringify([newEnq, ...list]));
+      localStorage.setItem("maides_admin_enquiries", JSON.stringify([newEnq, ...enqList]));
+
+      // 2. Appointments Queue
+      const existingAppt = localStorage.getItem("maides_admin_appointments");
+      let apptList = [];
+      if (existingAppt) {
+        try { apptList = JSON.parse(existingAppt); } catch(err){}
+      }
+      const newAppt = {
+        id: "APT-" + Math.floor(1000 + Math.random() * 9000),
+        patient: apptFullName.trim(),
+        caseId: "CAS-2026-0" + Math.floor(85 + Math.random() * 10),
+        doctor: "Dr. Vijay Anand (Orthopaedics)",
+        hospital: "Aster Medcity, Kochi",
+        type: "VIDEO_CONSULTATION",
+        dateTime: apptDate + " 10:00 IST",
+        status: "REQUESTED",
+        meetLink: "https://vitalis.health/meet/apt-" + Math.floor(100 + Math.random() * 900),
+        notes: `Landing page booking request: ${apptService} (${apptPhone || "No Phone"})`
+      };
+      localStorage.setItem("maides_admin_appointments", JSON.stringify([newAppt, ...apptList]));
     }
 
     setApptSuccess(`Thank you ${apptFullName.trim()}! Your appointment request has been scheduled and forwarded to the MAIDES Clinical Coordinator team.`);

@@ -21,6 +21,22 @@ export function Footer() {
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     if (!emailInput) return;
+
+    if (typeof window !== "undefined") {
+      const existing = localStorage.getItem("maides_admin_subscribers");
+      let list = [];
+      if (existing) {
+        try { list = JSON.parse(existing); } catch(err){}
+      }
+      const newSub = {
+        email: emailInput.trim(),
+        subscribedAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        source: "Public Landing Page Footer",
+        status: "ACTIVE"
+      };
+      localStorage.setItem("maides_admin_subscribers", JSON.stringify([newSub, ...list]));
+    }
+
     setSubscribed(true);
     setTimeout(() => setSubscribed(false), 3000);
     setEmailInput("");
