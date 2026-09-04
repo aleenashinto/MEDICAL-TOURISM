@@ -18,24 +18,36 @@ import {
   Send,
   User,
   Shield,
-  AlertTriangle
+  AlertTriangle,
+  Paperclip,
+  FileText,
+  Download,
+  RotateCcw,
+  Check,
+  Tag,
+  Calendar,
+  Building2,
+  UserCheck
 } from "lucide-react";
 
 export type TicketStatus = "Open" | "In Progress" | "Waiting for Patient" | "Resolved" | "Closed";
 export type TicketPriority = "Critical" | "High" | "Medium" | "Low";
 
-interface TicketReply {
+export interface TicketReply {
   id: string;
   sender: string;
   role: "Admin" | "Patient" | "Coordinator";
   message: string;
   timestamp: string;
+  attachments?: { name: string; size: string }[];
 }
 
-interface SupportTicket {
+export interface SupportTicket {
   id: string;
+  patientId?: string;
   patientName: string;
   patientEmail: string;
+  patientCountry?: string;
   category: string;
   subject: string;
   description: string;
@@ -43,15 +55,19 @@ interface SupportTicket {
   status: TicketStatus;
   assignedTo: string;
   createdAt: string;
+  updatedAt?: string;
+  attachmentName?: string;
   replies: TicketReply[];
   internalNotes: string[];
 }
 
-const INITIAL_TICKETS: SupportTicket[] = [
+const DEFAULT_ADMIN_TICKETS: SupportTicket[] = [
   {
     id: "TCK-801",
+    patientId: "pat-101",
     patientName: "Sarah Jenkins",
     patientEmail: "sarah.jenkins@example.com",
+    patientCountry: "United Kingdom",
     category: "Travel & Airport Logistics",
     subject: "Requesting wheelchair accessible airport vehicle",
     description: "I will be arriving via EK 530 at Cochin International Airport and require ramp/wheelchair transfer directly to Aster Medcity.",
@@ -59,276 +75,198 @@ const INITIAL_TICKETS: SupportTicket[] = [
     status: "In Progress",
     assignedTo: "Rahul Nair (Travel Desk)",
     createdAt: "2026-09-04 08:30",
+    updatedAt: "2026-09-04 09:15",
+    attachmentName: "emirates_flight_ticket.pdf",
     replies: [
       {
         id: "REP-1",
         sender: "Sarah Jenkins",
         role: "Patient",
-        message: "Please let me know the contact number of the chauffeur once assigned.",
-        timestamp: "2026-09-04 08:45"
+        message: "I will be arriving via EK 530 at Cochin International Airport and require ramp/wheelchair transfer directly to Aster Medcity. Please let me know the contact number of the chauffeur once assigned.",
+        timestamp: "2026-09-04 08:30"
       },
       {
         id: "REP-2",
-        sender: "Rahul Nair",
+        sender: "Rahul Nair (Admin Coordinator)",
         role: "Coordinator",
-        message: "A specialized wheelchair accessible Toyota Innova has been reserved. Chauffeur details: Mr. Sajan (+91 98471 00223).",
+        message: "A specialized wheelchair accessible Toyota Innova has been reserved. Chauffeur details: Mr. Sajan (+91 98471 00223). He will meet you at Terminal 3 Arrival Gate 4 with a MAIDES placard.",
         timestamp: "2026-09-04 09:15"
       }
     ],
     internalNotes: [
-      "Aster Medcity emergency department notified for stretcher standby."
+      "Aster Medcity emergency department notified for stretcher standby upon arrival."
     ]
   },
   {
     id: "TCK-800",
+    patientId: "pat-102",
     patientName: "Mohammed Al-Maktoum",
     patientEmail: "m.maktoum@example.ae",
-    category: "Forex & Billing Support",
+    patientCountry: "United Arab Emirates",
+    category: "Billing & Invoices",
     subject: "Tax residency certificate clarification for forex wire",
     description: "Our bank in Dubai requested Kerala hospital FRRO registration number before releasing the international escrow wire.",
     priority: "Medium",
     status: "Open",
-    assignedTo: "Finance Team",
+    assignedTo: "Finance Team (Anjali Pillai)",
     createdAt: "2026-09-03 15:45",
+    updatedAt: "2026-09-03 15:50",
+    attachmentName: "uae_remittance_guidelines.pdf",
     replies: [
       {
         id: "REP-3",
         sender: "Mohammed Al-Maktoum",
         role: "Patient",
-        message: "Attached our bank's standard foreign remittance form.",
-        timestamp: "2026-09-03 15:50"
+        message: "Our bank in Dubai requested Kerala hospital FRRO registration number before releasing the international escrow wire. Attached our bank's standard foreign remittance form.",
+        timestamp: "2026-09-03 15:45"
       }
     ],
     internalNotes: [
-      "Finance department sent stamped FRRO certificate."
+      "Hospital accounts desk shared Form 15CA/CB documentation."
     ]
   },
   {
     id: "TCK-799",
+    patientId: "pat-104",
     patientName: "David Miller",
-    patientEmail: "david.miller@example.co.uk",
-    category: "Clinical Second Opinion",
-    subject: "Uploaded additional MRI report for review",
-    description: "Added fresh contrast lumbar spine MRI scans taken last week for Dr. Rajesh K.",
+    patientEmail: "david.miller@austech.com.au",
+    patientCountry: "Australia",
+    category: "Medical Case & Doctor Review",
+    subject: "Pre-surgery cardiology clearance submission",
+    description: "Forwarding latest 24h Holter monitor reports from Sydney for Dr. Vijay Anand's review.",
     priority: "High",
     status: "Resolved",
-    assignedTo: "Dr. Rajesh K.",
-    createdAt: "2026-09-01 10:20",
+    assignedTo: "Clinical Liaison Desk",
+    createdAt: "2026-09-01 11:20",
+    updatedAt: "2026-09-02 14:10",
+    attachmentName: "holter_ecg_sydney.pdf",
     replies: [
       {
         id: "REP-4",
-        sender: "Dr. Rajesh K.",
-        role: "Admin",
-        message: "MRI scans analyzed. L4-L5 disc decompression suitable for endoscopic microdiscectomy.",
-        timestamp: "2026-09-01 14:00"
+        sender: "David Miller",
+        role: "Patient",
+        message: "Forwarding latest 24h Holter monitor reports from Sydney for Dr. Vijay Anand's review.",
+        timestamp: "2026-09-01 11:20"
+      },
+      {
+        id: "REP-5",
+        sender: "Clinical Liaison (Dr. Lakshmi)",
+        role: "Coordinator",
+        message: "Dr. Vijay Anand has evaluated the Holter ECG. Sinus rhythm is stable; patient cleared for minimally invasive arthroscopy.",
+        timestamp: "2026-09-02 14:10"
       }
     ],
     internalNotes: [
-      "Patient informed and consultation concluded."
+      "Anaesthesia team pre-cleared."
     ]
   }
 ];
 
-const CATEGORIES_LIST = [
-  "All Categories",
-  "Travel & Airport Logistics",
-  "Forex & Billing Support",
-  "Clinical Second Opinion",
-  "Medical Visa & FRRO Invitation",
-  "Hospital Accommodation & Translation",
-  "Pharmacy & Medicine Courier"
-];
-
-export default function SupportAdminPage() {
+export default function SupportTicketsAdminPage() {
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
+  
+  // Search & Filter State
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
-  const [categoryFilter, setCategoryFilter] = useState("All Categories");
+  const [priorityFilter, setPriorityFilter] = useState("ALL");
+  const [categoryFilter, setCategoryFilter] = useState("ALL");
 
-  // Modals
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
-
-  const [activeTicket, setActiveTicket] = useState<SupportTicket | null>(null);
+  // Interaction State
   const [replyText, setReplyText] = useState("");
   const [internalNoteText, setInternalNoteText] = useState("");
-
-  // Form State
-  const [formData, setFormData] = useState({
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  
+  // Create Ticket Form State
+  const [newTicketData, setNewTicketData] = useState({
     patientName: "",
     patientEmail: "",
-    category: "Travel & Airport Logistics",
+    patientCountry: "United States",
+    category: "Medical Case & Doctor Review",
     subject: "",
     description: "",
-    priority: "High" as TicketPriority,
-    status: "Open" as TicketStatus,
-    assignedTo: "Admin Desk"
+    priority: "Medium" as TicketPriority,
+    assignedTo: "Care Coordinator Desk"
   });
 
-  // Load from localStorage
+  // Load from LocalStorage
   useEffect(() => {
-    const saved = localStorage.getItem("maides_admin_tickets");
-    if (saved) {
-      try {
-        setTickets(JSON.parse(saved));
-      } catch {
-        setTickets(INITIAL_TICKETS);
+    try {
+      const saved = localStorage.getItem("maides_shared_support_tickets_v3");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setTickets(parsed);
+        if (parsed.length > 0) setSelectedTicket(parsed[0]);
+      } else {
+        setTickets(DEFAULT_ADMIN_TICKETS);
+        setSelectedTicket(DEFAULT_ADMIN_TICKETS[0]);
+        localStorage.setItem("maides_shared_support_tickets_v3", JSON.stringify(DEFAULT_ADMIN_TICKETS));
       }
-    } else {
-      setTickets(INITIAL_TICKETS);
-      localStorage.setItem("maides_admin_tickets", JSON.stringify(INITIAL_TICKETS));
+    } catch (e) {
+      setTickets(DEFAULT_ADMIN_TICKETS);
+      setSelectedTicket(DEFAULT_ADMIN_TICKETS[0]);
     }
   }, []);
 
-  const saveTickets = (updated: SupportTicket[]) => {
-    setTickets(updated);
-    localStorage.setItem("maides_admin_tickets", JSON.stringify(updated));
-  };
-
-  // Open Create
-  const handleOpenAdd = () => {
-    setFormData({
-      patientName: "",
-      patientEmail: "",
-      category: "Travel & Airport Logistics",
-      subject: "",
-      description: "",
-      priority: "High",
-      status: "Open",
-      assignedTo: "Care Coordinator"
-    });
-    setIsAddModalOpen(true);
-  };
-
-  // Submit Create
-  const handleCreate = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newId = `TCK-${Math.floor(805 + Math.random() * 90)}`;
-    const now = new Date().toISOString().replace("T", " ").substring(0, 16);
-
-    const newTicket: SupportTicket = {
-      id: newId,
-      patientName: formData.patientName || "International Patient",
-      patientEmail: formData.patientEmail || "patient@example.com",
-      category: formData.category,
-      subject: formData.subject,
-      description: formData.description,
-      priority: formData.priority,
-      status: formData.status,
-      assignedTo: formData.assignedTo,
-      createdAt: now,
-      replies: [],
-      internalNotes: []
-    };
-
-    const updated = [newTicket, ...tickets];
-    saveTickets(updated);
-    setIsAddModalOpen(false);
-  };
-
-  // Open Edit
-  const handleOpenEdit = (t: SupportTicket) => {
-    setActiveTicket(t);
-    setFormData({
-      patientName: t.patientName,
-      patientEmail: t.patientEmail,
-      category: t.category,
-      subject: t.subject,
-      description: t.description,
-      priority: t.priority,
-      status: t.status,
-      assignedTo: t.assignedTo
-    });
-    setIsEditModalOpen(true);
-  };
-
-  // Submit Edit
-  const handleUpdate = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!activeTicket) return;
-
-    const updated = tickets.map((t) => {
-      if (t.id === activeTicket.id) {
-        return {
-          ...t,
-          patientName: formData.patientName,
-          patientEmail: formData.patientEmail,
-          category: formData.category,
-          subject: formData.subject,
-          description: formData.description,
-          priority: formData.priority,
-          status: formData.status,
-          assignedTo: formData.assignedTo
-        };
-      }
-      return t;
-    });
-
-    saveTickets(updated);
-    if (activeTicket) {
-      setActiveTicket({
-        ...activeTicket,
-        patientName: formData.patientName,
-        patientEmail: formData.patientEmail,
-        category: formData.category,
-        subject: formData.subject,
-        description: formData.description,
-        priority: formData.priority,
-        status: formData.status,
-        assignedTo: formData.assignedTo
-      });
+  const saveTickets = (data: SupportTicket[]) => {
+    setTickets(data);
+    localStorage.setItem("maides_shared_support_tickets_v3", JSON.stringify(data));
+    if (selectedTicket) {
+      const updatedSel = data.find(t => t.id === selectedTicket.id) || null;
+      setSelectedTicket(updatedSel);
     }
-    setIsEditModalOpen(false);
   };
 
-  // Open View Dossier & Reply
-  const handleOpenView = (t: SupportTicket) => {
-    setActiveTicket(t);
-    setIsViewModalOpen(true);
-  };
+  // Filter Logic
+  const filteredTickets = tickets.filter(t => {
+    const matchSearch = 
+      t.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchStatus = statusFilter === "ALL" || t.status.toUpperCase() === statusFilter.toUpperCase();
+    const matchPriority = priorityFilter === "ALL" || t.priority.toUpperCase() === priorityFilter.toUpperCase();
+    const matchCategory = categoryFilter === "ALL" || t.category.toUpperCase() === categoryFilter.toUpperCase();
+    return matchSearch && matchStatus && matchPriority && matchCategory;
+  });
 
-  // Send Reply
+  // Send Admin Reply
   const handleSendReply = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeTicket || !replyText.trim()) return;
+    if (!replyText.trim() || !selectedTicket) return;
 
+    const timeStr = new Date().toISOString().replace("T", " ").substring(0, 16);
     const newReply: TicketReply = {
-      id: `REP-${Date.now()}`,
-      sender: "MAIDES Concierge Admin",
-      role: "Admin",
+      id: "REP-" + Date.now(),
+      sender: "MAIDES Admin Coordinator",
+      role: "Coordinator",
       message: replyText.trim(),
-      timestamp: new Date().toISOString().replace("T", " ").substring(0, 16)
+      timestamp: timeStr
     };
 
-    const updated = tickets.map((t) => {
-      if (t.id === activeTicket.id) {
+    const updated = tickets.map(t => {
+      if (t.id === selectedTicket.id) {
         return {
           ...t,
           status: "Waiting for Patient" as TicketStatus,
-          replies: [...(t.replies || []), newReply]
+          updatedAt: timeStr,
+          replies: [...t.replies, newReply]
         };
       }
       return t;
     });
 
     saveTickets(updated);
-    setActiveTicket({
-      ...activeTicket,
-      status: "Waiting for Patient",
-      replies: [...(activeTicket.replies || []), newReply]
-    });
     setReplyText("");
   };
 
-  // Add Internal Note
+  // Add Internal Staff Note
   const handleAddInternalNote = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeTicket || !internalNoteText.trim()) return;
+    if (!internalNoteText.trim() || !selectedTicket) return;
 
-    const updated = tickets.map((t) => {
-      if (t.id === activeTicket.id) {
+    const updated = tickets.map(t => {
+      if (t.id === selectedTicket.id) {
         return {
           ...t,
           internalNotes: [...(t.internalNotes || []), internalNoteText.trim()]
@@ -338,612 +276,486 @@ export default function SupportAdminPage() {
     });
 
     saveTickets(updated);
-    setActiveTicket({
-      ...activeTicket,
-      internalNotes: [...(activeTicket.internalNotes || []), internalNoteText.trim()]
-    });
     setInternalNoteText("");
   };
 
-  // Close Ticket
-  const handleCloseTicket = () => {
-    if (!activeTicket) return;
-    const updated = tickets.map((t) => {
-      if (t.id === activeTicket.id) {
-        return { ...t, status: "Closed" as TicketStatus };
-      }
-      return t;
-    });
+  // Update Status
+  const handleStatusChange = (newStatus: TicketStatus) => {
+    if (!selectedTicket) return;
+    const timeStr = new Date().toISOString().replace("T", " ").substring(0, 16);
+    const updated = tickets.map(t => t.id === selectedTicket.id ? { ...t, status: newStatus, updatedAt: timeStr } : t);
     saveTickets(updated);
-    setIsCloseModalOpen(false);
-    if (isViewModalOpen) {
-      setActiveTicket({ ...activeTicket, status: "Closed" });
-    }
   };
 
-  // Reopen Ticket
-  const handleReopenTicket = (t: SupportTicket) => {
-    const updated = tickets.map((item) => {
-      if (item.id === t.id) {
-        return { ...item, status: "In Progress" as TicketStatus };
-      }
-      return item;
-    });
+  // Update Priority
+  const handlePriorityChange = (newPriority: TicketPriority) => {
+    if (!selectedTicket) return;
+    const updated = tickets.map(t => t.id === selectedTicket.id ? { ...t, priority: newPriority } : t);
     saveTickets(updated);
-    if (activeTicket && activeTicket.id === t.id) {
-      setActiveTicket({ ...activeTicket, status: "In Progress" });
-    }
   };
 
-  // Filtered
-  const filteredTickets = tickets.filter((t) => {
-    const matchesSearch =
-      t.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.category.toLowerCase().includes(searchTerm.toLowerCase());
+  // Create New Ticket
+  const handleCreateTicket = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTicketData.patientName || !newTicketData.subject || !newTicketData.description) {
+      alert("Please fill in patient name, subject, and description.");
+      return;
+    }
 
-    const matchesStatus = statusFilter === "ALL" || t.status === statusFilter;
-    const matchesCategory = categoryFilter === "All Categories" || t.category === categoryFilter;
+    const timeStr = new Date().toISOString().replace("T", " ").substring(0, 16);
+    const newTicket: SupportTicket = {
+      id: "TCK-" + Math.floor(800 + Math.random() * 200),
+      patientId: "pat-" + Math.floor(100 + Math.random() * 900),
+      patientName: newTicketData.patientName,
+      patientEmail: newTicketData.patientEmail || "patient@example.com",
+      patientCountry: newTicketData.patientCountry,
+      category: newTicketData.category,
+      subject: newTicketData.subject,
+      description: newTicketData.description,
+      priority: newTicketData.priority,
+      status: "Open",
+      assignedTo: newTicketData.assignedTo,
+      createdAt: timeStr,
+      updatedAt: timeStr,
+      replies: [
+        {
+          id: "REP-" + Date.now(),
+          sender: "Admin (Created on behalf of patient)",
+          role: "Admin",
+          message: newTicketData.description,
+          timestamp: timeStr
+        }
+      ],
+      internalNotes: []
+    };
 
-    return matchesSearch && matchesStatus && matchesCategory;
-  });
+    saveTickets([newTicket, ...tickets]);
+    setSelectedTicket(newTicket);
+    setIsCreateModalOpen(false);
+    setNewTicketData({
+      patientName: "",
+      patientEmail: "",
+      patientCountry: "United States",
+      category: "Medical Case & Doctor Review",
+      subject: "",
+      description: "",
+      priority: "Medium",
+      assignedTo: "Care Coordinator Desk"
+    });
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto pb-16">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/60 p-6 rounded-3xl border border-slate-800/80 backdrop-blur-md">
         <div>
-          <h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-2.5">
-            <LifeBuoy className="w-5 h-5 text-[#0E82FD]" />
-            Patient Support Tickets & Concierge Desk
+          <div className="flex items-center gap-2 text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1">
+            <LifeBuoy className="w-4 h-4" />
+            MAIDES Support Ticket Operations & Resolution Hub
+          </div>
+          <h1 className="text-2xl font-bold text-white tracking-tight">
+            Support Tickets & Escalation Desk
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Manage patient inquiries, medical record delivery requests, airport logistics, and billing support questions.
+          <p className="text-xs text-slate-400 mt-1 max-w-2xl">
+            Unified ticketing system connecting international patients and care coordinators for clinical reviews, visa clearances, and logistics inquiries.
           </p>
         </div>
-        <button 
-          onClick={handleOpenAdd}
-          className="flex items-center gap-1.5 px-4 py-2.5 bg-[#0E82FD] hover:bg-blue-600 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-95"
+
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="flex items-center gap-1.5 px-4 py-2.5 bg-[#0E82FD] hover:bg-blue-600 text-white text-xs font-semibold rounded-xl shadow-md transition-all active:scale-95"
         >
-          <Plus className="w-3.5 h-3.5" />
+          <Plus className="w-4 h-4" />
           Create Support Ticket
         </button>
       </div>
 
-      {/* KPI Highlights */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-[#0E82FD]">
-            <LifeBuoy className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-xs text-slate-400 font-medium">Total Tickets</div>
-            <div className="text-lg font-bold text-white">{tickets.length} Inquiries</div>
-          </div>
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div className="bg-slate-950/80 border border-slate-800/80 p-4 rounded-2xl">
+          <div className="text-xs font-medium text-slate-400">Total Active Tickets</div>
+          <div className="text-2xl font-bold text-white mt-2">{tickets.length}</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">Across all healthcare tracks</div>
         </div>
 
-        <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-            <Clock className="w-5 h-5" />
+        <div className="bg-slate-950/80 border border-slate-800/80 p-4 rounded-2xl">
+          <div className="text-xs font-medium text-slate-400">Open & In-Progress</div>
+          <div className="text-2xl font-bold text-amber-400 mt-2">
+            {tickets.filter(t => t.status === "Open" || t.status === "In Progress").length}
           </div>
-          <div>
-            <div className="text-xs text-slate-400 font-medium">Open / In Progress</div>
-            <div className="text-lg font-bold text-amber-400">
-              {tickets.filter((t) => t.status === "Open" || t.status === "In Progress").length} Active
-            </div>
-          </div>
+          <div className="text-[11px] text-amber-500/80 mt-0.5">Requires coordinator action</div>
         </div>
 
-        <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-            <MessageSquare className="w-5 h-5" />
+        <div className="bg-slate-950/80 border border-slate-800/80 p-4 rounded-2xl">
+          <div className="text-xs font-medium text-slate-400">Waiting for Patient</div>
+          <div className="text-2xl font-bold text-blue-400 mt-2">
+            {tickets.filter(t => t.status === "Waiting for Patient").length}
           </div>
-          <div>
-            <div className="text-xs text-slate-400 font-medium">Waiting for Patient</div>
-            <div className="text-lg font-bold text-purple-400">
-              {tickets.filter((t) => t.status === "Waiting for Patient").length} Pending
-            </div>
-          </div>
+          <div className="text-[11px] text-blue-500/80 mt-0.5">Pending patient document upload</div>
         </div>
 
-        <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-            <CheckCircle2 className="w-5 h-5" />
+        <div className="bg-slate-950/80 border border-slate-800/80 p-4 rounded-2xl">
+          <div className="text-xs font-medium text-slate-400">Resolved & Closed</div>
+          <div className="text-2xl font-bold text-emerald-400 mt-2">
+            {tickets.filter(t => t.status === "Resolved" || t.status === "Closed").length}
           </div>
-          <div>
-            <div className="text-xs text-slate-400 font-medium">Resolved & Closed</div>
-            <div className="text-lg font-bold text-emerald-400">
-              {tickets.filter((t) => t.status === "Resolved" || t.status === "Closed").length} Completed
-            </div>
-          </div>
+          <div className="text-[11px] text-emerald-500/80 mt-0.5">Successfully concluded</div>
         </div>
       </div>
 
-      {/* Tickets Table & Filters */}
-      <div className="bg-slate-950 border border-slate-800/80 rounded-2xl overflow-hidden shadow-sm">
-        <div className="p-4 border-b border-slate-800 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-slate-900/40">
-          <div className="relative w-full md:w-80">
-            <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search by ticket ID, patient, subject..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
-            />
+      {/* 2-Column Canvas */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[720px] bg-slate-950/90 border border-slate-800/90 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-sm">
+        
+        {/* Left Column: Tickets Queue */}
+        <div className="lg:col-span-5 border-r border-slate-800/80 flex flex-col justify-between bg-slate-950/60">
+          
+          {/* Filters Bar */}
+          <div className="p-3.5 border-b border-slate-800 space-y-2.5 bg-slate-900/40">
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search ticket #, patient, subject..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              <select
+                value={statusFilter}
+                onChange={e => setStatusFilter(e.target.value)}
+                className="px-2 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-[11px] text-slate-300 focus:outline-none focus:border-blue-500"
+              >
+                <option value="ALL">All Status</option>
+                <option value="OPEN">Open</option>
+                <option value="IN PROGRESS">In Progress</option>
+                <option value="WAITING FOR PATIENT">Waiting</option>
+                <option value="RESOLVED">Resolved</option>
+                <option value="CLOSED">Closed</option>
+              </select>
+
+              <select
+                value={priorityFilter}
+                onChange={e => setPriorityFilter(e.target.value)}
+                className="px-2 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-[11px] text-slate-300 focus:outline-none focus:border-blue-500"
+              >
+                <option value="ALL">All Priority</option>
+                <option value="CRITICAL">Critical</option>
+                <option value="HIGH">High</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="LOW">Low</option>
+              </select>
+
+              <select
+                value={categoryFilter}
+                onChange={e => setCategoryFilter(e.target.value)}
+                className="px-2 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-[11px] text-slate-300 focus:outline-none focus:border-blue-500"
+              >
+                <option value="ALL">All Topics</option>
+                <option value="TRAVEL & AIRPORT LOGISTICS">Travel</option>
+                <option value="BILLING & INVOICES">Billing</option>
+                <option value="MEDICAL CASE & DOCTOR REVIEW">Medical</option>
+                <option value="VISA & FRRO ASSISTANCE">Visa</option>
+              </select>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto">
-            <Filter className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
-            >
-              <option value="ALL">All Statuses</option>
-              <option value="Open">Open</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Waiting for Patient">Waiting for Patient</option>
-              <option value="Resolved">Resolved</option>
-              <option value="Closed">Closed</option>
-            </select>
-
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
-            >
-              {CATEGORIES_LIST.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-slate-800 bg-slate-900/50 text-slate-400 font-semibold">
-                <th className="py-3 px-4">Ticket ID & Date</th>
-                <th className="py-3 px-4">Patient Profile</th>
-                <th className="py-3 px-4">Category & Subject</th>
-                <th className="py-3 px-4">Assigned Specialist</th>
-                <th className="py-3 px-4 text-center">Priority</th>
-                <th className="py-3 px-4 text-center">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/60">
-              {filteredTickets.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-500">
-                    No support tickets found matching your filter criteria.
-                  </td>
-                </tr>
-              ) : (
-                filteredTickets.map((t) => (
-                  <tr key={t.id} className="hover:bg-slate-900/40 transition-colors group">
-                    <td className="py-3.5 px-4">
-                      <div className="font-mono font-bold text-blue-400">{t.id}</div>
-                      <div className="text-[11px] text-slate-500 mt-0.5">{t.createdAt}</div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-semibold text-slate-200 group-hover:text-blue-400 transition-colors">
-                        {t.patientName}
+          {/* Tickets List */}
+          <div className="flex-1 overflow-y-auto divide-y divide-slate-800/50">
+            {filteredTickets.length === 0 ? (
+              <div className="p-8 text-center text-xs text-slate-500">
+                No tickets match current filters.
+              </div>
+            ) : (
+              filteredTickets.map(t => {
+                const isSelected = selectedTicket && selectedTicket.id === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setSelectedTicket(t)}
+                    className={`w-full text-left p-4 hover:bg-slate-900/60 transition-all flex flex-col gap-2 ${
+                      isSelected ? "bg-slate-900/90 border-l-4 border-[#0E82FD]" : ""
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-bold text-xs text-blue-400">{t.id}</span>
+                        <span className="font-semibold text-xs text-white truncate">{t.patientName}</span>
                       </div>
-                      <div className="text-[11px] text-slate-500">{t.patientEmail}</div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-medium text-slate-200 line-clamp-1 max-w-[280px]">
-                        {t.subject}
-                      </div>
-                      <div className="text-[11px] text-blue-400 mt-0.5">{t.category}</div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="text-slate-300 text-[11px]">{t.assignedTo || "Unassigned"}</div>
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          t.priority === "Critical" || t.priority === "High"
-                            ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
-                            : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                        }`}
-                      >
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${
+                        t.priority === "Critical" ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" :
+                        t.priority === "High" ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" :
+                        "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                      }`}>
                         {t.priority}
                       </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                          t.status === "Resolved" || t.status === "Closed"
-                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                            : t.status === "Waiting for Patient"
-                            ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                            : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                        }`}
-                      >
+                    </div>
+
+                    <div className="text-xs font-semibold text-slate-200 line-clamp-1">{t.subject}</div>
+
+                    <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1">
+                      <span className="truncate max-w-[180px]">{t.category}</span>
+                      <span className={`px-2 py-0.5 rounded-md font-semibold ${
+                        t.status === "Open" ? "bg-blue-500/10 text-blue-400" :
+                        t.status === "In Progress" ? "bg-amber-500/10 text-amber-400" :
+                        t.status === "Resolved" ? "bg-emerald-500/10 text-emerald-400" :
+                        "bg-slate-800 text-slate-400"
+                      }`}>
                         {t.status}
                       </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={() => handleOpenView(t)}
-                          title="View Ticket & Conversation"
-                          className="px-2.5 py-1.5 rounded-lg bg-[#0E82FD] hover:bg-blue-600 text-white font-semibold text-[11px] transition-all flex items-center gap-1"
-                        >
-                          <MessageSquare className="w-3.5 h-3.5" />
-                          Respond
-                        </button>
-                        <button
-                          onClick={() => handleOpenEdit(t)}
-                          title="Edit Ticket Details"
-                          className="p-1.5 rounded-lg bg-slate-900 hover:bg-blue-600/20 text-slate-300 hover:text-[#0E82FD] transition-all border border-slate-800"
-                        >
-                          <Edit className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                    </div>
+                  </button>
+                );
+              })
+            )}
+          </div>
+
+          <div className="p-3 bg-slate-900/50 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between">
+            <span>{tickets.length} Registered Support Cases</span>
+            <span className="text-emerald-400 font-semibold flex items-center gap-1">
+              <Check className="w-3.5 h-3.5" /> Synchronized
+            </span>
+          </div>
         </div>
-      </div>
 
-      {/* ========================================================================= */}
-      {/* VIEW TICKET & CONVERSATION MODAL                                          */}
-      {/* ========================================================================= */}
-      {isViewModalOpen && activeTicket && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-          <div className="bg-slate-950 border border-slate-800 rounded-3xl w-full max-w-3xl max-h-[92vh] overflow-y-auto shadow-2xl p-6 flex flex-col">
-            <div className="flex items-start justify-between pb-4 border-b border-slate-800">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-[#0E82FD]">
-                  <LifeBuoy className="w-6 h-6" />
-                </div>
-                <div>
+        {/* Right Column: Ticket Conversation & Details */}
+        <div className="lg:col-span-7 flex flex-col justify-between bg-slate-950/40">
+          {selectedTicket ? (
+            <>
+              {/* Ticket Top Header & Actions */}
+              <div className="p-5 border-b border-slate-800/80 bg-slate-900/50 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-base font-bold text-white">{selectedTicket.subject}</span>
+                      <span className="font-mono text-xs text-blue-400 font-semibold bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-500/20">
+                        {selectedTicket.id}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-400 flex items-center gap-2 mt-1">
+                      <span>Patient: <strong className="text-white">{selectedTicket.patientName}</strong> ({selectedTicket.patientEmail})</span>
+                      <span>•</span>
+                      <span>Created: {selectedTicket.createdAt}</span>
+                    </div>
+                  </div>
+
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-blue-400">{activeTicket.id}</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300">
-                      {activeTicket.category}
-                    </span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                      {activeTicket.status}
-                    </span>
+                    {/* Status dropdown */}
+                    <select
+                      value={selectedTicket.status}
+                      onChange={e => handleStatusChange(e.target.value as any)}
+                      className="px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500 font-semibold"
+                    >
+                      <option value="Open">Open</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Waiting for Patient">Waiting for Patient</option>
+                      <option value="Resolved">Resolved</option>
+                      <option value="Closed">Closed</option>
+                    </select>
+
+                    {/* Priority dropdown */}
+                    <select
+                      value={selectedTicket.priority}
+                      onChange={e => handlePriorityChange(e.target.value as any)}
+                      className="px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500 font-semibold"
+                    >
+                      <option value="Critical">Critical</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                    </select>
                   </div>
-                  <h2 className="text-base font-bold text-white mt-1">{activeTicket.subject}</h2>
-                  <div className="text-xs text-slate-400 mt-0.5">
-                    From: <strong className="text-slate-200">{activeTicket.patientName}</strong> ({activeTicket.patientEmail})
-                  </div>
+                </div>
+
+                {/* Meta details bar */}
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/60 text-xs text-slate-400">
+                  <div>Category: <span className="text-white font-medium">{selectedTicket.category}</span></div>
+                  <div>Assigned: <span className="text-blue-400 font-medium">{selectedTicket.assignedTo}</span></div>
                 </div>
               </div>
-              <button
-                onClick={() => setIsViewModalOpen(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 transition-all"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
 
-            <div className="space-y-4 my-5 flex-1 overflow-y-auto">
-              {/* Ticket Initial Description */}
-              <div className="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl">
-                <div className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold mb-1">
-                  Original Issue Description
-                </div>
-                <p className="text-xs text-slate-200 leading-relaxed">{activeTicket.description}</p>
-                <div className="text-[10px] text-slate-500 mt-2">Submitted: {activeTicket.createdAt}</div>
-              </div>
-
-              {/* Conversation Log */}
-              <div className="space-y-3">
-                <div className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                  <MessageSquare className="w-3.5 h-3.5 text-[#0E82FD]" />
-                  Conversation Thread ({activeTicket.replies ? activeTicket.replies.length : 0})
-                </div>
-
-                {activeTicket.replies && activeTicket.replies.length > 0 ? (
-                  activeTicket.replies.map((rep) => (
+              {/* Thread Feed */}
+              <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-gradient-to-b from-slate-950/20 to-slate-900/10">
+                {selectedTicket.replies.map(rep => {
+                  const isAdmin = rep.role === "Coordinator" || rep.role === "Admin";
+                  return (
                     <div
                       key={rep.id}
-                      className={`p-4 rounded-2xl text-xs space-y-1 border ${
-                        rep.role === "Admin"
-                          ? "bg-blue-600/10 border-blue-500/20 ml-6"
-                          : "bg-slate-900/80 border-slate-800 mr-6"
-                      }`}
+                      className={`flex flex-col ${isAdmin ? "items-end" : "items-start"}`}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-white flex items-center gap-1.5">
-                          {rep.role === "Admin" && <Shield className="w-3 h-3 text-[#0E82FD]" />}
-                          {rep.sender} ({rep.role})
-                        </span>
-                        <span className="text-[10px] text-slate-500">{rep.timestamp}</span>
+                      <div className="flex items-center gap-1.5 mb-1 px-1 text-[10px] text-slate-400">
+                        <span className="font-semibold text-slate-300">{rep.sender}</span>
+                        <span>•</span>
+                        <span>{rep.timestamp}</span>
                       </div>
-                      <p className="text-slate-200 leading-relaxed pt-1">{rep.message}</p>
+
+                      <div
+                        className={`max-w-xl p-4 rounded-2xl text-xs leading-relaxed shadow-md ${
+                          isAdmin
+                            ? "bg-[#0E82FD] text-white rounded-tr-none"
+                            : "bg-slate-900 text-slate-200 border border-slate-800/80 rounded-tl-none"
+                        }`}
+                      >
+                        <p className="whitespace-pre-wrap">{rep.message}</p>
+                      </div>
                     </div>
-                  ))
-                ) : (
-                  <div className="text-xs text-slate-500 italic py-2">No replies yet. Send the first response below.</div>
+                  );
+                })}
+
+                {/* Internal Notes Section */}
+                {selectedTicket.internalNotes && selectedTicket.internalNotes.length > 0 && (
+                  <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl space-y-1.5">
+                    <div className="text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
+                      <Shield className="w-3.5 h-3.5" /> Staff Internal Notes (Confidential)
+                    </div>
+                    {selectedTicket.internalNotes.map((note, idx) => (
+                      <div key={idx} className="text-xs text-amber-200/90 pl-2 border-l-2 border-amber-500/40">
+                        {note}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
 
-              {/* Internal Staff Notes */}
-              {activeTicket.internalNotes && activeTicket.internalNotes.length > 0 && (
-                <div className="bg-amber-500/5 border border-amber-500/20 p-4 rounded-2xl space-y-1.5">
-                  <div className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">
-                    Internal Staff Notes (Hidden from Patient)
-                  </div>
-                  {activeTicket.internalNotes.map((note, idx) => (
-                    <div key={idx} className="text-xs text-slate-300 flex items-start gap-1.5">
-                      <span className="text-amber-400">•</span>
-                      <span>{note}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Quick Actions Bar */}
-            <div className="space-y-4 pt-4 border-t border-slate-800">
-              {/* Send Reply Form */}
-              <form onSubmit={handleSendReply} className="space-y-2">
-                <textarea
-                  rows={2}
-                  required
-                  placeholder="Type official reply to international patient..."
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
-                />
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {activeTicket.status !== "Closed" ? (
-                      <button
-                        type="button"
-                        onClick={handleCloseTicket}
-                        className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-800 transition-all"
-                      >
-                        Close Ticket
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleReopenTicket(activeTicket)}
-                        className="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 text-xs font-semibold border border-emerald-500/20 transition-all"
-                      >
-                        Reopen Ticket
-                      </button>
-                    )}
-                  </div>
+              {/* Reply & Note Input Bar */}
+              <div className="p-4 border-t border-slate-800/80 bg-slate-900/60 space-y-3">
+                <form onSubmit={handleSendReply} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Type official response to patient..."
+                    value={replyText}
+                    onChange={e => setReplyText(e.target.value)}
+                    className="flex-1 px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                  />
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-[#0E82FD] hover:bg-blue-600 text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center gap-1.5"
+                    disabled={!replyText.trim()}
+                    className="px-4 py-2.5 bg-[#0E82FD] hover:bg-blue-600 disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 shrink-0 shadow-md"
                   >
-                    <Send className="w-3.5 h-3.5" />
-                    Send Reply
+                    <Send className="w-3.5 h-3.5" /> Reply
                   </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+                </form>
 
-      {/* ========================================================================= */}
-      {/* ADD TICKET MODAL                                                          */}
-      {/* ========================================================================= */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-slate-950 border border-slate-800 rounded-3xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl p-6">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-[#0E82FD]">
-                  <Plus className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-white">Create Support Ticket</h2>
-                  <p className="text-xs text-slate-400">Log patient request for clinical or concierge assistance</p>
-                </div>
+                {/* Internal Staff Note Input */}
+                <form onSubmit={handleAddInternalNote} className="flex items-center gap-2 pt-1 border-t border-slate-800/50">
+                  <input
+                    type="text"
+                    placeholder="Add private staff note (hidden from patient)..."
+                    value={internalNoteText}
+                    onChange={e => setInternalNoteText(e.target.value)}
+                    className="flex-1 px-3 py-1.5 bg-slate-950 border border-amber-500/20 rounded-lg text-xs text-amber-300 placeholder-slate-600 focus:outline-none focus:border-amber-500"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!internalNoteText.trim()}
+                    className="px-3 py-1.5 bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 text-xs font-semibold rounded-lg transition-all"
+                  >
+                    Add Note
+                  </button>
+                </form>
               </div>
-              <button
-                onClick={() => setIsAddModalOpen(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 transition-all"
-              >
-                <X className="w-4 h-4" />
+            </>
+          ) : (
+            <div className="p-12 text-center text-xs text-slate-500">
+              Select a support ticket from the list to review the thread.
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* CREATE TICKET MODAL */}
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl max-w-lg w-full p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-bold text-white">Create Patient Support Ticket</h3>
+              <button onClick={() => setIsCreateModalOpen(false)} className="p-1 text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreate} className="space-y-4 mt-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Patient Full Name *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Sarah Jenkins"
-                    value={formData.patientName}
-                    onChange={(e) => setFormData({ ...formData, patientName: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
-                  />
-                </div>
+            <form onSubmit={handleCreateTicket} className="space-y-3 text-xs">
+              <div>
+                <label className="text-slate-400 font-semibold block mb-1">Patient Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Sarah Jenkins"
+                  value={newTicketData.patientName}
+                  onChange={e => setNewTicketData({ ...newTicketData, patientName: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white"
+                />
+              </div>
 
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Patient Email *</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="e.g. sarah.jenkins@example.com"
-                    value={formData.patientEmail}
-                    onChange={(e) => setFormData({ ...formData, patientEmail: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Category *</label>
+                  <label className="text-slate-400 font-semibold block mb-1">Category</label>
                   <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
+                    value={newTicketData.category}
+                    onChange={e => setNewTicketData({ ...newTicketData, category: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white"
                   >
-                    {CATEGORIES_LIST.filter(c => c !== "All Categories").map((cat) => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
+                    <option value="Medical Case & Doctor Review">Medical Case</option>
+                    <option value="Travel & Airport Logistics">Travel & Logistics</option>
+                    <option value="Billing & Invoices">Billing & Escrow</option>
+                    <option value="Visa & FRRO Assistance">Visa & FRRO</option>
+                    <option value="Accommodation & Post-Op">Accommodation</option>
                   </select>
                 </div>
-
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Priority</label>
+                  <label className="text-slate-400 font-semibold block mb-1">Priority</label>
                   <select
-                    value={formData.priority}
-                    onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
+                    value={newTicketData.priority}
+                    onChange={e => setNewTicketData({ ...newTicketData, priority: e.target.value as any })}
+                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white"
                   >
-                    <option value="Critical">Critical</option>
-                    <option value="High">High</option>
-                    <option value="Medium">Medium</option>
                     <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                    <option value="Critical">Critical</option>
                   </select>
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Subject *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Flight delay notice / medical visa clarification"
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Description *</label>
-                  <textarea
-                    rows={3}
-                    required
-                    placeholder="Provide complete background on patient inquiry..."
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
-                  />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+              <div>
+                <label className="text-slate-400 font-semibold block mb-1">Subject</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Brief summary of issue"
+                  value={newTicketData.subject}
+                  onChange={e => setNewTicketData({ ...newTicketData, subject: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-slate-400 font-semibold block mb-1">Description / Inquiry</label>
+                <textarea
+                  rows={3}
+                  required
+                  placeholder="Enter full details regarding the support request..."
+                  value={newTicketData.description}
+                  onChange={e => setNewTicketData({ ...newTicketData, description: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">
                 <button
                   type="button"
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white hover:bg-slate-900 transition-all"
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#0E82FD] hover:bg-blue-600 text-white text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all"
+                  className="px-5 py-2 bg-[#0E82FD] hover:bg-blue-600 text-white font-semibold rounded-xl"
                 >
-                  Create Ticket
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* EDIT TICKET MODAL                                                         */}
-      {/* ========================================================================= */}
-      {isEditModalOpen && activeTicket && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-slate-950 border border-slate-800 rounded-3xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl p-6">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-[#0E82FD]">
-                  <Edit className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-white">Edit Support Ticket ({activeTicket.id})</h2>
-                  <p className="text-xs text-slate-400">Reassign ticket, update status, or change priority</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsEditModalOpen(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 transition-all"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleUpdate} className="space-y-4 mt-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Status</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
-                  >
-                    <option value="Open">Open</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Waiting for Patient">Waiting for Patient</option>
-                    <option value="Resolved">Resolved</option>
-                    <option value="Closed">Closed</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Priority</label>
-                  <select
-                    value={formData.priority}
-                    onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
-                  >
-                    <option value="Critical">Critical</option>
-                    <option value="High">High</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Low">Low</option>
-                  </select>
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Assigned Specialist / Coordinator</label>
-                  <input
-                    type="text"
-                    value={formData.assignedTo}
-                    onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Subject</label>
-                  <input
-                    type="text"
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#0E82FD]"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setIsEditModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white hover:bg-slate-900 transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#0E82FD] hover:bg-blue-600 text-white text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all"
-                >
-                  Save Changes
+                  Submit Ticket
                 </button>
               </div>
             </form>
