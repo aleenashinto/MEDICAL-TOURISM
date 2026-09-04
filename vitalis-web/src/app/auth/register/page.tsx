@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Lock, Mail, User, Globe, Phone, Calendar, ShieldCheck } from "lucide-react";
+import { ArrowRight, Lock, Mail, User, Globe, Phone, Calendar, ShieldCheck, ShieldAlert } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -16,16 +16,53 @@ export default function RegisterPage() {
     dob: "",
     gender: "female",
     password: "",
+    confirmPassword: "",
   });
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
+    const firstName = formData.firstName.trim();
+    const lastName = formData.lastName.trim();
+    const email = formData.email.trim();
+    const phone = formData.phone.trim();
+    const password = formData.password;
+    const confirmPassword = formData.confirmPassword;
+
+    if (!firstName || !lastName) {
+      setError("Please provide both your first and last name.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please provide a valid email address.");
+      return;
+    }
+
+    if (phone.length < 8) {
+      setError("Please provide a valid phone number with country code.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match. Please verify both password fields.");
+      return;
+    }
+
     setIsLoading(true);
 
     setTimeout(() => {
       setIsLoading(false);
-      router.push("/patient/dashboard");
+      router.push("/auth/verify-otp");
     }, 600);
   };
 
@@ -53,10 +90,17 @@ export default function RegisterPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl relative z-10">
         <div className="bg-slate-800/90 border border-slate-700/80 backdrop-blur-xl py-8 px-6 shadow-2xl rounded-2xl sm:px-10">
+          {error && (
+            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-2 text-red-400 text-xs">
+              <ShieldAlert className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300">First Name</label>
+                <label className="block text-xs font-medium text-slate-300">First Name *</label>
                 <div className="mt-1 relative rounded-xl shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                     <User className="h-4 w-4" />
@@ -73,7 +117,7 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300">Last Name</label>
+                <label className="block text-xs font-medium text-slate-300">Last Name *</label>
                 <input
                   type="text"
                   required
@@ -87,7 +131,7 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300">Email Address</label>
+                <label className="block text-xs font-medium text-slate-300">Email Address *</label>
                 <div className="mt-1 relative rounded-xl shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                     <Mail className="h-4 w-4" />
@@ -104,7 +148,7 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300">Phone (with Country Code)</label>
+                <label className="block text-xs font-medium text-slate-300">Phone (with Country Code) *</label>
                 <div className="mt-1 relative rounded-xl shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                     <Phone className="h-4 w-4" />
@@ -158,20 +202,39 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-slate-300">Password</label>
-              <div className="mt-1 relative rounded-xl shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                  <Lock className="h-4 w-4" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-300">Password (min 8 chars) *</label>
+                <div className="mt-1 relative rounded-xl shadow-sm">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <Lock className="h-4 w-4" />
+                  </div>
+                  <input
+                    type="password"
+                    required
+                    placeholder="••••••••"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="block w-full pl-10 pr-3 py-2 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-[#0E82FD] focus:outline-none"
+                  />
                 </div>
-                <input
-                  type="password"
-                  required
-                  placeholder="At least 8 characters"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="block w-full pl-10 pr-3 py-2 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-[#0E82FD] focus:outline-none"
-                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300">Confirm Password *</label>
+                <div className="mt-1 relative rounded-xl shadow-sm">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <Lock className="h-4 w-4" />
+                  </div>
+                  <input
+                    type="password"
+                    required
+                    placeholder="••••••••"
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    className="block w-full pl-10 pr-3 py-2 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-[#0E82FD] focus:outline-none"
+                  />
+                </div>
               </div>
             </div>
 
