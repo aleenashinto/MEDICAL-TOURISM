@@ -28,10 +28,33 @@ import {
   X,
   User,
   ChevronDown,
-  Bell,
+  ChevronRight,
   Search,
-  CheckCircle2
+  Sparkles,
+  BarChart3,
+  TrendingUp,
+  FileSpreadsheet,
+  PieChart,
+  Layers
 } from "lucide-react";
+
+interface SubMenuItem {
+  name: string;
+  href: string;
+}
+
+interface MenuItem {
+  name: string;
+  href?: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
+  submenus?: SubMenuItem[];
+}
+
+interface MenuGroup {
+  title: string;
+  items: MenuItem[];
+}
 
 export default function AdminLayout({
   children,
@@ -40,59 +63,90 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({
+    "Reports & Analytics": true,
+    "Clinical Catalog": true,
+    "Patient Operations": false,
+    "Logistics & Invoicing": false
+  });
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setProfileDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const toggleSubmenu = (name: string) => {
+    setExpandedMenus(prev => ({
+      ...prev,
+      [name]: !prev[name]
+    }));
+  };
 
-  const navGroups = [
+  const navGroups: MenuGroup[] = [
     {
       title: "Core Operations",
       items: [
         { name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
         { name: "Enquiries & Leads", href: "/admin/enquiries", icon: Inbox, badge: "3 New" },
-        { name: "Patient Cases", href: "/admin/cases", icon: HeartPulse },
-        { name: "Patients Directory", href: "/admin/patients", icon: Users },
+        {
+          name: "Patient Operations",
+          icon: Users,
+          submenus: [
+            { name: "All Patient Cases", href: "/admin/cases" },
+            { name: "Patients Master Directory", href: "/admin/patients" },
+            { name: "Medical Records Locker", href: "/admin/documents" },
+          ]
+        },
       ],
     },
     {
       title: "Clinical Network",
       items: [
-        { name: "Hospitals", href: "/admin/hospitals", icon: Building2 },
-        { name: "Doctors", href: "/admin/doctors", icon: Stethoscope },
-        { name: "Treatments", href: "/admin/treatments", icon: Activity },
-        { name: "Appointments", href: "/admin/appointments", icon: Calendar },
+        {
+          name: "Clinical Catalog",
+          icon: Building2,
+          submenus: [
+            { name: "Hospitals Directory", href: "/admin/hospitals" },
+            { name: "Specialists & Doctors", href: "/admin/doctors" },
+            { name: "Treatments & Surgeries", href: "/admin/treatments" },
+            { name: "Medical Specialties", href: "/admin/specialties" },
+          ]
+        },
+        { name: "Appointments & Telehealth", href: "/admin/appointments", icon: Calendar },
       ],
     },
     {
       title: "Logistics & Finance",
       items: [
-        { name: "Travel & Visas", href: "/admin/travel", icon: Plane },
-        { name: "Billing & Invoices", href: "/admin/payments", icon: CreditCard },
+        {
+          name: "Logistics & Invoicing",
+          icon: Plane,
+          submenus: [
+            { name: "Travel & Medical Visas", href: "/admin/travel" },
+            { name: "Billing & Invoices", href: "/admin/payments" },
+          ]
+        },
       ],
     },
     {
       title: "Engagement & Content",
       items: [
-        { name: "Messages", href: "/admin/messages", icon: MessageSquare },
+        { name: "Direct Messages", href: "/admin/messages", icon: MessageSquare },
         { name: "Support Tickets", href: "/admin/support", icon: LifeBuoy },
-        { name: "Patient Feedback", href: "/admin/feedback", icon: Star },
-        { name: "CMS & Knowledge", href: "/admin/cms", icon: FileText },
-        { name: "Analytics & Reports", href: "/admin/reports", icon: FileCheck2 },
+        { name: "Patient Reviews & Feedback", href: "/admin/feedback", icon: Star },
+        { name: "CMS & Knowledge Base", href: "/admin/cms", icon: FileText },
+        {
+          name: "Reports & Analytics",
+          icon: BarChart3,
+          submenus: [
+            { name: "Reports Overview", href: "/admin/reports" },
+            { name: "Lead Conversions", href: "/admin/reports/enquiries" },
+            { name: "Clinical Case Flow", href: "/admin/reports/cases" },
+            { name: "Financial & Revenue", href: "/admin/reports/financial" },
+            { name: "Patient Demographics", href: "/admin/reports/patients" },
+          ]
+        },
       ],
     },
     {
-      title: "Governance",
+      title: "Governance & System",
       items: [
-        { name: "Audit Logs", href: "/admin/audit-logs", icon: ShieldAlert },
+        { name: "Security Audit Logs", href: "/admin/audit-logs", icon: ShieldAlert },
         { name: "Platform Settings", href: "/admin/settings", icon: Settings },
       ],
     },
@@ -115,13 +169,6 @@ export default function AdminLayout({
         </Link>
         <div className="flex items-center gap-2">
           <Link
-            href="/admin/settings"
-            className="p-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white border border-slate-800"
-            title="Settings"
-          >
-            <Settings className="w-4 h-4" />
-          </Link>
-          <Link
             href="/"
             onClick={() => { if (typeof window !== 'undefined') localStorage.removeItem('maides_user_role'); }}
             className="p-2 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20"
@@ -131,7 +178,7 @@ export default function AdminLayout({
           </Link>
           <button
             onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)}
-            className="p-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white border border-slate-800"
+            className="p-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white border border-slate-800 cursor-pointer"
             aria-label="Toggle navigation menu"
           >
             {mobileDrawerOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -149,28 +196,27 @@ export default function AdminLayout({
 
       {/* Sidebar (Desktop + Mobile Drawer) */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-72 lg:w-64 bg-slate-950 border-r border-slate-800 flex flex-col justify-between transform transition-transform duration-300 ease-in-out lg:translate-x-0 shrink-0 ${
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-72 lg:w-68 bg-slate-950 border-r border-slate-800 flex flex-col justify-between transform transition-transform duration-300 ease-in-out lg:translate-x-0 shrink-0 ${
           mobileDrawerOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         }`}
       >
-        <div>
+        <div className="flex flex-col h-full">
           {/* Brand header */}
-          <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
             <Link href="/admin/dashboard" className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#0E82FD] to-[#38BDF8] flex items-center justify-center text-white font-black text-lg shadow-md shadow-blue-500/20">
                 M
               </div>
               <div>
-                <div className="font-bold text-base leading-none tracking-tight text-white flex items-center gap-1.5">
+                <div className="font-bold text-sm leading-none tracking-tight text-white flex items-center gap-1.5">
                   MAIDES
-                  <span className="text-[10px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-blue-500/20 text-[#0E82FD] border border-blue-500/30">
+                  <span className="text-[9px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-blue-500/20 text-[#0E82FD] border border-blue-500/30">
                     Admin
                   </span>
                 </div>
-                <div className="text-[11px] text-slate-400 font-medium mt-1">Platform Operations</div>
+                <div className="text-[10px] text-slate-400 font-medium mt-1">Platform Operations</div>
               </div>
             </Link>
-            {/* Close button on mobile drawer */}
             <button
               onClick={() => setMobileDrawerOpen(false)}
               className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900"
@@ -179,25 +225,80 @@ export default function AdminLayout({
             </button>
           </div>
 
-          {/* Navigation Items */}
-          <nav className="p-3 space-y-5 max-h-[calc(100vh-140px)] overflow-y-auto">
+          {/* Navigation Items with Menus & Submenus */}
+          <nav className="p-3 space-y-4 flex-1 overflow-y-auto max-h-[calc(100vh-140px)]">
             {navGroups.map((group) => (
               <div key={group.title}>
                 <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                   {group.title}
                 </div>
-                <div className="space-y-0.5">
+                <div className="space-y-1">
                   {group.items.map((item) => {
                     const Icon = item.icon;
-                    const isActive = pathname === item.href || (item.href !== "/admin/dashboard" && pathname.startsWith(item.href));
+                    const hasSubmenus = item.submenus && item.submenus.length > 0;
+                    const isExpanded = expandedMenus[item.name];
+                    const isSubmenuActive = hasSubmenus && item.submenus?.some(sub => pathname === sub.href);
+                    const isActive = item.href ? (pathname === item.href || (item.href !== "/admin/dashboard" && pathname.startsWith(item.href))) : isSubmenuActive;
+
+                    if (hasSubmenus) {
+                      return (
+                        <div key={item.name} className="space-y-0.5">
+                          {/* Parent Menu with Toggle */}
+                          <button
+                            type="button"
+                            onClick={() => toggleSubmenu(item.name)}
+                            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                              isSubmenuActive
+                                ? "bg-blue-500/10 text-blue-300 border border-blue-500/20"
+                                : "text-slate-400 hover:text-slate-100 hover:bg-slate-900"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <Icon className={`w-4 h-4 ${isSubmenuActive ? "text-[#0E82FD]" : "text-slate-400"}`} />
+                              <span>{item.name}</span>
+                            </div>
+                            <ChevronDown
+                              className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
+                                isExpanded ? "transform rotate-180 text-blue-400" : ""
+                              }`}
+                            />
+                          </button>
+
+                          {/* Submenus List */}
+                          {isExpanded && (
+                            <div className="pl-6 pr-1 py-1 space-y-1 border-l-2 border-slate-800 ml-4 my-1 animate-in slide-in-from-top-1 fade-in duration-150">
+                              {item.submenus?.map((sub) => {
+                                const isSubActive = pathname === sub.href;
+                                return (
+                                  <Link
+                                    key={sub.name}
+                                    href={sub.href}
+                                    onClick={() => setMobileDrawerOpen(false)}
+                                    className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+                                      isSubActive
+                                        ? "bg-[#0E82FD] text-white shadow-xs font-bold"
+                                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
+                                    }`}
+                                  >
+                                    <span>{sub.name}</span>
+                                    {isSubActive && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+
                     return (
                       <Link
                         key={item.name}
-                        href={item.href}
+                        href={item.href || "#"}
                         onClick={() => setMobileDrawerOpen(false)}
-                        className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                        className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                           isActive
-                            ? "bg-[#0E82FD] text-white shadow-sm"
+                            ? "bg-[#0E82FD] text-white shadow-sm font-bold"
                             : "text-slate-400 hover:text-slate-100 hover:bg-slate-900"
                         }`}
                       >
@@ -206,7 +307,7 @@ export default function AdminLayout({
                           <span>{item.name}</span>
                         </div>
                         {item.badge && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-bold">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30">
                             {item.badge}
                           </span>
                         )}
@@ -230,7 +331,7 @@ export default function AdminLayout({
                   }
                   setMobileDrawerOpen(false);
                 }}
-                className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold text-rose-400 hover:text-white bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 transition-all shadow-xs group"
+                className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-rose-400 hover:text-white bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 transition-all shadow-xs group"
               >
                 <div className="flex items-center gap-2.5">
                   <LogOut className="w-4 h-4 text-rose-400 group-hover:text-white transition-colors" />
@@ -245,7 +346,7 @@ export default function AdminLayout({
         </div>
 
         {/* User Session Footer */}
-        <div className="p-4 border-t border-slate-800 bg-slate-950/80">
+        <div className="p-3.5 border-t border-slate-800 bg-slate-950/90">
           <div className="flex items-center justify-between">
             <Link
               href="/admin/profile"
@@ -266,14 +367,6 @@ export default function AdminLayout({
                 className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition-colors"
               >
                 <Settings className="w-4 h-4" />
-              </Link>
-              <Link
-                href="/"
-                onClick={() => { if (typeof window !== 'undefined') localStorage.removeItem('maides_user_role'); }}
-                title="Sign Out"
-                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
               </Link>
             </div>
           </div>
