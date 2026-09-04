@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
@@ -19,7 +19,9 @@ import {
   Menu,
   X,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Mail,
+  MapPin
 } from "lucide-react";
 
 export default function PatientLayout({
@@ -29,6 +31,33 @@ export default function PatientLayout({
 }) {
   const pathname = usePathname();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [user, setUser] = useState({
+    name: "Sarah Jenkins",
+    email: "sarah.jenkins@example.com",
+    location: "United Kingdom",
+    initials: "SJ"
+  });
+
+  useEffect(() => {
+    // Read registered user info if stored in localStorage, otherwise use Sarah Jenkins default
+    if (typeof window !== "undefined") {
+      const storedName = localStorage.getItem("maides_user_name");
+      const storedEmail = localStorage.getItem("maides_user_email");
+      const storedLocation = localStorage.getItem("maides_user_location");
+
+      if (storedName || storedEmail || storedLocation) {
+        const name = storedName || "Sarah Jenkins";
+        const parts = name.trim().split(" ");
+        const initials = parts.length > 1 ? `${parts[0][0]}${parts[1][0]}`.toUpperCase() : name.slice(0, 2).toUpperCase();
+        setUser({
+          name,
+          email: storedEmail || "sarah.jenkins@example.com",
+          location: storedLocation || "United Kingdom",
+          initials: initials || "SJ"
+        });
+      }
+    }
+  }, []);
 
   const navItems = [
     { name: "Dashboard", href: "/patient/dashboard", icon: LayoutDashboard },
@@ -99,7 +128,22 @@ export default function PatientLayout({
             </button>
           </div>
 
-          <nav className="p-3 space-y-0.5 max-h-[calc(100vh-140px)] overflow-y-auto">
+          {/* User badge inside sidebar */}
+          <div className="px-4 py-3 mx-3 my-3 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#0E82FD] to-[#38BDF8] text-white font-bold flex items-center justify-center text-xs shadow-sm shrink-0">
+              {user.initials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-xs font-bold text-white truncate">{user.name}</div>
+              <div className="text-[10px] text-blue-200 truncate">{user.email}</div>
+              <div className="text-[9px] text-slate-400 flex items-center gap-1 mt-0.5">
+                <MapPin className="w-2.5 h-2.5 text-blue-400" />
+                <span className="truncate">{user.location}</span>
+              </div>
+            </div>
+          </div>
+
+          <nav className="p-3 space-y-0.5 max-h-[calc(100vh-230px)] overflow-y-auto">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href || (item.href !== "/patient/dashboard" && pathname.startsWith(item.href));
@@ -159,14 +203,18 @@ export default function PatientLayout({
 
             <Link
               href="/patient/profile"
-              className="flex items-center gap-2 pl-2 pr-3 py-1 rounded-xl hover:bg-slate-100 transition-colors"
+              className="flex items-center gap-3 pl-2 pr-3 py-1 rounded-xl hover:bg-slate-100 transition-colors border border-slate-100"
             >
               <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#0E82FD] to-[#38BDF8] text-white font-bold flex items-center justify-center text-xs shadow-sm">
-                SJ
+                {user.initials}
               </div>
               <div className="text-left hidden lg:block">
-                <div className="text-xs font-bold text-slate-800 leading-none">Sarah Jenkins</div>
-                <div className="text-[10px] text-slate-500 leading-none mt-0.5">United Kingdom</div>
+                <div className="text-xs font-bold text-slate-800 leading-none">{user.name}</div>
+                <div className="text-[10px] text-slate-500 leading-none mt-1 flex items-center gap-1">
+                  <span>{user.email}</span>
+                  <span>•</span>
+                  <span className="font-semibold text-blue-600">{user.location}</span>
+                </div>
               </div>
             </Link>
 

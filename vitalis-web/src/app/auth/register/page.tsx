@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -59,6 +59,13 @@ export default function RegisterPage() {
     }
 
     setIsLoading(true);
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("maides_user_name", `${firstName} ${lastName}`);
+      localStorage.setItem("maides_user_email", email);
+      localStorage.setItem("maides_user_location", formData.country || "United Arab Emirates");
+      localStorage.setItem("maides_user_phone", phone);
+    }
 
     setTimeout(() => {
       setIsLoading(false);
