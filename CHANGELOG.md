@@ -2,6 +2,12 @@
 
 All notable changes and architectural decisions across phases are documented here.
 
+## [Phase 6 — Hospital & Doctor Portal] - 2026-09-04
+- Implemented Hospital Partner Management APIs (`POST /api/v1/hospitals`, `PATCH /api/v1/hospitals/:id`, `GET /api/v1/hospitals/:id/cases`) with RBAC restrictions (`hospital_manager`, `super_admin`).
+- Built Doctor Management & Profile Configuration APIs (`POST /api/v1/doctors`, `PATCH /api/v1/doctors/:id`, `GET /api/v1/doctors/:id/cases`).
+- Built Doctor Second Opinion & Treatment Protocol Submission Engine (`POST /api/v1/doctors/:id/opinions/:enquiryId`) with structured clinical assessment, procedure recommendations, stay length, cost estimation, and fit-to-fly sign-off.
+- Verified test suite: 32/32 automated unit & integration tests passing across all layers.
+
 ## [Phase 5 — Medical Enquiry & Case Management Engine] - 2026-09-04
 - Implemented comprehensive Case Management Engine across the 10-step Kerala medical tourism lifecycle (`GET /api/v1/enquiries`, `GET /api/v1/enquiries/:id`, `POST /api/v1/enquiries`).
 - Implemented multi-scoped access controls: Patient view restricted to personal cases; Super Admin / Medical Coordinator access across all Kerala cases.

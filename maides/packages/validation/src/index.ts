@@ -171,6 +171,36 @@ export const HospitalQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).default(20),
 });
 
+export const HospitalCreateSchema = z.object({
+  name: z.string().min(2, "Hospital name is required").max(255),
+  slug: z.string().min(2).max(150),
+  tagline: z.string().min(5).max(500),
+  district: z.string().min(2).max(100),
+  city: z.string().min(2).max(100),
+  region: z.enum(["south_kerala", "central_kerala", "north_kerala"]),
+  type: z.enum([
+    "multispecialty",
+    "super_specialty",
+    "government_medical_college",
+    "ayurveda_wellness",
+    "specialized_institute",
+  ]).default("multispecialty"),
+  accreditations: z.array(z.string()).default([]),
+  specialties: z.array(z.string()).default([]),
+  bedsCount: z.number().int().min(0).default(0),
+  internationalPatientsAnnual: z.number().int().min(0).default(0),
+  rating: z.string().default("4.9"),
+  imageUrl: z.string().url().optional(),
+  description: z.string().min(20),
+  nearestAirport: z.string().default("COK"),
+  airportDistanceKm: z.number().int().min(0).default(0),
+  vipRoomsAvailable: z.boolean().default(false),
+  ayurvedaWingAvailable: z.boolean().default(false),
+  featured: z.boolean().default(false),
+});
+
+export const HospitalUpdateSchema = HospitalCreateSchema.partial();
+
 // ─── Doctor Schemas ───────────────────────────────────────────────────────────
 
 export const DoctorQuerySchema = z.object({
@@ -189,6 +219,41 @@ export const DoctorQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(20),
 });
+
+export const DoctorCreateSchema = z.object({
+  hospitalId: z.string().uuid("Hospital ID is required"),
+  name: z.string().min(2).max(255),
+  slug: z.string().min(2).max(150),
+  title: z.string().min(2),
+  specialty: z.string().min(2).max(100),
+  subSpecialty: z.string().min(2),
+  qualifications: z.string().min(2),
+  experienceYears: z.number().int().min(0).default(0),
+  languages: z.array(z.string()).default(["English", "Malayalam"]),
+  consultationFeeUsd: z.number().int().min(0).default(20),
+  consultationFeeInr: z.number().int().min(0).default(1500),
+  avatarUrl: z.string().url().optional(),
+  bio: z.string().min(20),
+  areasOfExpertise: z.array(z.string()).default([]),
+  publicationsCount: z.number().int().min(0).default(0),
+  videoConsultationAvailable: z.boolean().default(true),
+  featured: z.boolean().default(false),
+});
+
+export const DoctorUpdateSchema = DoctorCreateSchema.partial();
+
+export const DoctorOpinionResponseSchema = z.object({
+  clinicalAssessment: z.string().min(20, "Detailed clinical evaluation is required"),
+  treatmentRecommendation: z.string().min(10, "Recommended procedure/treatment protocol is required"),
+  estimatedStayDays: z.number().int().min(1).default(7),
+  estimatedRecoveryDays: z.number().int().min(0).default(14),
+  estimatedCostRangeUsd: z.object({
+    min: z.number().int().min(100),
+    max: z.number().int().min(100),
+  }),
+  fitToFlyNotes: z.string().optional(),
+});
+
 
 // ─── Document Schemas ─────────────────────────────────────────────────────────
 

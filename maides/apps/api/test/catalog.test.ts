@@ -164,3 +164,95 @@ test("Phase 5 Exit Test — Medical Enquiry & Case Management Engine", async (t)
   });
 });
 
+test("Phase 6 Exit Test — Hospital & Doctor Portal Endpoints & Clinical Opinions", async (t) => {
+  const app = await buildApp();
+  const { signToken } = await import("@maides/auth");
+  const { config } = await import("../src/config.js");
+
+  const doctorToken = signToken(
+    { sub: "doc-portal-300", email: "doctor.portal@maides.in", role: "doctor" },
+    config.JWT_SECRET,
+    "1h"
+  );
+
+  const hospManagerToken = signToken(
+    { sub: "mgr-portal-400", email: "manager.aster@maides.in", role: "hospital_manager" },
+    config.JWT_SECRET,
+    "1h"
+  );
+
+  const patientToken = signToken(
+    { sub: "pat-portal-500", email: "patient.portal@maides.in", role: "patient" },
+    config.JWT_SECRET,
+    "1h"
+  );
+
+  // Test 1: Hospital Manager can access hospital cases view
+  await t.test("GET /api/v1/hospitals/:id/cases with HOSPITAL_MANAGER token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "GET",
+      url: "/api/v1/hospitals/00000000-0000-0000-0000-000000000000/cases",
+      headers: { authorization: `Bearer ${hospManagerToken}` },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+
+  // Test 2: Patient blocked from hospital cases route (403)
+  await t.test("GET /api/v1/hospitals/:id/cases with PATIENT token returns 403 Forbidden", async () => {
+    const res = await app.inject({
+      method: "GET",
+      url: "/api/v1/hospitals/00000000-0000-0000-0000-000000000000/cases",
+      headers: { authorization: `Bearer ${patientToken}` },
+    });
+    assert.strictEqual(res.statusCode, 403);
+  });
+
+  // Test 3: Doctor can access their assigned cases view
+  await t.test("GET /api/v1/doctors/:id/cases with DOCTOR token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "GET",
+      url: "/api/v1/doctors/00000000-0000-0000-0000-000000000000/cases",
+      headers: { authorization: `Bearer ${doctorToken}` },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+
+  // Test 4: Doctor clinical opinion submission enforces validation schema
+  await t.test("POST /api/v1/doctors/:id/opinions/:enquiryId with invalid body returns 400", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/doctors/00000000-0000-0000-0000-000000000000/opinions/00000000-0000-0000-0000-000000000001",
+      headers: { authorization: `Bearer ${doctorToken}` },
+      body: {
+        clinicalAssessment: "Too short",
+      },
+    });
+    assert.strictEqual(res.statusCode, 400);
+  });
+
+  // Test 5: Doctor clinical opinion submission with full protocol passes RBAC
+  await t.test("POST /api/v1/doctors/:id/opinions/:enquiryId with valid protocol passes RBAC", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/doctors/00000000-0000-0000-0000-000000000000/opinions/00000000-0000-0000-0000-000000000001",
+      headers: { authorization: `Bearer ${doctorToken}` },
+      body: {
+        clinicalAssessment: "Reviewed 3D CT Angiogram showing 90% LAD stenosis. Candidate for beating-heart CABG.",
+        treatmentRecommendation: "Off-Pump Coronary Artery Bypass Graft (LIMA to LAD, SVG to OM).",
+        estimatedStayDays: 6,
+        estimatedRecoveryDays: 14,
+        estimatedCostRangeUsd: {
+          min: 4800,
+          max: 8500,
+        },
+        fitToFlyNotes: "Fit to fly after day 10 postoperative evaluation and 2D Echo review.",
+      },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+});
+
+
