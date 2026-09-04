@@ -67,8 +67,20 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
   const [inputText, setInputText] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
   const [selectedTopic, setSelectedTopic] = useState("General Support");
+  const [pathname, setPathname] = useState("");
   
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setPathname(window.location.pathname);
+    }
+  }, []);
+
   const chatBottomRef = useRef<HTMLDivElement>(null);
+
+  // Hide floating widget if user is already on full-page messages or support module
+  if (pathname.includes("/messages")) {
+    return null;
+  }
 
   // Load from shared storage & attach cross-tab event listener
   useEffect(() => {
