@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+:root {
+  --background: #FFFFFF;
+  --foreground: #0F2042;
+  --primary-blue: #0E82FD;
+  --primary-blue-hover: #0360D9;
+  --primary-navy: #0F2042;
+  --accent-soft-blue: #F0F7FF;
+  --accent-sky-blue: #D4E8FC;
+  --border-light: #E2E8F0;
+  --card-bg: #FFFFFF;
+}
+
+body {
+  background: #F8FAFC;
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Madies Brand Theme Gradients */
+.bg-madies-hero {
+  background: linear-gradient(135deg, #17468A 0%, #1E5DAE 50%, #1C5098 100%);
+}
+
+.bg-madies-blue {
+  background-color: #0E82FD;
+}
+
+.bg-madies-navy {
+  background-color: #0F2042;
+}
+
+.bg-madies-sky {
+  background: linear-gradient(180deg, #D4E8FC 0%, #E2F0FE 50%, #EFF7FF 100%);
+}
+
+.bg-madies-soft {
+  background-color: #F0F7FF;
+}
+
+.card-madies-shadow {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 10px 30px -5px rgba(14, 130, 253, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+}
+
+.card-madies-shadow:hover {
+  border-color: #BFDBFE;
+  box-shadow: 0 20px 35px -5px rgba(14, 130, 253, 0.15), 0 8px 10px -3px rgba(0, 0, 0, 0.04);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #0E82FD;
+}

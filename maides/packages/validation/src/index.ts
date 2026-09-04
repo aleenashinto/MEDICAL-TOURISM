@@ -1,0 +1,169 @@
+import { z } from "zod";
+
+// ─── Auth Schemas ─────────────────────────────────────────────────────────────
+
+export const RegisterSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+  fullName: z.string().min(2, "Full name is required").max(100),
+  phone: z.string().optional(),
+  country: z.string().min(2).max(80).optional(),
+  preferredLanguage: z
+    .enum(["English", "Arabic", "Malayalam", "Hindi", "French", "Dhivehi", "Urdu"])
+    .default("English"),
+});
+
+export const LoginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1, "Password is required"),
+});
+
+export const ChangePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1),
+    newPassword: z
+      .string()
+      .min(8)
+      .regex(/[A-Z]/)
+      .regex(/[0-9]/),
+    confirmPassword: z.string().min(1),
+  })
+  .refine((d) => d.newPassword === d.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+// ─── Enquiry Schemas ──────────────────────────────────────────────────────────
+
+export const EnquiryCreateSchema = z.object({
+  specialty: z.string().min(2, "Specialty is required").max(100),
+  medicalSummary: z
+    .string()
+    .min(20, "Please provide at least 20 characters describing your condition")
+    .max(5000),
+  preferredDistrict: z.string().max(80).optional(),
+  budget: z
+    .enum([
+      "under_3000_usd",
+      "3000_8000_usd",
+      "8000_20000_usd",
+      "20000_50000_usd",
+      "over_50000_usd",
+      "flexible",
+    ])
+    .optional(),
+  timeline: z
+    .enum(["asap", "1_3_months", "3_6_months", "flexible"])
+    .optional(),
+  consentGiven: z.literal(true, {
+    errorMap: () => ({
+      message: "You must provide consent to submit an enquiry",
+    }),
+  }),
+});
+
+export const EnquiryStatusUpdateSchema = z.object({
+  status: z.enum([
+    "new",
+    "under_review",
+    "documents_requested",
+    "documents_received",
+    "provider_identified",
+    "consultation_requested",
+    "appointment_confirmed",
+    "travel_planning",
+    "patient_arrived",
+    "treatment_in_progress",
+    "follow_up",
+    "completed",
+    "cancelled",
+  ]),
+  internalNotes: z.string().max(2000).optional(),
+  assignedCoordinatorId: z.string().uuid().optional(),
+  assignedHospitalId: z.string().uuid().optional(),
+  assignedDoctorId: z.string().uuid().optional(),
+});
+
+// ─── Hospital Schemas ─────────────────────────────────────────────────────────
+
+export const HospitalQuerySchema = z.object({
+  region: z
+    .enum(["south_kerala", "central_kerala", "north_kerala"])
+    .optional(),
+  type: z
+    .enum([
+      "multispecialty",
+      "super_specialty",
+      "government_medical_college",
+      "ayurveda_wellness",
+      "specialized_institute",
+    ])
+    .optional(),
+  search: z.string().max(100).optional(),
+  featured: z
+    .string()
+    .transform((v) => v === "true")
+    .optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
+});
+
+// ─── Doctor Schemas ───────────────────────────────────────────────────────────
+
+export const DoctorQuerySchema = z.object({
+  specialty: z.string().max(100).optional(),
+  hospitalId: z.string().uuid().optional(),
+  district: z.string().max(80).optional(),
+  videoConsult: z
+    .string()
+    .transform((v) => v === "true")
+    .optional(),
+  search: z.string().max(100).optional(),
+  featured: z
+    .string()
+    .transform((v) => v === "true")
+    .optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
+});
+
+// ─── Document Schemas ─────────────────────────────────────────────────────────
+
+export const DocumentUploadSchema = z.object({
+  enquiryId: z.string().uuid("Invalid enquiry ID"),
+  documentType: z.enum([
+    "diagnosis_report",
+    "lab_results",
+    "imaging",
+    "prescription",
+    "discharge_summary",
+    "referral_letter",
+    "insurance_document",
+    "other",
+  ]),
+});
+
+// ─── Pagination Schema ────────────────────────────────────────────────────────
+
+export const PaginationSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  sortBy: z.string().max(50).optional(),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
+});
+
+// ─── Inferred Types ───────────────────────────────────────────────────────────
+
+export type RegisterInput = z.infer<typeof RegisterSchema>;
+export type LoginInput = z.infer<typeof LoginSchema>;
+export type ChangePasswordInput = z.infer<typeof ChangePasswordSchema>;
+export type EnquiryCreateInput = z.infer<typeof EnquiryCreateSchema>;
+export type EnquiryStatusUpdateInput = z.infer<typeof EnquiryStatusUpdateSchema>;
+export type HospitalQueryInput = z.infer<typeof HospitalQuerySchema>;
+export type DoctorQueryInput = z.infer<typeof DoctorQuerySchema>;
+export type DocumentUploadInput = z.infer<typeof DocumentUploadSchema>;
+export type PaginationInput = z.infer<typeof PaginationSchema>;
