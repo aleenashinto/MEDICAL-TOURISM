@@ -145,13 +145,13 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
         setLandingDoctors(KERALA_DOCTORS);
       }
 
-      // 2. Load Admin Hospitals
+      // 2. Load Admin Hospitals (Active & Published Only)
       try {
         const storedHosps = localStorage.getItem("maides_admin_hospitals");
         if (storedHosps) {
           const parsed = JSON.parse(storedHosps);
           const activeAdminHosps = parsed
-            .filter((h: any) => h.status === "ACTIVE")
+            .filter((h: any) => h.status === "ACTIVE" && (h.published === "PUBLISHED" || !h.published))
             .map((h: any) => ({
               id: h.id,
               name: h.name,
@@ -168,15 +168,17 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                 "24/7 International Patient Concierge Desk",
                 "Direct Airport Limousine Escort",
                 "Medical eVisa Fast-Track Letter in 4 Hours"
-              ]
+              ],
+              displayOrder: Number(h.displayOrder) || 99
             }));
 
           const mergedHosps = [...activeAdminHosps];
           KERALA_HOSPITALS.forEach(kh => {
             if (!mergedHosps.some(m => m.name.toLowerCase() === kh.name.toLowerCase() || m.id === kh.id)) {
-              mergedHosps.push(kh);
+              mergedHosps.push({ ...kh, displayOrder: 99 });
             }
           });
+          mergedHosps.sort((a, b) => (a.displayOrder || 99) - (b.displayOrder || 99));
           setLandingHospitals(mergedHosps);
         } else {
           setLandingHospitals(KERALA_HOSPITALS);
