@@ -366,5 +366,123 @@ test("Phase 7 Exit Test — Treatment Quotation & Cost Estimator Engine", async 
   });
 });
 
+test("Phase 8 Exit Test — Travel, Accommodation & Logistics Module", async (t) => {
+  const app = await buildApp();
+  const { signToken } = await import("@maides/auth");
+  const { config } = await import("../src/config.js");
+
+  const travelCoordToken = signToken(
+    { sub: "coord-travel-801", email: "travel.coord@maides.in", role: "travel_coordinator" },
+    config.JWT_SECRET,
+    "1h"
+  );
+
+  const patientToken = signToken(
+    { sub: "pat-travel-802", email: "patient.travel@maides.in", role: "patient" },
+    config.JWT_SECRET,
+    "1h"
+  );
+
+  const unauthHeader = {};
+
+  // Test 1: Unauthorized access to travel bookings is blocked (401)
+  await t.test("POST /api/v1/travel/bookings without auth token returns 401", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/travel/bookings",
+      headers: unauthHeader,
+      body: {
+        enquiryId: "00000000-0000-0000-0000-000000000001",
+        patientId: "00000000-0000-0000-0000-000000000002",
+        bookingType: "airport_transfer",
+        providerName: "Kerala Chauffeur Direct",
+      },
+    });
+    assert.strictEqual(res.statusCode, 401);
+  });
+
+  // Test 2: Patient cannot create staff travel bookings (403)
+  await t.test("POST /api/v1/travel/bookings with Patient token returns 403 Forbidden", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/travel/bookings",
+      headers: { authorization: `Bearer ${patientToken}` },
+      body: {
+        enquiryId: "00000000-0000-0000-0000-000000000001",
+        patientId: "00000000-0000-0000-0000-000000000002",
+        bookingType: "airport_transfer",
+        providerName: "Kerala Chauffeur Direct",
+      },
+    });
+    assert.strictEqual(res.statusCode, 403);
+  });
+
+  // Test 3: Travel Coordinator booking creation validates input and passes RBAC
+  await t.test("POST /api/v1/travel/bookings with Travel Coordinator token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/travel/bookings",
+      headers: { authorization: `Bearer ${travelCoordToken}` },
+      body: {
+        enquiryId: "00000000-0000-0000-0000-000000000001",
+        patientId: "00000000-0000-0000-0000-000000000002",
+        bookingType: "airport_transfer",
+        providerName: "Kochi Airport Chauffeur & Ambulance Care",
+        referenceNumber: "COK-TRANSFER-8891",
+        pickupLocation: "Cochin International Airport (COK) Terminal 3",
+        dropoffLocation: "Aster Medcity Cheranalloor Kochi",
+        startDate: "2026-10-12T08:30:00.000Z",
+        costUsd: 45,
+        costInr: 3750,
+        notes: "Wheelchair accessible luxury van requested with English-speaking attendant.",
+        details: {
+          flightNumber: "EK 530",
+          arrivalTerminal: "T3",
+          vehicleType: "Toyota Innova Crysta Medical",
+        },
+      },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+
+  // Test 4: Generating Medical Visa (e-Med Visa) Invitation Letter enforces schema & passes RBAC
+  await t.test("POST /api/v1/travel/visa-invitation with Travel Coordinator token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/travel/visa-invitation",
+      headers: { authorization: `Bearer ${travelCoordToken}` },
+      body: {
+        enquiryId: "00000000-0000-0000-0000-000000000001",
+        patientId: "00000000-0000-0000-0000-000000000002",
+        hospitalId: "00000000-0000-0000-0000-000000000003",
+        patientPassportNumber: "A987654321",
+        patientNationality: "United Kingdom",
+        attendantName: "Eleanor Vance",
+        attendantPassportNumber: "B123456789",
+        diagnosis: "Severe Multi-Vessel Coronary Artery Disease requiring urgent surgical intervention",
+        recommendedTreatment: "Off-Pump Coronary Artery Bypass Grafting (CABG)",
+        expectedArrivalDate: "2026-10-15T10:00:00.000Z",
+        stayDurationDays: 21,
+        embassyCity: "High Commission of India, London",
+      },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+
+  // Test 5: Patient reading case travel bookings passes RBAC
+  await t.test("GET /api/v1/travel/bookings/enquiry/:id with Patient token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "GET",
+      url: "/api/v1/travel/bookings/enquiry/00000000-0000-0000-0000-000000000001",
+      headers: { authorization: `Bearer ${patientToken}` },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+});
+
+
 
 

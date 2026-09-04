@@ -284,6 +284,67 @@ export const quotations = pgTable("quotations", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+// ─── Travel, Accommodation & Logistics ─────────────────────────────────────
+
+export const travelBookingTypeEnum = pgEnum("travel_booking_type", [
+  "flight",
+  "airport_transfer",
+  "hotel",
+  "ayurvedic_resort",
+  "local_transport",
+  "sim_and_forex",
+]);
+
+export const travelBookingStatusEnum = pgEnum("travel_booking_status", [
+  "requested",
+  "confirmed",
+  "in_transit",
+  "completed",
+  "cancelled",
+]);
+
+export const travelBookings = pgTable("travel_bookings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  enquiryId: uuid("enquiry_id").references(() => enquiries.id, { onDelete: "cascade" }).notNull(),
+  patientId: uuid("patient_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  coordinatorId: uuid("coordinator_id").references(() => users.id),
+  bookingType: travelBookingTypeEnum("booking_type").notNull(),
+  providerName: varchar("provider_name", { length: 255 }).notNull(),
+  referenceNumber: varchar("reference_number", { length: 150 }),
+  details: jsonb("details").default({}).notNull(),
+  pickupLocation: varchar("pickup_location", { length: 255 }),
+  dropoffLocation: varchar("dropoff_location", { length: 255 }),
+  startDate: timestamp("start_date", { withTimezone: true }),
+  endDate: timestamp("end_date", { withTimezone: true }),
+  costUsd: integer("cost_usd").default(0).notNull(),
+  costInr: integer("cost_inr").default(0).notNull(),
+  status: travelBookingStatusEnum("status").default("requested").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const visaInvitations = pgTable("visa_invitations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  enquiryId: uuid("enquiry_id").references(() => enquiries.id, { onDelete: "cascade" }).notNull(),
+  patientId: uuid("patient_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  hospitalId: uuid("hospital_id").references(() => hospitals.id, { onDelete: "cascade" }).notNull(),
+  doctorId: uuid("doctor_id").references(() => doctors.id),
+  invitationNumber: varchar("invitation_number", { length: 100 }).notNull().unique(),
+  patientPassportNumber: varchar("patient_passport_number", { length: 50 }).notNull(),
+  patientNationality: varchar("patient_nationality", { length: 100 }).notNull(),
+  attendantName: varchar("attendant_name", { length: 255 }),
+  attendantPassportNumber: varchar("attendant_passport_number", { length: 50 }),
+  diagnosis: text("diagnosis").notNull(),
+  recommendedTreatment: text("recommended_treatment").notNull(),
+  expectedArrivalDate: timestamp("expected_arrival_date", { withTimezone: true }).notNull(),
+  stayDurationDays: integer("stay_duration_days").default(14).notNull(),
+  embassyCity: varchar("embassy_city", { length: 100 }),
+  status: varchar("status", { length: 50 }).default("issued").notNull(),
+  documentPath: text("document_path"),
+  issuedAt: timestamp("issued_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 // ─── Audit Logs ──────────────────────────────────────────────────────────────
 
 export const auditLogs = pgTable("audit_logs", {

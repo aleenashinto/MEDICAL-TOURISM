@@ -362,6 +362,54 @@ export const CostEstimateCalculatorSchema = z.object({
   needAttendantAccommodation: z.boolean().default(true),
 });
 
+// ─── Travel, Accommodation & Logistics Schemas ─────────────────────────────
+
+export const TravelBookingCreateSchema = z.object({
+  enquiryId: z.string().uuid("Enquiry ID is required"),
+  patientId: z.string().uuid("Patient ID is required"),
+  bookingType: z.enum([
+    "flight",
+    "airport_transfer",
+    "hotel",
+    "ayurvedic_resort",
+    "local_transport",
+    "sim_and_forex",
+  ]),
+  providerName: z.string().min(2).max(255),
+  referenceNumber: z.string().max(150).optional(),
+  details: z.record(z.any()).default({}),
+  pickupLocation: z.string().max(255).optional(),
+  dropoffLocation: z.string().max(255).optional(),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+  costUsd: z.number().int().min(0).default(0),
+  costInr: z.number().int().min(0).default(0),
+  notes: z.string().max(2000).optional(),
+});
+
+export const TravelBookingUpdateSchema = z.object({
+  status: z.enum(["requested", "confirmed", "in_transit", "completed", "cancelled"]).optional(),
+  referenceNumber: z.string().max(150).optional(),
+  notes: z.string().max(2000).optional(),
+  details: z.record(z.any()).optional(),
+});
+
+export const VisaInvitationCreateSchema = z.object({
+  enquiryId: z.string().uuid("Enquiry ID is required"),
+  patientId: z.string().uuid("Patient ID is required"),
+  hospitalId: z.string().uuid("Hospital ID is required"),
+  doctorId: z.string().uuid().optional(),
+  patientPassportNumber: z.string().min(4).max(50),
+  patientNationality: z.string().min(2).max(100),
+  attendantName: z.string().max(255).optional(),
+  attendantPassportNumber: z.string().max(50).optional(),
+  diagnosis: z.string().min(5).max(1000),
+  recommendedTreatment: z.string().min(5).max(1000),
+  expectedArrivalDate: z.string().datetime(),
+  stayDurationDays: z.number().int().min(1).max(180).default(14),
+  embassyCity: z.string().max(100).optional(),
+});
+
 // ─── Inferred Types ───────────────────────────────────────────────────────────
 
 export type RegisterInput = z.infer<typeof RegisterSchema>;
@@ -381,4 +429,8 @@ export type LeadConvertInput = z.infer<typeof LeadConvertSchema>;
 export type QuotationCreateInput = z.infer<typeof QuotationCreateSchema>;
 export type QuotationUpdateInput = z.infer<typeof QuotationUpdateSchema>;
 export type CostEstimateCalculatorInput = z.infer<typeof CostEstimateCalculatorSchema>;
+export type TravelBookingCreateInput = z.infer<typeof TravelBookingCreateSchema>;
+export type TravelBookingUpdateInput = z.infer<typeof TravelBookingUpdateSchema>;
+export type VisaInvitationCreateInput = z.infer<typeof VisaInvitationCreateSchema>;
+
 

@@ -2,6 +2,12 @@
 
 All notable changes and architectural decisions across phases are documented here.
 
+## [Phase 8 — Travel, Accommodation & Logistics Module] - 2026-09-04
+- Created `travel_bookings` schema supporting flight tracking, Kerala airport transfers (Cochin COK, Trivandrum TRV, Calicut CCJ, Kannur CNN), hotel stays, and Ayurvedic wellness resort packages with status tracking (`requested`, `confirmed`, `in_transit`, `completed`, `cancelled`).
+- Built official Indian Medical Visa (e-Med Visa) invitation letter generator schema and endpoint (`POST /api/v1/travel/visa-invitation`) producing unique reference credentials (e.g., `KL-MEDVISA-2026-XXXXXX`) paired with NABH/JCI accredited Kerala hospital verification data for Indian Embassy/Consulate submissions.
+- Built Travel Itinerary & Logistics Booking APIs (`POST /api/v1/travel/bookings`, `GET /api/v1/travel/bookings/enquiry/:enquiryId`, `PATCH /api/v1/travel/bookings/:id/status`, `GET /api/v1/travel/visa-invitations/:enquiryId`) with RBAC enforcement for `travel_coordinator`, `medical_coordinator`, `hospital_manager`, and `patient`.
+- Verified test suite: 44/44 automated unit & integration tests passing across all layers (100% pass rate).
+
 ## [Phase 7 — Treatment Quotation & Cost Estimator Engine] - 2026-09-04
 - Created `quotations` PostgreSQL schema supporting itemized cost breakdowns (base procedure, hospital stay, investigations, medications, logistics, total USD/INR), validity timestamps, and acceptance state machine (`draft`, `sent`, `accepted`, `rejected`, `expired`).
 - Built dynamic Cost Estimator API (`POST /api/v1/treatments/estimate-cost`) providing instant medical travel cost calculations with accommodation tier multipliers, stay day configurations, auxiliary cost modeling, and US benchmark comparative savings (75-88% savings metrics).

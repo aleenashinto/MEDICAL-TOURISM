@@ -15,6 +15,7 @@ import { doctorRoutes } from "./modules/doctors/doctors.routes.js";
 import { documentRoutes } from "./modules/documents/documents.routes.js";
 import { specialtyRoutes } from "./modules/specialties/specialties.routes.js";
 import { treatmentRoutes } from "./modules/treatments/treatments.routes.js";
+import { travelRoutes } from "./modules/travel/travel.routes.js";
 import { errorResponse } from "./utils/response.js";
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -86,6 +87,8 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(specialtyRoutes, { prefix: "/api/v1/specialties" });
   await app.register(treatmentRoutes, { prefix: "/api/v1/treatments" });
   await app.register(documentRoutes, { prefix: "/api/v1/documents" });
+  await app.register(travelRoutes, { prefix: "/api/v1/travel" });
 
   return app;
 }
+
