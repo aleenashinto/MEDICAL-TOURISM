@@ -50,9 +50,10 @@ export default function DoctorsPage() {
       const stored = localStorage.getItem("maides_admin_doctors");
       if (stored) {
         const parsed = JSON.parse(stored);
-        // Map admin doctors format to public view format
+        // Map admin doctors format to public view format: ONLY ACTIVE AND PUBLISHED
         const formattedAdminDocs = parsed
-          .filter((d: any) => d.status === "ACTIVE")
+          .filter((d: any) => d.status === "ACTIVE" && (d.published === "PUBLISHED" || !d.published))
+          .sort((a: any, b: any) => (a.displayOrder || 99) - (b.displayOrder || 99))
           .map((d: any) => ({
             id: d.id,
             name: d.name,
@@ -60,9 +61,9 @@ export default function DoctorsPage() {
             specialty: d.specialty || "Medical Specialty",
             subSpecialty: d.bio || "Specialist clinical care and patient consultation.",
             qualifications: d.education || "MBBS, MS, Board Certified",
-            experienceYears: parseInt(d.experience) || 15,
+            experienceYears: typeof d.experienceYears === "number" ? d.experienceYears : (parseInt(d.experience) || 15),
             hospitalName: d.hospital || "Aster Medcity, Kochi",
-            city: "Kochi, Kerala",
+            city: d.hospital?.includes("Trivandrum") ? "Thiruvananthapuram, Kerala" : d.hospital?.includes("Calicut") ? "Kozhikode, Kerala" : "Kochi, Kerala",
             avatar: d.avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=400",
             rating: d.rating || "4.95",
             reviewCount: d.casesHandled || 120,

@@ -116,15 +116,16 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
         if (stored) {
           const parsed = JSON.parse(stored);
           const activeAdminDocs = parsed
-            .filter((d: any) => d.status === "ACTIVE")
+            .filter((d: any) => d.status === "ACTIVE" && (d.published === "PUBLISHED" || !d.published))
+            .sort((a: any, b: any) => (a.displayOrder || 99) - (b.displayOrder || 99))
             .map((d: any) => ({
               id: d.id,
               name: d.name,
               title: d.title || "Senior Specialist Doctor",
               qualifications: d.education || "MBBS, MS, Board Certified",
               hospitalName: d.hospital || "Aster Medcity, Kochi",
-              district: d.hospital?.includes("Kovalam") ? "Thiruvananthapuram" : d.hospital?.includes("Aluva") ? "Ernakulam" : "Ernakulam",
-              experienceYears: parseInt(d.experience) || 15,
+              district: d.hospital?.includes("Kovalam") || d.hospital?.includes("Trivandrum") ? "Thiruvananthapuram" : d.hospital?.includes("Calicut") ? "Kozhikode" : "Ernakulam",
+              experienceYears: typeof d.experienceYears === "number" ? d.experienceYears : (parseInt(d.experience) || 15),
               rating: d.rating || "4.95",
               avatar: d.avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400",
               specialty: d.specialty || "Specialty"
