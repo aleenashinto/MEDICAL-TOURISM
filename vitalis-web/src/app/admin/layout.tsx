@@ -405,7 +405,8 @@ export default function AdminLayout({
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-7xl w-full mx-auto">{children}\n        <LiveSupportChatWidget userRole="admin" /></main>
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-7xl w-full mx-auto">{children}
+        <LiveSupportChatWidget userRole="admin" /></main>
       </div>
     </div>
   );

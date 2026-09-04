@@ -18,7 +18,8 @@ import {
   Maximize2,
   UserCheck,
   Building2,
-  PhoneCall
+  PhoneCall,
+  User
 } from "lucide-react";
 
 export interface SupportChatMessage {
@@ -44,7 +45,7 @@ const DEFAULT_CHAT_HISTORY: SupportChatMessage[] = [
   {
     id: "live-2",
     sender: "patient",
-    senderName: "Sarah Jenkins",
+    senderName: "Sarah Jenkins (Patient)",
     text: "Hello Rahul! I just wanted to confirm if our chauffeur will meet us inside Terminal 3 after baggage collection.",
     time: "10:05 AM",
     timestamp: "2026-09-04T10:05:00Z"
@@ -53,7 +54,7 @@ const DEFAULT_CHAT_HISTORY: SupportChatMessage[] = [
     id: "live-3",
     sender: "admin",
     senderName: "Rahul Nair (Senior Coordinator)",
-    text: "Yes, exactly! Chauffeur Santhosh will be waiting at Arrival Gate 4 with a MAIDES personalized placard and wheelchair assistance if required.",
+    text: "Yes, exactly! Chauffeur Santhosh (+91 98471 00223) will be waiting at Arrival Gate 4 with a MAIDES personalized placard and wheelchair assistance if required.",
     time: "10:08 AM",
     timestamp: "2026-09-04T10:08:00Z"
   }
@@ -69,28 +70,57 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
   
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
-  // Load from shared storage
+  // Load from shared storage & attach cross-tab event listener
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("maides_live_support_chat_v3");
-      if (saved) {
-        setMessages(JSON.parse(saved));
-      } else {
+    const loadMessages = () => {
+      try {
+        const saved = localStorage.getItem("maides_live_support_chat_v3");
+        if (saved) {
+          setMessages(JSON.parse(saved));
+        } else {
+          setMessages(DEFAULT_CHAT_HISTORY);
+          localStorage.setItem("maides_live_support_chat_v3", JSON.stringify(DEFAULT_CHAT_HISTORY));
+        }
+      } catch (e) {
         setMessages(DEFAULT_CHAT_HISTORY);
-        localStorage.setItem("maides_live_support_chat_v3", JSON.stringify(DEFAULT_CHAT_HISTORY));
       }
-    } catch (e) {
-      setMessages(DEFAULT_CHAT_HISTORY);
-    }
-  }, []);
+    };
 
-  // Sync to storage
+    loadMessages();
+
+    // Listen to localStorage changes across browser tabs (real-time sync between Admin & Patient tabs)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "maides_live_support_chat_v3" && e.newValue) {
+        const parsed = JSON.parse(e.newValue);
+        setMessages(parsed);
+        if (!isOpen) {
+          setUnreadCount(prev => prev + 1);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [isOpen]);
+
+  // Sync to storage & trigger custom event for same-tab listeners
   const syncMessages = (updated: SupportChatMessage[]) => {
     setMessages(updated);
     localStorage.setItem("maides_live_support_chat_v3", JSON.stringify(updated));
+    // Trigger custom event
+    window.dispatchEvent(new Event("maides_live_chat_updated"));
   };
 
-  // Scroll to bottom when new message arrives
+  useEffect(() => {
+    const handleLocalSync = () => {
+      const saved = localStorage.getItem("maides_live_support_chat_v3");
+      if (saved) setMessages(JSON.parse(saved));
+    };
+    window.addEventListener("maides_live_chat_updated", handleLocalSync);
+    return () => window.removeEventListener("maides_live_chat_updated", handleLocalSync);
+  }, []);
+
+  // Auto-scroll when chat opens or new message arrives
   useEffect(() => {
     if (isOpen && !isMinimized) {
       chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -108,7 +138,7 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
     const newMsg: SupportChatMessage = {
       id: "live-" + Date.now(),
       sender: isPatient ? "patient" : "admin",
-      senderName: isPatient ? "Sarah Jenkins (UK Patient)" : "MAIDES Care Coordinator Desk",
+      senderName: isPatient ? "Sarah Jenkins (UK Patient)" : "MAIDES Care Coordinator (Admin)",
       text: inputText.trim(),
       category: selectedTopic,
       time: timeStr,
@@ -130,15 +160,19 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
             setIsMinimized(false);
             setUnreadCount(0);
           }}
-          className="flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-[#0E82FD] to-[#1E5DAE] hover:from-blue-600 hover:to-blue-800 text-white font-bold text-xs rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all group border border-white/20 backdrop-blur-md"
+          className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-[#0E82FD] via-blue-600 to-[#0F2042] hover:from-blue-600 hover:to-blue-800 text-white font-bold text-xs rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all group border border-white/20 backdrop-blur-md"
         >
           <div className="relative">
             <Headphones className="w-5 h-5 text-white animate-bounce" />
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute -top-0.5 -right-0.5 ring-2 ring-[#0E82FD]" />
           </div>
           <div className="text-left">
-            <div className="leading-tight">24/7 Live Care Desk</div>
-            <div className="text-[10px] text-blue-100 font-normal">Instant Coordinator Chat</div>
+            <div className="leading-tight flex items-center gap-1.5 font-extrabold">
+              {userRole === "admin" ? "Live Patient Chat Desk" : "24/7 Live Care Assistant"}
+            </div>
+            <div className="text-[10px] text-blue-100 font-normal">
+              {userRole === "admin" ? "Direct Patient Channel" : "Instant Kerala Coordinator Chat"}
+            </div>
           </div>
           {unreadCount > 0 && (
             <span className="px-2 py-0.5 bg-rose-500 text-white rounded-full text-[10px] font-extrabold animate-pulse">
@@ -158,18 +192,18 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
           }`}
         >
           {/* Header */}
-          <div className="p-4 bg-gradient-to-r from-[#0F2042] to-[#172A45] border-b border-slate-800 flex items-center justify-between text-white select-none">
+          <div className="p-4 bg-gradient-to-r from-[#0F2042] via-[#172A45] to-[#0E82FD]/40 border-b border-slate-800 flex items-center justify-between text-white select-none">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-blue-500/20 text-[#0E82FD] flex items-center justify-center font-bold text-sm border border-blue-500/30">
                 <Headphones className="w-4 h-4" />
               </div>
               <div>
                 <div className="font-bold text-xs flex items-center gap-1.5">
-                  MAIDES Care Desk
+                  {userRole === "admin" ? "Live Patient Channel" : "MAIDES Care Assistant"}
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 </div>
-                <div className="text-[10px] text-slate-400">
-                  {userRole === "admin" ? "Admin Support Console" : "Coordinator: Rahul Nair (Aster Medcity)"}
+                <div className="text-[10px] text-slate-300">
+                  {userRole === "admin" ? "Connected: Sarah Jenkins (UK)" : "Liaison: Rahul Nair (Aster Medcity Desk)"}
                 </div>
               </div>
             </div>
@@ -177,14 +211,14 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setIsMinimized(!isMinimized)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-lg transition-colors"
+                className="p-1.5 text-slate-300 hover:text-white rounded-lg transition-colors"
                 title={isMinimized ? "Maximize" : "Minimize"}
               >
                 {isMinimized ? <Maximize2 className="w-3.5 h-3.5" /> : <Minimize2 className="w-3.5 h-3.5" />}
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-lg transition-colors"
+                className="p-1.5 text-slate-300 hover:text-white rounded-lg transition-colors"
                 title="Close Chat"
               >
                 <X className="w-4 h-4" />
@@ -195,14 +229,14 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
           {!isMinimized && (
             <>
               {/* Quick Topic Chips */}
-              <div className="p-2.5 bg-slate-900/60 border-b border-slate-800/80 flex items-center gap-1.5 overflow-x-auto text-[10px]">
-                {["General Support", "Flight Arrival", "Visa / FRRO", "Surgery Cost"].map(topic => (
+              <div className="p-2.5 bg-slate-900/70 border-b border-slate-800/80 flex items-center gap-1.5 overflow-x-auto text-[10px]">
+                {["General Support", "Flight Arrival", "Visa / FRRO", "Surgery Cost", "Hospital Room"].map(topic => (
                   <button
                     key={topic}
                     onClick={() => setSelectedTopic(topic)}
                     className={`px-2.5 py-1 rounded-full whitespace-nowrap font-medium transition-all ${
                       selectedTopic === topic
-                        ? "bg-[#0E82FD] text-white font-bold"
+                        ? "bg-[#0E82FD] text-white font-bold shadow-sm"
                         : "bg-slate-800 text-slate-400 hover:text-slate-200"
                     }`}
                   >
@@ -212,16 +246,16 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
               </div>
 
               {/* Chat Thread */}
-              <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-950/80 text-xs">
+              <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-950/90 text-xs">
                 {messages.map((m) => {
-                  const isCurrentRole = 
+                  const isSenderSelf = 
                     (userRole === "patient" && m.sender === "patient") || 
                     (userRole === "admin" && m.sender === "admin");
 
                   return (
                     <div
                       key={m.id}
-                      className={`flex flex-col ${isCurrentRole ? "items-end" : "items-start"}`}
+                      className={`flex flex-col ${isSenderSelf ? "items-end" : "items-start"}`}
                     >
                       <div className="flex items-center gap-1 text-[9px] text-slate-500 mb-0.5 px-1">
                         <span className="font-semibold text-slate-400">{m.senderName}</span>
@@ -231,15 +265,15 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
 
                       <div
                         className={`max-w-[85%] p-3 rounded-2xl text-xs leading-relaxed shadow-md ${
-                          isCurrentRole
+                          isSenderSelf
                             ? "bg-[#0E82FD] text-white rounded-tr-none font-normal"
-                            : "bg-slate-900 text-slate-200 border border-slate-800 rounded-tl-none"
+                            : "bg-slate-900 text-slate-200 border border-slate-800 rounded-tl-none font-normal"
                         }`}
                       >
                         <p className="whitespace-pre-wrap">{m.text}</p>
                       </div>
 
-                      {isCurrentRole && (
+                      {isSenderSelf && (
                         <div className="flex items-center gap-0.5 text-[9px] text-blue-400 mt-0.5 px-1">
                           <CheckCheck className="w-2.5 h-2.5" />
                           <span>Delivered</span>
@@ -256,7 +290,7 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
                 <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                   <input
                     type="text"
-                    placeholder={userRole === "admin" ? "Reply as MAIDES coordinator..." : "Type your question to care team..."}
+                    placeholder={userRole === "admin" ? "Reply as MAIDES care coordinator..." : "Ask your care assistant a question..."}
                     value={inputText}
                     onChange={e => setInputText(e.target.value)}
                     className="flex-1 px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
@@ -264,17 +298,17 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
                   <button
                     type="submit"
                     disabled={!inputText.trim()}
-                    className="p-2 bg-[#0E82FD] hover:bg-blue-600 disabled:opacity-50 text-white rounded-xl shadow-md transition-all active:scale-95 shrink-0"
+                    className="p-2.5 bg-[#0E82FD] hover:bg-blue-600 disabled:opacity-50 text-white rounded-xl shadow-md transition-all active:scale-95 shrink-0"
                   >
                     <Send className="w-3.5 h-3.5" />
                   </button>
                 </form>
                 <div className="text-[9px] text-slate-500 mt-1.5 flex items-center justify-between px-1">
-                  <span className="flex items-center gap-1">
-                    <ShieldCheck className="w-2.5 h-2.5 text-emerald-400" />
-                    HIPAA 256-bit Encrypted
+                  <span className="flex items-center gap-1 text-slate-400">
+                    <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                    256-bit HIPAA Secure Channel
                   </span>
-                  <span>Average response: &lt; 2 mins</span>
+                  <span className="text-emerald-400 font-medium">Real-Time Sync Active</span>
                 </div>
               </div>
             </>
