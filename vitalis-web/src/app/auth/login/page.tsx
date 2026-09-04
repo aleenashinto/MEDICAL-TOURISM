@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Shield, ArrowRight, Lock, Mail, User, KeyRound, ShieldAlert, CheckCircle2 } from "lucide-react";
+import { Shield, ArrowRight, Lock, Mail, User, KeyRound, ShieldAlert, CheckCircle2, UserPlus } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -31,7 +31,7 @@ export default function LoginPage() {
     }
 
     // Email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^s@]+@[^s@]+.[^s@]+$/;
     if (!emailRegex.test(trimmedEmail)) {
       setError("Invalid email format.");
       return;
@@ -231,6 +231,7 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {/* Sign In Primary Button */}
             <button
               type="submit"
               disabled={isLoading}
@@ -245,6 +246,27 @@ export default function LoginPage() {
                 </>
               )}
             </button>
+
+            {/* Divider */}
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-700/80"></div>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-slate-800 px-3 text-slate-400 font-medium tracking-wider">
+                  Don't have an account?
+                </span>
+              </div>
+            </div>
+
+            {/* Sign Up Button in Form */}
+            <Link
+              href="/auth/register"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-bold text-white bg-slate-700/60 hover:bg-slate-700 hover:text-white border border-slate-600 hover:border-blue-500/50 transition-all shadow-xs group"
+            >
+              <UserPlus className="w-4 h-4 text-blue-400 group-hover:text-blue-300 transition-colors" />
+              <span>Sign Up for Patient Account</span>
+            </Link>
           </form>
 
           {/* Quick Info Box */}
