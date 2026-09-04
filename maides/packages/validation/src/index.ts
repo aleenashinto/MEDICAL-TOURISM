@@ -430,6 +430,53 @@ export const TelemedicineCompleteSchema = z.object({
   recordingUrl: z.string().url().optional(),
 });
 
+// ─── Billing, Invoices & Payments ──────────────────────────────────────────
+
+export const InvoiceItemSchema = z.object({
+  description: z.string().min(2).max(255),
+  quantity: z.number().int().min(1).default(1),
+  unitPriceUsd: z.number().int().min(0),
+  totalUsd: z.number().int().min(0),
+});
+
+export const InvoiceCreateSchema = z.object({
+  enquiryId: z.string().uuid("Enquiry ID is required"),
+  patientId: z.string().uuid("Patient ID is required"),
+  hospitalId: z.string().uuid("Hospital ID is required"),
+  quotationId: z.string().uuid().optional(),
+  title: z.string().min(3).max(255),
+  items: z.array(InvoiceItemSchema).min(1, "At least one billing line item is required"),
+  subtotalUsd: z.number().int().min(0),
+  taxUsd: z.number().int().min(0).default(0),
+  totalUsd: z.number().int().min(0),
+  totalInr: z.number().int().min(0),
+  exchangeRate: z.number().positive().default(83.5),
+  currency: z.enum(["USD", "INR", "AED", "EUR", "GBP"]).default("USD"),
+  dueDate: z.string().datetime(),
+});
+
+export const PaymentInitiateSchema = z.object({
+  invoiceId: z.string().uuid("Invoice ID is required"),
+  amountUsd: z.number().int().positive("Payment amount must be greater than zero"),
+  paymentMethod: z.enum([
+    "credit_card",
+    "international_wire",
+    "razorpay",
+    "stripe",
+    "upi",
+    "cash_at_hospital",
+  ]).default("stripe"),
+});
+
+export const PaymentWebhookSchema = z.object({
+  paymentTransactionRef: z.string().min(3),
+  invoiceId: z.string().uuid(),
+  amountUsd: z.number().int().positive(),
+  gatewayProvider: z.string().default("stripe"),
+  gatewayStatus: z.enum(["succeeded", "paid", "failed"]),
+  metadata: z.record(z.any()).default({}),
+});
+
 // ─── Inferred Types ───────────────────────────────────────────────────────────
 
 export type RegisterInput = z.infer<typeof RegisterSchema>;
@@ -454,6 +501,10 @@ export type TravelBookingUpdateInput = z.infer<typeof TravelBookingUpdateSchema>
 export type VisaInvitationCreateInput = z.infer<typeof VisaInvitationCreateSchema>;
 export type TelemedicineScheduleInput = z.infer<typeof TelemedicineScheduleSchema>;
 export type TelemedicineCompleteInput = z.infer<typeof TelemedicineCompleteSchema>;
+export type InvoiceCreateInput = z.infer<typeof InvoiceCreateSchema>;
+export type PaymentInitiateInput = z.infer<typeof PaymentInitiateSchema>;
+export type PaymentWebhookInput = z.infer<typeof PaymentWebhookSchema>;
+
 
 
 

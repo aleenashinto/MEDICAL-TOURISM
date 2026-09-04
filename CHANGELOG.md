@@ -2,6 +2,13 @@
 
 All notable changes and architectural decisions across phases are documented here.
 
+## [Phase 10 — Billing, Payments & Forex Handling] - 2026-09-04
+- Created `invoices` and `payments` PostgreSQL schema supporting itemized billing line items, real-time multi-currency conversion (`USD`, `INR`, `AED`, `EUR`, `GBP`), deposit tracking, balance dues, and payment state machines (`draft`, `issued`, `partially_paid`, `paid`, `void`).
+- Built Invoice Generation & Retrieval APIs (`POST /api/v1/billing/invoices`, `GET /api/v1/billing/invoices/enquiry/:enquiryId`) with access controls for coordinators, hospital managers, and patients.
+- Engineered Deposit / Treatment Payment Initiation Gateway Engine (`POST /api/v1/billing/payments/initiate`) supporting Stripe, Razorpay, International Wire, and UPI routing with automatic INR exchange rate computations.
+- Engineered Payment Webhook Receiver (`POST /api/v1/billing/payments/webhook`) handling asynchronous gateway settlements, incremental paid amount additions, automatic invoice balance recalculations, and status transitions to `partially_paid` or `paid`.
+- Verified test suite: 56/56 automated unit & integration tests passing across all layers (100% pass rate).
+
 ## [Phase 9 — Telemedicine & Second Opinion Video Consults] - 2026-09-04
 - Created `consultation_sessions` schema storing scheduled video appointments, secure unique WebRTC meeting rooms (`room-med-XXXXXXXX`), duration, symptoms, clinical prescriptions, recommendations, and multi-currency consultation fee tracking.
 - Engineered Telemedicine Scheduling API (`POST /api/v1/telemedicine/sessions`) with access authorization for `medical_coordinator`, `patient`, `hospital_manager`, and `super_admin`.

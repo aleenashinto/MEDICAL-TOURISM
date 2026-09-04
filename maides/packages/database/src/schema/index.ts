@@ -378,6 +378,72 @@ export const consultationSessions = pgTable("consultation_sessions", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+// ─── Billing, Invoices & Payments ──────────────────────────────────────────
+
+export const invoiceStatusEnum = pgEnum("invoice_status", [
+  "draft",
+  "issued",
+  "partially_paid",
+  "paid",
+  "void",
+]);
+
+export const paymentStatusEnum = pgEnum("payment_status", [
+  "initiated",
+  "successful",
+  "failed",
+  "refunded",
+]);
+
+export const paymentMethodEnum = pgEnum("payment_method", [
+  "credit_card",
+  "international_wire",
+  "razorpay",
+  "stripe",
+  "upi",
+  "cash_at_hospital",
+]);
+
+export const invoices = pgTable("invoices", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  invoiceNumber: varchar("invoice_number", { length: 100 }).notNull().unique(),
+  enquiryId: uuid("enquiry_id").references(() => enquiries.id, { onDelete: "cascade" }).notNull(),
+  patientId: uuid("patient_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  hospitalId: uuid("hospital_id").references(() => hospitals.id, { onDelete: "cascade" }).notNull(),
+  quotationId: uuid("quotation_id").references(() => quotations.id),
+  title: varchar("title", { length: 255 }).notNull(),
+  items: jsonb("items").$type<{ description: string; quantity: number; unitPriceUsd: number; totalUsd: number }[]>().default([]).notNull(),
+  subtotalUsd: integer("subtotal_usd").notNull(),
+  taxUsd: integer("tax_usd").default(0).notNull(),
+  totalUsd: integer("total_usd").notNull(),
+  totalInr: integer("total_inr").notNull(),
+  exchangeRate: numeric("exchange_rate", { precision: 10, scale: 4 }).default("83.50").notNull(),
+  currency: varchar("currency", { length: 10 }).default("USD").notNull(),
+  amountPaidUsd: integer("amount_paid_usd").default(0).notNull(),
+  balanceDueUsd: integer("balance_due_usd").notNull(),
+  status: invoiceStatusEnum("status").default("issued").notNull(),
+  dueDate: timestamp("due_date", { withTimezone: true }).notNull(),
+  issuedAt: timestamp("issued_at", { withTimezone: true }).defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const payments = pgTable("payments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  invoiceId: uuid("invoice_id").references(() => invoices.id, { onDelete: "cascade" }).notNull(),
+  patientId: uuid("patient_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  paymentTransactionRef: varchar("payment_transaction_ref", { length: 150 }).notNull().unique(),
+  amountUsd: integer("amount_usd").notNull(),
+  amountInr: integer("amount_inr").notNull(),
+  currency: varchar("currency", { length: 10 }).default("USD").notNull(),
+  paymentMethod: paymentMethodEnum("payment_method").notNull(),
+  gatewayProvider: varchar("gateway_provider", { length: 50 }).default("stripe").notNull(),
+  gatewayResponse: jsonb("gateway_response").default({}).notNull(),
+  status: paymentStatusEnum("status").default("initiated").notNull(),
+  paidAt: timestamp("paid_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 // ─── Audit Logs ──────────────────────────────────────────────────────────────
 
 export const auditLogs = pgTable("audit_logs", {

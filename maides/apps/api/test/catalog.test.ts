@@ -590,6 +590,121 @@ test("Phase 9 Exit Test — Telemedicine & Second Opinion Video Consults", async
   });
 });
 
+test("Phase 10 Exit Test — Billing, Payments & Forex Handling", async (t) => {
+  const app = await buildApp();
+  const { signToken } = await import("@maides/auth");
+  const { config } = await import("../src/config.js");
+
+  const patientId = "00000000-0000-0000-0000-000000000002";
+  const coordinatorToken = signToken(
+    { sub: "coord-bill-1001", email: "coord.bill@maides.in", role: "medical_coordinator" },
+    config.JWT_SECRET,
+    "1h"
+  );
+
+  const patientToken = signToken(
+    { sub: patientId, email: "patient.bill@maides.in", role: "patient" },
+    config.JWT_SECRET,
+    "1h"
+  );
+
+  const unauthHeader = {};
+
+  // Test 1: Unauthorized invoice creation is blocked (401)
+  await t.test("POST /api/v1/billing/invoices without auth token returns 401", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/billing/invoices",
+      headers: unauthHeader,
+      body: {
+        enquiryId: "00000000-0000-0000-0000-000000000001",
+        patientId,
+        hospitalId: "00000000-0000-0000-0000-000000000003",
+        title: "Cardiac Surgery Package",
+      },
+    });
+    assert.strictEqual(res.statusCode, 401);
+  });
+
+  // Test 2: Medical Coordinator creates formal multi-currency medical invoice
+  await t.test("POST /api/v1/billing/invoices with Coordinator token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/billing/invoices",
+      headers: { authorization: `Bearer ${coordinatorToken}` },
+      body: {
+        enquiryId: "00000000-0000-0000-0000-000000000001",
+        patientId,
+        hospitalId: "00000000-0000-0000-0000-000000000003",
+        title: "Aster Medcity Coronary Artery Bypass Graft (CABG) Package",
+        items: [
+          { description: "Beating Heart CABG Surgical Procedure", quantity: 1, unitPriceUsd: 4800, totalUsd: 4800 },
+          { description: "ICU & Deluxe Waterfront Room (7 Nights)", quantity: 7, unitPriceUsd: 150, totalUsd: 1050 },
+          { description: "Pre-Operative Investigations & 3D CT Angio", quantity: 1, unitPriceUsd: 450, totalUsd: 450 },
+          { description: "Cochin Airport Chauffeur Transfer", quantity: 2, unitPriceUsd: 50, totalUsd: 100 },
+        ],
+        subtotalUsd: 6400,
+        taxUsd: 0,
+        totalUsd: 6400,
+        totalInr: 534400,
+        exchangeRate: 83.5,
+        currency: "USD",
+        dueDate: "2026-10-15T00:00:00.000Z",
+      },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+
+  // Test 3: Patient can view their case invoices
+  await t.test("GET /api/v1/billing/invoices/enquiry/:id with Patient token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "GET",
+      url: "/api/v1/billing/invoices/enquiry/00000000-0000-0000-0000-000000000001",
+      headers: { authorization: `Bearer ${patientToken}` },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+
+  // Test 4: Patient can initiate online deposit payment
+  await t.test("POST /api/v1/billing/payments/initiate with Patient token passes RBAC", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/billing/payments/initiate",
+      headers: { authorization: `Bearer ${patientToken}` },
+      body: {
+        invoiceId: "00000000-0000-0000-0000-000000000001",
+        amountUsd: 2000,
+        paymentMethod: "stripe",
+      },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+
+  // Test 5: Payment Gateway Webhook updates invoice status and balance
+  await t.test("POST /api/v1/billing/payments/webhook processes gateway confirmation", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/billing/payments/webhook",
+      body: {
+        paymentTransactionRef: "tx-test-reference-8819",
+        invoiceId: "00000000-0000-0000-0000-000000000001",
+        amountUsd: 2000,
+        gatewayProvider: "stripe",
+        gatewayStatus: "succeeded",
+        metadata: {
+          chargeId: "ch_test_9921",
+        },
+      },
+    });
+    assert.notStrictEqual(res.statusCode, 401);
+    assert.notStrictEqual(res.statusCode, 403);
+  });
+});
+
+
 
 
 

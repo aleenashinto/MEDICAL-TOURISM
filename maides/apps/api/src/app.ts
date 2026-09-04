@@ -17,6 +17,7 @@ import { specialtyRoutes } from "./modules/specialties/specialties.routes.js";
 import { treatmentRoutes } from "./modules/treatments/treatments.routes.js";
 import { travelRoutes } from "./modules/travel/travel.routes.js";
 import { telemedicineRoutes } from "./modules/telemedicine/telemedicine.routes.js";
+import { billingRoutes } from "./modules/billing/billing.routes.js";
 import { errorResponse } from "./utils/response.js";
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -90,8 +91,10 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(documentRoutes, { prefix: "/api/v1/documents" });
   await app.register(travelRoutes, { prefix: "/api/v1/travel" });
   await app.register(telemedicineRoutes, { prefix: "/api/v1/telemedicine" });
+  await app.register(billingRoutes, { prefix: "/api/v1/billing" });
 
   return app;
 }
+
 
 
