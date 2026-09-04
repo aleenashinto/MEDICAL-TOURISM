@@ -1,32 +1,48 @@
 import { createDatabase } from "./index.js";
 import { hospitals, doctors, users } from "./schema/index.js";
 import { hashPassword } from "@maides/auth";
+import type { UserRole } from "@maides/types";
 import * as dotenv from "dotenv";
 
 dotenv.config({ path: "../../.env" });
 
 const dbUrl = process.env.DATABASE_URL || "postgresql://maides:maides_dev_password@localhost:5432/maides";
 
+const ROLES: { email: string; name: string; role: UserRole }[] = [
+  { email: "superadmin@maides.in", name: "Super Admin", role: "super_admin" },
+  { email: "admin@maides.in", name: "Operations Admin", role: "admin" },
+  { email: "medcoord@maides.in", name: "Dr. Rachel Thomas", role: "medical_coordinator" },
+  { email: "travelcoord@maides.in", name: "Anwar Hussain", role: "travel_coordinator" },
+  { email: "support@maides.in", name: "Mohammed Al-Rashidi", role: "support_agent" },
+  { email: "sales@maides.in", name: "Priya Menon", role: "sales_crm_agent" },
+  { email: "hospital@maides.in", name: "Aster Desk", role: "hospital_manager" },
+  { email: "doctor@maides.in", name: "Dr. Muralidharan Nair", role: "doctor" },
+  { email: "patient@maides.in", name: "John Doe", role: "patient" },
+];
+
 async function seed() {
-  console.log("Seeding database...");
+  console.log("Seeding full 9-role ecosystem...");
   const db = createDatabase(dbUrl);
 
-  // 1. Seed Admin & Coordinator Users
-  const adminPassword = await hashPassword("Admin@123456");
-  const [adminUser] = await db
-    .insert(users)
-    .values({
-      email: "admin@maides.in",
-      passwordHash: adminPassword,
-      fullName: "Super Admin",
-      role: "super_admin",
-      country: "India",
-      phone: "+91-9876543210",
-      preferredLanguage: "English",
-      emailVerified: true,
-    })
-    .onConflictDoNothing()
-    .returning();
+  const defaultPassword = await hashPassword("Maides@123456");
+
+  // 1. Seed 9 Persona Users
+  for (const r of ROLES) {
+    await db
+      .insert(users)
+      .values({
+        email: r.email,
+        passwordHash: defaultPassword,
+        fullName: r.name,
+        role: r.role,
+        country: "India",
+        phone: "+91-9876543210",
+        preferredLanguage: "English",
+        emailVerified: true,
+        active: true,
+      })
+      .onConflictDoNothing();
+  }
 
   // 2. Seed Hospitals
   const [aster] = await db
@@ -49,33 +65,6 @@ async function seed() {
       description: "Situated on a tranquil 45-acre waterfront campus in Cheranalloor, Aster Medcity is Kerala’s foremost destination for international patients.",
       nearestAirport: "COK",
       airportDistanceKm: 24,
-      vipRoomsAvailable: true,
-      ayurvedaWingAvailable: true,
-      featured: true,
-    })
-    .onConflictDoNothing()
-    .returning();
-
-  const [rajagiri] = await db
-    .insert(hospitals)
-    .values({
-      slug: "rajagiri-hospital-aluva",
-      name: "Rajagiri Hospital",
-      tagline: "JCI-Accredited Quaternary Center with American Cardiac & Transplant Standards",
-      district: "Ernakulam",
-      city: "Aluva, Kochi",
-      region: "central_kerala",
-      type: "super_specialty",
-      accreditations: ["JCI Accredited", "NABH", "NABL"],
-      specialties: ["Cardiac Sciences", "Robotic Joint Arthroplasty", "Comprehensive Cancer Care"],
-      bedsCount: 500,
-      internationalPatientsAnnual: 19500,
-      rating: "4.92",
-      reviewCount: 3180,
-      imageUrl: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1200&q=80",
-      description: "Located only 15 minutes from Cochin International Airport, Rajagiri Hospital blends world-class surgical protocols with compassionate care.",
-      nearestAirport: "COK",
-      airportDistanceKm: 14,
       vipRoomsAvailable: true,
       ayurvedaWingAvailable: true,
       featured: true,
@@ -111,7 +100,7 @@ async function seed() {
       .onConflictDoNothing();
   }
 
-  console.log("Database seeded successfully!");
+  console.log("Database seeded successfully with 9 RBAC roles!");
   process.exit(0);
 }
 

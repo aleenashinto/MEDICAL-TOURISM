@@ -16,24 +16,42 @@ import {
 export const userRoleEnum = pgEnum("user_role", [
   "super_admin",
   "admin",
-  "coordinator",
-  "hospital_partner",
+  "medical_coordinator",
+  "travel_coordinator",
+  "support_agent",
+  "sales_crm_agent",
+  "hospital_manager",
+  "doctor",
   "patient",
 ]);
 
-export const enquiryStatusEnum = pgEnum("enquiry_status", [
+export const leadStatusEnum = pgEnum("lead_status", [
   "new",
-  "under_review",
-  "documents_requested",
-  "documents_received",
-  "provider_identified",
-  "consultation_requested",
-  "appointment_confirmed",
-  "travel_planning",
-  "patient_arrived",
+  "contacted",
+  "qualified",
+  "medical_review",
+  "hospital_matching",
+  "quotation_sent",
+  "appointment_requested",
+  "converted",
+  "lost",
+  "closed",
+]);
+
+export const caseStatusEnum = pgEnum("case_status", [
+  "new",
+  "medical_review",
+  "document_review",
+  "doctor_assigned",
+  "opinion_requested",
+  "opinion_received",
+  "hospital_selected",
+  "treatment_planned",
+  "appointment_scheduled",
   "treatment_in_progress",
+  "treatment_completed",
   "follow_up",
-  "completed",
+  "closed",
   "cancelled",
 ]);
 
@@ -59,6 +77,7 @@ export const documentTypeEnum = pgEnum("document_type", [
   "discharge_summary",
   "referral_letter",
   "insurance_document",
+  "passport_visa",
   "other",
 ]);
 
@@ -74,6 +93,7 @@ export const users = pgTable("users", {
   phone: varchar("phone", { length: 50 }),
   preferredLanguage: varchar("preferred_language", { length: 50 }).default("English").notNull(),
   emailVerified: boolean("email_verified").default(false).notNull(),
+  active: boolean("active").default(true).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
@@ -133,12 +153,12 @@ export const doctors = pgTable("doctors", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
-// ─── Enquiries ───────────────────────────────────────────────────────────────
+// ─── Enquiries / Cases ───────────────────────────────────────────────────────
 
 export const enquiries = pgTable("enquiries", {
   id: uuid("id").primaryKey().defaultRandom(),
   patientId: uuid("patient_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-  status: enquiryStatusEnum("status").default("new").notNull(),
+  status: caseStatusEnum("status").default("new").notNull(),
   specialty: varchar("specialty", { length: 100 }).notNull(),
   medicalSummary: text("medical_summary").notNull(),
   preferredDistrict: varchar("preferred_district", { length: 100 }),
@@ -171,10 +191,13 @@ export const enquiryDocuments = pgTable("enquiry_documents", {
 export const auditLogs = pgTable("audit_logs", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").references(() => users.id),
+  userEmail: varchar("user_email", { length: 255 }),
+  userRole: userRoleEnum("user_role"),
   action: varchar("action", { length: 100 }).notNull(),
   entityType: varchar("entity_type", { length: 100 }).notNull(),
   entityId: varchar("entity_id", { length: 100 }).notNull(),
   details: jsonb("details"),
   ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });

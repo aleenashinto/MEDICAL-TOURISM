@@ -3,8 +3,12 @@
 export type UserRole =
   | "super_admin"
   | "admin"
-  | "coordinator"
-  | "hospital_partner"
+  | "medical_coordinator"
+  | "travel_coordinator"
+  | "support_agent"
+  | "sales_crm_agent"
+  | "hospital_manager"
+  | "doctor"
   | "patient";
 
 export interface User {
@@ -16,6 +20,7 @@ export interface User {
   phone: string | null;
   preferredLanguage: string;
   emailVerified: boolean;
+  active: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,21 +33,34 @@ export interface AuthTokenPayload {
   exp?: number;
 }
 
-// ─── Enquiry ──────────────────────────────────────────────────────────────────
+// ─── Enquiry & Cases ──────────────────────────────────────────────────────────
 
-export type EnquiryStatus =
+export type LeadStatus =
   | "new"
-  | "under_review"
-  | "documents_requested"
-  | "documents_received"
-  | "provider_identified"
-  | "consultation_requested"
-  | "appointment_confirmed"
-  | "travel_planning"
-  | "patient_arrived"
+  | "contacted"
+  | "qualified"
+  | "medical_review"
+  | "hospital_matching"
+  | "quotation_sent"
+  | "appointment_requested"
+  | "converted"
+  | "lost"
+  | "closed";
+
+export type CaseStatus =
+  | "new"
+  | "medical_review"
+  | "document_review"
+  | "doctor_assigned"
+  | "opinion_requested"
+  | "opinion_received"
+  | "hospital_selected"
+  | "treatment_planned"
+  | "appointment_scheduled"
   | "treatment_in_progress"
+  | "treatment_completed"
   | "follow_up"
-  | "completed"
+  | "closed"
   | "cancelled";
 
 export type EnquiryBudget =
@@ -62,7 +80,7 @@ export type EnquiryTimeline =
 export interface Enquiry {
   id: string;
   patientId: string;
-  status: EnquiryStatus;
+  status: CaseStatus;
   specialty: string;
   medicalSummary: string;
   preferredDistrict: string | null;
@@ -87,14 +105,11 @@ export type HospitalType =
 
 export type KeralaRegion = "south_kerala" | "central_kerala" | "north_kerala";
 
-export type KeralaAirport =
-  | "COK"   // Cochin
-  | "TRV"   // Trivandrum
-  | "CCJ"   // Calicut
-  | "CNN";  // Kannur
+export type KeralaAirport = "COK" | "TRV" | "CCJ" | "CNN";
 
 export interface Hospital {
   id: string;
+  slug: string;
   name: string;
   tagline: string;
   district: string;
@@ -122,6 +137,7 @@ export interface Hospital {
 
 export interface Doctor {
   id: string;
+  slug: string;
   hospitalId: string;
   name: string;
   title: string;
@@ -154,6 +170,7 @@ export type DocumentType =
   | "discharge_summary"
   | "referral_letter"
   | "insurance_document"
+  | "passport_visa"
   | "other";
 
 export interface EnquiryDocument {
@@ -168,7 +185,23 @@ export interface EnquiryDocument {
   uploadedAt: Date;
 }
 
-// ─── API Response Envelope ────────────────────────────────────────────────────
+// ─── Audit Log ────────────────────────────────────────────────────────────────
+
+export interface AuditLog {
+  id: string;
+  userId: string | null;
+  userEmail?: string | null;
+  userRole?: UserRole | null;
+  action: string;
+  entityType: string;
+  entityId: string;
+  details?: unknown;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  createdAt: Date;
+}
+
+// ─── API Envelope ─────────────────────────────────────────────────────────────
 
 export interface ApiResponse<T = unknown> {
   success: boolean;
@@ -184,11 +217,4 @@ export interface ApiResponse<T = unknown> {
     limit?: number;
     hasMore?: boolean;
   };
-}
-
-export interface PaginationParams {
-  page?: number;
-  limit?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
 }

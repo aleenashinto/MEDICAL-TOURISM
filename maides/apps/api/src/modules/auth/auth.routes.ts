@@ -1,11 +1,12 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { RegisterSchema, LoginSchema } from "@maides/validation";
+import { RegisterSchema, LoginSchema, ChangePasswordSchema } from "@maides/validation";
 import { hashPassword, verifyPassword, signToken } from "@maides/auth";
 import { db } from "../../db.js";
 import { users, eq } from "@maides/database";
 import { config } from "../../config.js";
 import { successResponse, errorResponse } from "../../utils/response.js";
-import { requireAuth } from "../../middleware/auth.js";
+import { requireAuth, requireRole } from "../../middleware/auth.js";
+import { recordAuditLog } from "../../utils/audit.js";
 
 export async function authRoutes(app: FastifyInstance) {
   // ─── Register ─────────────────────────────────────────────────────────────
@@ -15,7 +16,7 @@ export async function authRoutes(app: FastifyInstance) {
       return reply.status(400).send(errorResponse("VALIDATION_ERROR", "Invalid input", parseResult.error.format()));
     }
 
-    const { email, password, fullName, phone, country, preferredLanguage } = parseResult.data;
+    const { email, password, fullName, phone, country, preferredLanguage, role } = parseResult.data;
 
     // Check existing
     const existing = await db.query.users.findFirst({
@@ -36,9 +37,21 @@ export async function authRoutes(app: FastifyInstance) {
         phone,
         country,
         preferredLanguage,
-        role: "patient",
+        role: role || "patient",
       })
       .returning();
+
+    // Record audit
+    await recordAuditLog({
+      userId: newUser.id,
+      userEmail: newUser.email,
+      userRole: newUser.role,
+      action: "USER_REGISTERED",
+      entityType: "USER",
+      entityId: newUser.id,
+      ipAddress: request.ip,
+      userAgent: request.headers["user-agent"],
+    });
 
     const token = signToken(
       { sub: newUser.id, email: newUser.email, role: newUser.role },
@@ -82,7 +95,7 @@ export async function authRoutes(app: FastifyInstance) {
       where: eq(users.email, email.toLowerCase()),
     });
 
-    if (!user) {
+    if (!user || !user.active) {
       return reply.status(401).send(errorResponse("INVALID_CREDENTIALS", "Invalid email or password"));
     }
 
@@ -96,6 +109,18 @@ export async function authRoutes(app: FastifyInstance) {
       config.JWT_SECRET,
       config.JWT_EXPIRY
     );
+
+    // Record login in audit log
+    await recordAuditLog({
+      userId: user.id,
+      userEmail: user.email,
+      userRole: user.role,
+      action: "USER_LOGIN",
+      entityType: "USER",
+      entityId: user.id,
+      ipAddress: request.ip,
+      userAgent: request.headers["user-agent"],
+    });
 
     reply.setCookie("token", token, {
       httpOnly: true,
@@ -119,7 +144,20 @@ export async function authRoutes(app: FastifyInstance) {
   });
 
   // ─── Logout ───────────────────────────────────────────────────────────────
-  app.post("/logout", async (_request: FastifyRequest, reply: FastifyReply) => {
+  app.post("/logout", { preHandler: requireAuth }, async (request: FastifyRequest, reply: FastifyReply) => {
+    if (request.user) {
+      await recordAuditLog({
+        userId: request.user.sub,
+        userEmail: request.user.email,
+        userRole: request.user.role,
+        action: "USER_LOGOUT",
+        entityType: "USER",
+        entityId: request.user.sub,
+        ipAddress: request.ip,
+        userAgent: request.headers["user-agent"],
+      });
+    }
+
     reply.clearCookie("token", { path: "/" });
     return successResponse({ message: "Logged out successfully" });
   });
@@ -150,4 +188,28 @@ export async function authRoutes(app: FastifyInstance) {
       },
     });
   });
+
+  // ─── Admin User Management (List Users) ───────────────────────────────────
+  app.get(
+    "/users",
+    { preHandler: requireRole("super_admin", "admin") },
+    async () => {
+      const userList = await db.query.users.findMany({
+        columns: {
+          id: true,
+          email: true,
+          fullName: true,
+          role: true,
+          country: true,
+          phone: true,
+          preferredLanguage: true,
+          emailVerified: true,
+          active: true,
+          createdAt: true,
+        },
+      });
+
+      return successResponse({ users: userList });
+    }
+  );
 }

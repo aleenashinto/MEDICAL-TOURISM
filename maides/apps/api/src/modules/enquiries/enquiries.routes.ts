@@ -76,7 +76,7 @@ export async function enquiryRoutes(app: FastifyInstance) {
   // ─── Update Enquiry Status (Staff Only) ────────────────────────────────────
   app.patch(
     "/:id/status",
-    { preHandler: requireRole("super_admin", "admin", "coordinator", "hospital_partner") },
+    { preHandler: requireRole("super_admin", "admin", "medical_coordinator", "hospital_manager") },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = request.params as { id: string };
       const parseResult = EnquiryStatusUpdateSchema.safeParse(request.body);

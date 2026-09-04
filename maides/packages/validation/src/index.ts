@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+// ─── Roles ───────────────────────────────────────────────────────────────────
+
+export const UserRoleSchema = z.enum([
+  "super_admin",
+  "admin",
+  "medical_coordinator",
+  "travel_coordinator",
+  "support_agent",
+  "sales_crm_agent",
+  "hospital_manager",
+  "doctor",
+  "patient",
+]);
+
 // ─── Auth Schemas ─────────────────────────────────────────────────────────────
 
 export const RegisterSchema = z.object({
@@ -12,6 +26,7 @@ export const RegisterSchema = z.object({
   fullName: z.string().min(2, "Full name is required").max(100),
   phone: z.string().optional(),
   country: z.string().min(2).max(80).optional(),
+  role: UserRoleSchema.default("patient"),
   preferredLanguage: z
     .enum(["English", "Arabic", "Malayalam", "Hindi", "French", "Dhivehi", "Urdu"])
     .default("English"),
@@ -69,17 +84,18 @@ export const EnquiryCreateSchema = z.object({
 export const EnquiryStatusUpdateSchema = z.object({
   status: z.enum([
     "new",
-    "under_review",
-    "documents_requested",
-    "documents_received",
-    "provider_identified",
-    "consultation_requested",
-    "appointment_confirmed",
-    "travel_planning",
-    "patient_arrived",
+    "medical_review",
+    "document_review",
+    "doctor_assigned",
+    "opinion_requested",
+    "opinion_received",
+    "hospital_selected",
+    "treatment_planned",
+    "appointment_scheduled",
     "treatment_in_progress",
+    "treatment_completed",
     "follow_up",
-    "completed",
+    "closed",
     "cancelled",
   ]),
   internalNotes: z.string().max(2000).optional(),
@@ -143,6 +159,7 @@ export const DocumentUploadSchema = z.object({
     "discharge_summary",
     "referral_letter",
     "insurance_document",
+    "passport_visa",
     "other",
   ]),
 });
