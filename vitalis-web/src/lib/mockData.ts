@@ -447,7 +447,7 @@ export const KERALA_HOSPITALS: Hospital[] = [
     specialties: ['Classical Panchakarma', 'Rheumatoid Arthritis & Joint Disorders', 'Neurological Rehabilitation', 'Post-Cancer Convalescence', 'Chronic Lifestyle Reversal'],
     rating: 4.98,
     reviewCount: 7890,
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://tinyurl.com/4er6ndc8',
     description: 'Founded in 1902 by Vaidyaratnam P.S. Varier, Arya Vaidya Sala Kottakkal is the global gold standard for classical Ayurvedic medicine, treating royalty, dignitaries, and chronic patients worldwide.',
     internationalServices: [
       'Global Patient Admissions Desk & Visa Invitation Assistance',
