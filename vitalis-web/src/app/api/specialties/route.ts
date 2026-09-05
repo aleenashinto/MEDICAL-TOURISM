@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export interface ServerSpecialty {
   id: string;
@@ -178,5 +178,93 @@ export async function GET(request: Request) {
       { success: false, message: 'Failed to fetch specialties', error: error.message },
       { status: 500 }
     );
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+
+    if (!body.name || !body.name.trim()) {
+      return NextResponse.json({ success: false, error: "Specialty name is required." }, { status: 400 });
+    }
+
+    const newId = body.id || `SPEC-${String(globalSpecialtiesStore.length + 1).padStart(3, '0')}`;
+    const newSpecialty: ServerSpecialty = {
+      id: newId,
+      name: body.name.trim(),
+      code: body.code || newId,
+      category: body.category || "Interventional & Surgical",
+      shortDescription: body.shortDescription || `${body.name} center of excellence in Kerala.`,
+      fullDescription: body.fullDescription || `${body.name} provides advanced clinical care in Kerala.`,
+      iconName: body.iconName || "HeartPulse",
+      image: body.image || "https://images.unsplash.com/photo-1559757175-5700dde675bc?auto=format&fit=crop&w=800&q=80",
+      displayOrder: Number(body.displayOrder) || (globalSpecialtiesStore.length + 1),
+      status: body.status || "ACTIVE",
+      published: body.published || "PUBLISHED",
+      proceduresCount: Number(body.proceduresCount) || 10,
+      hospitals: Array.isArray(body.hospitals) ? body.hospitals : ["Aster Medcity, Kochi"],
+      doctors: Array.isArray(body.doctors) ? body.doctors : ["Chief Clinical Consultant"],
+      keyProcedures: Array.isArray(body.keyProcedures) ? body.keyProcedures : ["Standardized Clinical Treatments"],
+      accreditations: Array.isArray(body.accreditations) ? body.accreditations : ["NABH Accredited"],
+      leadDoctor: body.leadDoctor || "Chief Clinical Consultant",
+      seoTitle: body.seoTitle || `${body.name} in Kerala - MAIDES Healthcare`,
+      seoDescription: body.seoDescription || `World-class ${body.name} treatments in Kerala accredited hospitals.`
+    };
+
+    globalSpecialtiesStore = [newSpecialty, ...globalSpecialtiesStore.filter(s => s.id !== newSpecialty.id)];
+
+    return NextResponse.json({
+      success: true,
+      specialty: newSpecialty,
+      specialties: globalSpecialtiesStore
+    });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message || "Failed to create specialty" }, { status: 500 });
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    if (!body.id) {
+      return NextResponse.json({ success: false, error: "Specialty ID required for update." }, { status: 400 });
+    }
+
+    const index = globalSpecialtiesStore.findIndex(s => s.id === body.id);
+    if (index === -1) {
+      globalSpecialtiesStore = [body, ...globalSpecialtiesStore];
+    } else {
+      globalSpecialtiesStore[index] = { ...globalSpecialtiesStore[index], ...body };
+    }
+
+    return NextResponse.json({
+      success: true,
+      specialty: body,
+      specialties: globalSpecialtiesStore
+    });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message || "Failed to update specialty" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ success: false, error: "Specialty ID parameter is required." }, { status: 400 });
+    }
+
+    globalSpecialtiesStore = globalSpecialtiesStore.filter(s => s.id !== id);
+
+    return NextResponse.json({
+      success: true,
+      message: `Specialty ${id} removed successfully`,
+      specialties: globalSpecialtiesStore
+    });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message || "Failed to delete specialty" }, { status: 500 });
   }
 }

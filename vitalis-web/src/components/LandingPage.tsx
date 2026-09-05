@@ -298,16 +298,9 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
           const storedSpecs = localStorage.getItem("maides_admin_specialties");
           if (storedSpecs) {
             const parsed = JSON.parse(storedSpecs);
-            const hasLegacyNames = Array.isArray(parsed) && parsed.some((s: any) => 
-              s.name === "Cardiology & Bypass" || 
-              s.name === "Robotic Orthopaedics" || 
-              s.name === "Comprehensive Oncology" || 
-              s.name === "Neurology & Neurosurgery" || 
-              s.name === "Classical Ayurveda"
-            );
-            if (Array.isArray(parsed) && !hasLegacyNames && parsed.length <= 5) {
+            if (Array.isArray(parsed) && parsed.length > 0) {
               const activeAdminSpecs = parsed
-                .filter((s: any) => s.status === "ACTIVE" && (s.published === "PUBLISHED" || !s.published))
+                .filter((s: any) => (s.status === "ACTIVE" || !s.status) && (s.published === "PUBLISHED" || !s.published))
                 .map((s: any) => ({
                   id: s.id,
                   name: s.name,
@@ -387,11 +380,13 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
     window.addEventListener("maides_doctors_updated", loadDynamicData);
     window.addEventListener("maides_hospitals_updated", loadDynamicData);
     window.addEventListener("maides_packages_updated", loadDynamicData);
+    window.addEventListener("maides_specialties_updated", loadDynamicData);
     return () => {
       window.removeEventListener("storage", loadDynamicData);
       window.removeEventListener("maides_doctors_updated", loadDynamicData);
       window.removeEventListener("maides_hospitals_updated", loadDynamicData);
       window.removeEventListener("maides_packages_updated", loadDynamicData);
+      window.removeEventListener("maides_specialties_updated", loadDynamicData);
     };
   }, []);
 

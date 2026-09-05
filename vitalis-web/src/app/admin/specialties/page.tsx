@@ -295,6 +295,19 @@ export default function SpecialtiesAdminPage() {
   // Load from Server API and localStorage on mount
   useEffect(() => {
     const fetchServerSpecialties = async () => {
+      if (typeof window !== "undefined") {
+        const saved = localStorage.getItem("maides_admin_specialties");
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setSpecialties(parsed);
+              return;
+            }
+          } catch (e) {}
+        }
+      }
+
       try {
         const res = await fetch("/api/specialties");
         if (res.ok) {
@@ -308,29 +321,11 @@ export default function SpecialtiesAdminPage() {
           }
         }
       } catch (err) {
-        console.warn("Failed to fetch specialties from server API, using localStorage cache:", err);
+        console.warn("Failed to fetch specialties from server API, using initial fallback:", err);
       }
 
+      setSpecialties(INITIAL_SPECIALTIES);
       if (typeof window !== "undefined") {
-        const saved = localStorage.getItem("maides_admin_specialties");
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            // Check if user has old legacy data (e.g. > 5 items or old names)
-            const hasLegacyNames = parsed.some((s: any) => 
-              s.name === "Cardiology & Bypass" || 
-              s.name === "Robotic Orthopaedics" || 
-              s.name === "Comprehensive Oncology" || 
-              s.name === "Neurology & Neurosurgery" || 
-              s.name === "Classical Ayurveda"
-            );
-            if (Array.isArray(parsed) && parsed.length > 0 && !hasLegacyNames && parsed.length <= 5) {
-              setSpecialties(parsed);
-              return;
-            }
-          } catch (e) {}
-        }
-        setSpecialties(INITIAL_SPECIALTIES);
         localStorage.setItem("maides_admin_specialties", JSON.stringify(INITIAL_SPECIALTIES));
       }
     };
@@ -363,16 +358,35 @@ export default function SpecialtiesAdminPage() {
   }, []);
 
   const handleResetToDefault = () => {
-    if (confirm("Reset specialties catalog to the 5 standard Centers of Excellence? Any unsaved custom entries will be reverted.")) {
+    if (confirm("Reset specialties catalog to the 5 standard Centers of Excellence? Any custom entries will be reverted.")) {
       saveToStorage(INITIAL_SPECIALTIES);
       showToast("Specialties successfully restored to standard 5 Centers of Excellence.");
     }
   };
 
-  const saveToStorage = (updated: SpecialtyItem[]) => {
+  const saveToStorage = async (updated: SpecialtyItem[], serverAction?: { method: "POST" | "PUT" | "DELETE", payload?: any, queryId?: string }) => {
     setSpecialties(updated);
-    localStorage.setItem("maides_admin_specialties", JSON.stringify(updated));
-    window.dispatchEvent(new Event("storage"));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("maides_admin_specialties", JSON.stringify(updated));
+      window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new CustomEvent("maides_specialties_updated", { detail: updated }));
+    }
+
+    if (serverAction) {
+      try {
+        let url = "/api/specialties";
+        if (serverAction.queryId) {
+          url += `?id=${encodeURIComponent(serverAction.queryId)}`;
+        }
+        await fetch(url, {
+          method: serverAction.method,
+          headers: { "Content-Type": "application/json" },
+          body: serverAction.payload ? JSON.stringify(serverAction.payload) : undefined
+        });
+      } catch (e) {
+        console.error("Specialties API background sync error", e);
+      }
+    }
   };
 
   const showToast = (msg: string) => {
@@ -472,7 +486,7 @@ export default function SpecialtiesAdminPage() {
     };
 
     const updated = [newSpecialty, ...specialties];
-    saveToStorage(updated);
+    saveToStorage(updated, { method: "POST", payload: newSpecialty });
     setIsAddModalOpen(false);
     showToast(`Specialty "${newSpecialty.name}" created successfully and synced to the landing page.`);
   };
@@ -519,9 +533,10 @@ export default function SpecialtiesAdminPage() {
       .map((s) => s.trim())
       .filter(Boolean);
 
+    let updatedSpecialty: SpecialtyItem | null = null;
     const updated = specialties.map((s) => {
       if (s.id === activeSpecialty.id) {
-        return {
+        updatedSpecialty = {
           ...s,
           name: formData.name.trim().replace(/<[^>]*>?/gm, ''),
           code: formData.code.trim() || s.code,
@@ -542,39 +557,44 @@ export default function SpecialtiesAdminPage() {
           seoTitle: formData.seoTitle.trim() || s.seoTitle,
           seoDescription: formData.seoDescription.trim() || s.seoDescription
         };
+        return updatedSpecialty;
       }
       return s;
     });
 
-    saveToStorage(updated);
+    saveToStorage(updated, { method: "PUT", payload: updatedSpecialty });
     setIsEditModalOpen(false);
     showToast(`Specialty "${formData.name}" updated successfully.`);
   };
 
   // Quick Toggle Status
   const handleToggleStatus = (id: string) => {
+    let targetSpec: SpecialtyItem | undefined;
     const updated = specialties.map((s) => {
       if (s.id === id) {
         const nextStatus = s.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
         showToast(`Specialty "${s.name}" is now ${nextStatus}.`);
-        return { ...s, status: nextStatus as "ACTIVE" | "INACTIVE" };
+        targetSpec = { ...s, status: nextStatus as "ACTIVE" | "INACTIVE" };
+        return targetSpec;
       }
       return s;
     });
-    saveToStorage(updated);
+    saveToStorage(updated, { method: "PUT", payload: targetSpec });
   };
 
   // Quick Toggle Published
   const handleTogglePublished = (id: string) => {
+    let targetSpec: SpecialtyItem | undefined;
     const updated = specialties.map((s) => {
       if (s.id === id) {
         const nextPub = s.published === "PUBLISHED" ? "DRAFT" : "PUBLISHED";
         showToast(`Specialty "${s.name}" set to ${nextPub}.`);
-        return { ...s, published: nextPub as "PUBLISHED" | "DRAFT" };
+        targetSpec = { ...s, published: nextPub as "PUBLISHED" | "DRAFT" };
+        return targetSpec;
       }
       return s;
     });
-    saveToStorage(updated);
+    saveToStorage(updated, { method: "PUT", payload: targetSpec });
   };
 
   // Open View
@@ -593,8 +613,9 @@ export default function SpecialtiesAdminPage() {
   const handleConfirmDelete = () => {
     if (!activeSpecialty) return;
     const name = activeSpecialty.name;
+    const delId = activeSpecialty.id;
     const updated = specialties.filter((s) => s.id !== activeSpecialty.id);
-    saveToStorage(updated);
+    saveToStorage(updated, { method: "DELETE", queryId: delId });
     setIsDeleteModalOpen(false);
     showToast(`Specialty "${name}" permanently removed.`);
   };
