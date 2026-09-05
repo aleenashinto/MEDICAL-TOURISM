@@ -118,6 +118,8 @@ export default function LoginPage() {
   const setDemoRole = (selectedRole: "ADMIN" | "PATIENT") => {
     setRole(selectedRole);
     setError("");
+    setEmail("");
+    setPassword("");
   };
 
   return (
@@ -186,25 +188,26 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form className="space-y-5" onSubmit={handleLogin} noValidate>
+          <form className="space-y-5" onSubmit={handleLogin} noValidate autoComplete="off">
             <div>
               <label htmlFor="login-email" className="block text-xs font-medium text-slate-300">
-                Email address
+                {role === "PATIENT" ? "Patient Email address" : "Administrator Email"}
               </label>
               <div className="mt-1 relative rounded-xl shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                   <Mail className="h-4 w-4" />
                 </div>
                 <input
+                  key={role === "PATIENT" ? "patient-email-field" : "admin-email-field"}
                   id="login-email"
-                  name="email"
-                  autoComplete="email"
+                  name={role === "PATIENT" ? "patient_auth_email" : "admin_auth_email"}
+                  autoComplete="off"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="block w-full pl-10 pr-3 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:border-transparent transition-all"
-                  placeholder="name@example.com"
+                  placeholder={role === "PATIENT" ? "Enter your patient email (e.g. sarah@example.com)" : "admin@gmail.com"}
                 />
               </div>
             </div>
@@ -226,15 +229,16 @@ export default function LoginPage() {
                   <Lock className="h-4 w-4" />
                 </div>
                 <input
+                  key={role === "PATIENT" ? "patient-pass-field" : "admin-pass-field"}
                   id="login-password"
-                  name="current-password"
-                  autoComplete="current-password"
+                  name={role === "PATIENT" ? "patient_auth_pass" : "admin_auth_pass"}
+                  autoComplete="new-password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   className="block w-full pl-10 pr-10 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:border-transparent transition-all"
-                  placeholder="Enter your password"
+                  placeholder={role === "PATIENT" ? "Enter your patient password" : "••••••••"}
                 />
                 <button
                   type="button"
