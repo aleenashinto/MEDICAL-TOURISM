@@ -1,4 +1,14 @@
 import { NextResponse } from 'next/server';
+import { verifyToken } from '@/lib/session';
+import { cookies } from 'next/headers';
+
+async function verifyAdmin() {
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get('maides_session')?.value;
+  if (!sessionCookie) return false;
+  const session = await verifyToken(sessionCookie);
+  return session && session.role === 'ADMIN';
+}
 
 export interface ServerSpecialty {
   id: string;
@@ -260,6 +270,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (!(await verifyAdmin())) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body = await request.json();
 
@@ -303,6 +316,9 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  if (!(await verifyAdmin())) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body = await request.json();
     if (!body.id) {
@@ -327,6 +343,9 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  if (!(await verifyAdmin())) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');

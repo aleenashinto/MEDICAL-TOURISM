@@ -73,11 +73,10 @@ export default function AdminLayout({
   });
 
   useEffect(() => {
+    // Middleware handles server-side protection, but we still ensure client state is synced.
     if (typeof window !== "undefined") {
       const userRole = localStorage.getItem("maides_user_role");
-      if (userRole !== "ADMIN") {
-        window.location.href = "/auth/login";
-      } else {
+      if (userRole === "ADMIN") {
         setIsAuthorized(true);
       }
     }
@@ -184,7 +183,14 @@ export default function AdminLayout({
         <div className="flex items-center gap-2">
           <Link
             href="/"
-            onClick={() => { if (typeof window !== 'undefined') localStorage.removeItem('maides_user_role'); }}
+            onClick={async (e) => {
+              e.preventDefault();
+              await fetch('/api/auth/logout', { method: 'POST' });
+              if (typeof window !== 'undefined') { 
+                localStorage.clear();
+              }
+              window.location.href = "/auth/login";
+            }}
             className="p-2 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20"
             title="Sign Out"
           >
@@ -339,11 +345,14 @@ export default function AdminLayout({
               </div>
               <Link
                 href="/"
-                onClick={() => {
+                onClick={async (e) => {
+                  e.preventDefault();
+                  await fetch('/api/auth/logout', { method: 'POST' });
                   if (typeof window !== 'undefined') {
-                    localStorage.removeItem('maides_user_role');
+                    localStorage.clear();
                   }
                   setMobileDrawerOpen(false);
+                  window.location.href = "/auth/login";
                 }}
                 className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-rose-400 hover:text-white bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 transition-all shadow-xs group"
               >
@@ -409,7 +418,14 @@ export default function AdminLayout({
           <div className="flex items-center ml-4">
             <Link
               href="/"
-              onClick={() => { if (typeof window !== 'undefined') localStorage.removeItem('maides_user_role'); }}
+              onClick={async (e) => {
+                e.preventDefault();
+                await fetch('/api/auth/logout', { method: 'POST' });
+                if (typeof window !== 'undefined') { 
+                  localStorage.clear();
+                }
+                window.location.href = "/auth/login";
+              }}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/20 hover:border-rose-600 text-xs font-bold transition-all shadow-xs group"
             >
               <LogOut className="w-4 h-4 text-rose-400 group-hover:text-white transition-colors" />

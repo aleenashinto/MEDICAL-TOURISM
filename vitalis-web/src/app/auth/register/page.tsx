@@ -84,7 +84,7 @@ export default function RegisterPage() {
 
   const passStrength = calculatePasswordStrength(formData.password);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setFieldErrors({});
@@ -110,7 +110,8 @@ export default function RegisterPage() {
     }
 
     // Duplicate email check
-    if (email === "admin@gmail.com" || email === "admin@vitalis.health") {
+    const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@vitalis.health";
+    if (email === ADMIN_EMAIL) {
       errors.email = "This email is registered as an administrative account. Please sign in.";
     }
 
@@ -141,41 +142,45 @@ export default function RegisterPage() {
 
     setIsLoading(true);
 
-    if (typeof window !== "undefined") {
-      localStorage.setItem("maides_user_name", `${firstName} ${lastName}`);
-      localStorage.setItem("maides_user_email", email);
-      localStorage.setItem("maides_user_location", formData.country || "United Arab Emirates");
-      localStorage.setItem("maides_user_phone", phone);
-      localStorage.setItem("maides_user_role", "PATIENT"); // Immutable Role Security Enforcement
-      localStorage.setItem("maides_consent_timestamp", new Date().toISOString());
-      localStorage.setItem("maides_consent_version", "v2026.1");
+    setIsLoading(true);
 
-      // Auto-register patient into admin/patient list if not present
-      try {
-        const storedPatients = localStorage.getItem("maides_admin_patients");
-        let patientList = storedPatients ? JSON.parse(storedPatients) : [];
-        if (!patientList.some((p: any) => p.email.toLowerCase() === email)) {
-          const newPatient = {
-            id: "PAT-" + Math.floor(1000 + Math.random() * 9000),
-            name: `${firstName} ${lastName}`,
-            email: email,
-            phone: phone,
-            country: formData.country || "United Arab Emirates",
-            dob: formData.dob || "1990-01-01",
-            gender: formData.gender || "female",
-            registeredAt: new Date().toISOString().split("T")[0],
-            status: "ACTIVE",
-            role: "PATIENT"
-          };
-          localStorage.setItem("maides_admin_patients", JSON.stringify([newPatient, ...patientList]));
-        }
-      } catch (err) {}
-    }
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          phone,
+          country: formData.country,
+          dob: formData.dob,
+          gender: formData.gender,
+          password
+        })
+      });
 
-    setTimeout(() => {
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error || "Registration failed");
+        setIsLoading(false);
+        return;
+      }
+
+      if (typeof window !== "undefined") {
+        // Save temporary unauthenticated data for the OTP screen
+        localStorage.setItem("maides_pending_email", email);
+        localStorage.setItem("maides_pending_name", `${firstName} ${lastName}`);
+        localStorage.setItem("maides_pending_phone", phone);
+        localStorage.setItem("maides_pending_country", formData.country || "United Arab Emirates");
+        localStorage.setItem("maides_pending_pass", password); // Temporary for demo auto-login after OTP
+      }
+
+      router.push("/auth/verify-otp");
+    } catch (err) {
+      setError("An unexpected error occurred during registration.");
       setIsLoading(false);
-      router.push("/patient/dashboard");
-    }, 600);
+    }
   };
 
   return (
@@ -210,7 +215,7 @@ export default function RegisterPage() {
             </div>
           )}
 
-          <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+          <form className="space-y-4" onSubmit={handleRegister} noValidate>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="reg-first-name" className="block text-xs font-medium text-slate-300">First Name *</label>

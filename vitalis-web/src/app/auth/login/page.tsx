@@ -15,7 +15,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -41,78 +41,38 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    // Strict 2-Role Authentication Validation
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: trimmedEmail, password: trimmedPassword, role }),
+      });
 
-      if (role === "ADMIN") {
-        // Admin credentials verification
-        if ((trimmedEmail === "admin@gmail.com" || trimmedEmail === "admin@vitalis.health") && trimmedPassword === "Admin1234") {
-          if (typeof window !== "undefined") {
-            localStorage.setItem("maides_user_email", "admin@gmail.com");
-            localStorage.setItem("maides_user_name", "System Administrator");
-            localStorage.setItem("maides_user_role", "ADMIN");
-            if (rememberMe) {
-              localStorage.setItem("maides_remember_device", "true");
-              localStorage.setItem("maides_device_expiry", new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString());
-            }
-          }
-          router.push("/admin/dashboard");
-        } else {
-          // Safe generic message to prevent account enumeration
-          setError("Invalid administrator credentials. Please check your email and password.");
-        }
-      } else {
-        // Patient authentication
-        if (trimmedEmail === "deactivated@example.com") {
-          setError("Your account has been deactivated. Please contact MAIDES support.");
-          return;
-        }
+      const data = await response.json();
 
-        // Prevent patient attempting to log into admin accounts without admin role
-        if (trimmedEmail === "admin@gmail.com" && trimmedPassword !== "Admin1234") {
-          setError("Invalid credentials. Please verify your email and password.");
-          return;
-        }
-
-        // Extract patient name dynamically from email or look up in registered patients
-        let formattedName = "";
-        let userLocation = "United Arab Emirates";
-        if (typeof window !== "undefined") {
-          try {
-            const stored = localStorage.getItem("maides_admin_patients");
-            if (stored) {
-              const patientList = JSON.parse(stored);
-              const matched = patientList.find((p: any) => p.email.toLowerCase() === trimmedEmail);
-              if (matched) {
-                formattedName = matched.name;
-                userLocation = matched.country || userLocation;
-              }
-            }
-          } catch (err) {}
-        }
-
-        if (!formattedName) {
-          const rawPrefix = trimmedEmail.split("@")[0] || "Patient";
-          formattedName = rawPrefix
-            .split(/[._-]/)
-            .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-            .join(" ");
-        }
-
-        if (typeof window !== "undefined") {
-          localStorage.setItem("maides_user_email", trimmedEmail);
-          localStorage.setItem("maides_user_name", formattedName);
-          localStorage.setItem("maides_user_role", "PATIENT");
-          localStorage.setItem("maides_user_location", userLocation);
-          if (rememberMe) {
-            localStorage.setItem("maides_remember_device", "true");
-            localStorage.setItem("maides_device_expiry", new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString());
-          }
-        }
-        router.push("/patient/dashboard");
+      if (!response.ok) {
+        setError(data.error || "Authentication failed.");
+        setIsLoading(false);
+        return;
       }
-    }, 500);
+
+      if (typeof window !== "undefined") {
+        // Fallback for client-side components relying on these
+        localStorage.setItem("maides_user_email", data.user.email);
+        localStorage.setItem("maides_user_name", data.user.name || trimmedEmail.split("@")[0]);
+        localStorage.setItem("maides_user_role", data.user.role);
+        
+        if (rememberMe) {
+          localStorage.setItem("maides_remember_device", "true");
+          localStorage.setItem("maides_device_expiry", new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString());
+        }
+      }
+      
+      router.push(role === 'ADMIN' ? '/admin/dashboard' : '/patient/dashboard');
+    } catch (err) {
+      setError("An unexpected error occurred during login.");
+      setIsLoading(false);
+    }
   };
 
   const setDemoRole = (selectedRole: "ADMIN" | "PATIENT") => {
@@ -207,7 +167,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="block w-full pl-10 pr-3 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:border-transparent transition-all"
-                  placeholder={role === "PATIENT" ? "" : "admin@gmail.com"}
+                  placeholder={role === "PATIENT" ? "patient@example.com" : "admin@vitalis.health"}
                 />
               </div>
             </div>

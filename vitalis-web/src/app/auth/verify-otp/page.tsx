@@ -18,7 +18,7 @@ export default function VerifyOtpPage() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const email = localStorage.getItem("maides_user_email");
+      const email = localStorage.getItem("maides_pending_email");
       if (email) setUserEmail(email);
     }
   }, []);
@@ -58,7 +58,7 @@ export default function VerifyOtpPage() {
     setError("");
   };
 
-  const handleVerify = (e: React.FormEvent) => {
+  const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     const enteredOtp = otp.join("");
@@ -68,16 +68,49 @@ export default function VerifyOtpPage() {
       return;
     }
 
+    if (enteredOtp !== "123456") {
+      setError("Invalid OTP. For demo purposes, use 123456.");
+      return;
+    }
+
     setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      // Valid verification code
+    try {
+      const email = localStorage.getItem("maides_pending_email");
+      const password = localStorage.getItem("maides_pending_pass"); // In a real app we wouldn't store password, we would exchange OTP token for session token. This is a demo fallback.
+      
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, password: password, role: 'PATIENT' }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Authentication failed during OTP verification.");
+        setIsLoading(false);
+        return;
+      }
+      
+      // Move from pending to active
+      if (typeof window !== "undefined") {
+        localStorage.setItem("maides_user_email", data.user.email);
+        localStorage.setItem("maides_user_name", data.user.name);
+        localStorage.setItem("maides_user_role", data.user.role);
+        
+        localStorage.removeItem("maides_pending_email");
+        localStorage.removeItem("maides_pending_pass");
+      }
+
       setIsSuccess(true);
       setTimeout(() => {
         router.push("/patient/dashboard");
       }, 1000);
-    }, 600);
+    } catch (err) {
+      setError("An unexpected error occurred.");
+      setIsLoading(false);
+    }
   };
 
   const handleResend = () => {

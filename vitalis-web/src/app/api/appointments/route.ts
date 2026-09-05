@@ -1,4 +1,14 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { verifyToken } from '@/lib/session';
+import { cookies } from 'next/headers';
+
+async function verifyAuth() {
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get('maides_session')?.value;
+  if (!sessionCookie) return false;
+  const session = await verifyToken(sessionCookie);
+  return !!session;
+}
 
 export interface ServerAppointment {
   id: string;
@@ -90,6 +100,9 @@ let globalAppointmentsStore: ServerAppointment[] = [
 ];
 
 export async function GET() {
+  if (!(await verifyAuth())) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
   try {
     return NextResponse.json({
       success: true,
@@ -105,6 +118,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  if (!(await verifyAuth())) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body = await request.json();
 
@@ -151,6 +167,9 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  if (!(await verifyAuth())) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body = await request.json();
     if (!body.id) {
