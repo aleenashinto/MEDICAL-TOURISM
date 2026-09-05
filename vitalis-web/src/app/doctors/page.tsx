@@ -44,6 +44,16 @@ export default function DoctorsPage() {
   const [toast, setToast] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const extractUsdFee = (feeStr?: string | number): number => {
+    if (typeof feeStr === "number") return feeStr;
+    if (!feeStr) return 60;
+    const match = String(feeStr).match(/\$\s*(\d+)/);
+    if (match) return parseInt(match[1]);
+    const num = parseInt(String(feeStr).replace(/[^0-9]/g, ''));
+    if (!num) return 60;
+    return num > 1000 ? Math.round(num / 84) : num;
+  };
+
   // Load from Admin Doctors storage or fallback to mock data
   useEffect(() => {
     const loadDoctors = async () => {
@@ -61,12 +71,12 @@ export default function DoctorsPage() {
               qualifications: d.education || d.qualifications || d.certifications || "MBBS, MS, Board Certified",
               experienceYears: typeof d.experienceYears === "number" ? d.experienceYears : (parseInt(d.experience) || 15),
               hospitalName: d.hospital || d.hospitalName || "Aster Medcity, Kochi",
-              city: d.city || (d.hospital?.includes("Trivandrum") ? "Thiruvananthapuram, Kerala" : d.hospital?.includes("Calicut") ? "Kozhikode, Kerala" : "Kochi, Kerala"),
+              city: d.city || (d.hospital?.includes("Kovalam") ? "Kovalam, Kerala" : d.hospital?.includes("Trivandrum") ? "Thiruvananthapuram, Kerala" : d.hospital?.includes("Calicut") ? "Kozhikode, Kerala" : "Kochi, Kerala"),
               avatar: d.avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=400",
               rating: d.rating || "4.95",
-              reviewCount: d.casesHandled || 120,
+              reviewCount: d.casesHandled || 1420,
               languages: Array.isArray(d.languages) ? d.languages : (typeof d.languages === "string" ? d.languages.split(",").map((l: string) => l.trim()) : (d.languages || ["English", "Hindi", "Malayalam"])),
-              consultationFeeUSD: d.consultationFee ? parseInt(String(d.consultationFee).replace(/[^0-9]/g, '')) || 60 : 60,
+              consultationFeeUSD: extractUsdFee(d.consultationFee || d.consultationFeeUsd || d.consultationFeeInr),
               nextAvailableDate: "Tomorrow",
               videoConsultationAvailable: true,
               publicationsCount: 12,
@@ -74,18 +84,8 @@ export default function DoctorsPage() {
               displayOrder: typeof d.displayOrder === "number" ? d.displayOrder : (Number(d.displayOrder) || (idx + 1))
             }));
 
-            const merged: any[] = [...formattedDocs];
-            KERALA_DOCTORS.forEach(kd => {
-              if (!merged.some(m => m.name.toLowerCase().trim() === kd.name.toLowerCase().trim() || m.id === kd.id)) {
-                merged.push({ 
-                  ...kd, 
-                  consultationFeeUSD: kd.consultationFeeUsd || 60,
-                  displayOrder: 999 
-                });
-              }
-            });
-            merged.sort((a, b) => (Number(a.displayOrder) || 999) - (Number(b.displayOrder) || 999));
-            setDoctorsList(merged);
+            formattedDocs.sort((a: any, b: any) => (Number(a.displayOrder) || 999) - (Number(b.displayOrder) || 999));
+            setDoctorsList(formattedDocs);
             return;
           }
         }
@@ -113,12 +113,12 @@ export default function DoctorsPage() {
                 qualifications: d.education || d.qualifications || d.certifications || "MBBS, MS, Board Certified",
                 experienceYears: typeof d.experienceYears === "number" ? d.experienceYears : (parseInt(d.experience) || 15),
                 hospitalName: d.hospital || d.hospitalName || "Aster Medcity, Kochi",
-                city: d.city || (d.hospital?.includes("Trivandrum") ? "Thiruvananthapuram, Kerala" : d.hospital?.includes("Calicut") ? "Kozhikode, Kerala" : "Kochi, Kerala"),
+                city: d.city || (d.hospital?.includes("Kovalam") ? "Kovalam, Kerala" : d.hospital?.includes("Trivandrum") ? "Thiruvananthapuram, Kerala" : d.hospital?.includes("Calicut") ? "Kozhikode, Kerala" : "Kochi, Kerala"),
                 avatar: d.avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=400",
                 rating: d.rating || "4.95",
-                reviewCount: d.casesHandled || 120,
+                reviewCount: d.casesHandled || 1420,
                 languages: Array.isArray(d.languages) ? d.languages : (typeof d.languages === "string" ? d.languages.split(",").map((l: string) => l.trim()) : (d.languages || ["English", "Hindi", "Malayalam"])),
-                consultationFeeUSD: d.consultationFee ? parseInt(String(d.consultationFee).replace(/[^0-9]/g, '')) || 60 : 60,
+                consultationFeeUSD: extractUsdFee(d.consultationFee || d.consultationFeeUsd || d.consultationFeeInr),
                 nextAvailableDate: "Tomorrow",
                 videoConsultationAvailable: true,
                 publicationsCount: 12,
@@ -127,18 +127,8 @@ export default function DoctorsPage() {
               }));
 
             if (formattedAdminDocs.length > 0) {
-              const merged: any[] = [...formattedAdminDocs];
-              KERALA_DOCTORS.forEach(kd => {
-                if (!merged.some(m => m.name.toLowerCase().trim() === kd.name.toLowerCase().trim() || m.id === kd.id)) {
-                  merged.push({ 
-                    ...kd, 
-                    consultationFeeUSD: kd.consultationFeeUsd || 60,
-                    displayOrder: 999 
-                  });
-                }
-              });
-              merged.sort((a, b) => (Number(a.displayOrder) || 999) - (Number(b.displayOrder) || 999));
-              setDoctorsList(merged);
+              formattedAdminDocs.sort((a, b) => (Number(a.displayOrder) || 999) - (Number(b.displayOrder) || 999));
+              setDoctorsList(formattedAdminDocs);
             } else {
               setDoctorsList(KERALA_DOCTORS);
             }

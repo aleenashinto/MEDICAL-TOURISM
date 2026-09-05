@@ -140,14 +140,8 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                 displayOrder: typeof d.displayOrder === "number" ? d.displayOrder : (Number(d.displayOrder) || (idx + 1))
               }));
 
-              const merged = [...activeDocs];
-              KERALA_DOCTORS.forEach(kd => {
-                if (!merged.some(m => m.name.toLowerCase().trim() === kd.name.toLowerCase().trim() || m.id === kd.id)) {
-                  merged.push({ ...kd, displayOrder: 999 });
-                }
-              });
-              merged.sort((a, b) => (Number(a.displayOrder) || 999) - (Number(b.displayOrder) || 999));
-              setLandingDoctors(merged);
+              activeDocs.sort((a: any, b: any) => (Number(a.displayOrder) || 999) - (Number(b.displayOrder) || 999));
+              setLandingDoctors(activeDocs);
               return;
             }
           }
@@ -181,26 +175,19 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                 }));
               
               if (activeAdminDocs.length > 0) {
-                const merged = [...activeAdminDocs];
-                KERALA_DOCTORS.forEach(kd => {
-                  if (!merged.some(m => m.name.toLowerCase().trim() === kd.name.toLowerCase().trim() || m.id === kd.id)) {
-                    merged.push({ ...kd, displayOrder: 999 });
-                  }
-                });
-                merged.sort((a, b) => (Number(a.displayOrder) || 999) - (Number(b.displayOrder) || 999));
-                setLandingDoctors(merged);
-              } else {
-                setLandingDoctors(KERALA_DOCTORS);
+                activeAdminDocs.sort((a, b) => (Number(a.displayOrder) || 999) - (Number(b.displayOrder) || 999));
+                setLandingDoctors(activeAdminDocs);
+                return;
               }
-            } else {
-              setLandingDoctors(KERALA_DOCTORS);
             }
-          } else {
-            setLandingDoctors(KERALA_DOCTORS);
           }
-        } catch (e) {
-          setLandingDoctors(KERALA_DOCTORS);
-        }
+        } catch (e) {}
+
+        const fallback = KERALA_DOCTORS.map((d: any) => ({
+          ...d,
+          displayOrder: 1
+        }));
+        setLandingDoctors(fallback);
       };
 
       fetchLiveDoctors();
