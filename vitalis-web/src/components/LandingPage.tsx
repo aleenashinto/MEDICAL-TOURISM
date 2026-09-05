@@ -65,18 +65,12 @@ interface LandingPageProps {
 
 
 const DEFAULT_SPECIALTIES = [
-  { id: "SPEC-001", name: "Cardiology & Bypass", iconName: "HeartPulse", desc: "Off-Pump CABG, TAVR, and pediatric cardiac surgery by senior directors.", count: "12 Specialists", displayOrder: 1 },
-  { id: "SPEC-002", name: "Robotic Orthopaedics", iconName: "Activity", desc: "MAKO robotic knee & anterior hip replacement with same-day ambulation.", count: "18 Specialists", displayOrder: 2 },
-  { id: "SPEC-003", name: "Comprehensive Oncology", iconName: "Microscope", desc: "TrueBeam radiation, surgical resection, and immunotherapy at RCC & Aster.", count: "15 Specialists", displayOrder: 3 },
-  { id: "SPEC-004", name: "Neurology & Neurosurgery", iconName: "Brain", desc: "Endoscopic skull base surgery, awake craniotomy, and robotic spine fusion.", count: "11 Specialists", displayOrder: 4 },
-  { id: "SPEC-005", name: "Classical Ayurveda", iconName: "Leaf", desc: "Authentic Ashtavaidya 14-21 day Panchakarma at Kottakkal Arya Vaidya Sala.", count: "24 Vaidyas", displayOrder: 5 },
-  { id: "SPEC-006", name: "Living-Donor Transplants", iconName: "Stethoscope", desc: "High-precision liver and kidney transplants with 96%+ survival record.", count: "9 Specialists", displayOrder: 6 },
-  { id: "SPEC-007", name: "Ophthalmology", iconName: "Eye", desc: "Advanced SMILE laser, robotic cataract, and vitreoretinal microsurgery.", count: "14 Specialists", displayOrder: 7 },
-  { id: "SPEC-008", name: "Fertility & IVF", iconName: "Syringe", desc: "ICSI, IMSI, blastocyst culture, and genetic screening with international protocols.", count: "8 Specialists", displayOrder: 8 },
-  { id: "SPEC-009", name: "Gastroenterology", iconName: "Ambulance", desc: "Therapeutic ERCP, endoscopic ultrasound, and advanced GI surgery.", count: "10 Specialists", displayOrder: 9 },
-  { id: "SPEC-010", name: "Urology & Nephrology", iconName: "UserCheck", desc: "Laser lithotripsy, robotic prostatectomy, and renal dialysis centers.", count: "12 Specialists", displayOrder: 10 },
-  { id: "SPEC-011", name: "Dental Care", iconName: "Pill", desc: "Full-mouth dental implants, digital smile design, and maxillofacial surgery.", count: "16 Specialists", displayOrder: 11 },
-  { id: "SPEC-012", name: "Rehabilitation & Wellness", iconName: "Palmtree", desc: "Backwater post-surgical physiotherapy, yoga, and holistic restorative care.", count: "20 Centers", displayOrder: 12 }
+  { id: "SPEC-001", name: "Cardiology & Bypass", iconName: "HeartPulse", desc: "Off-Pump CABG, TAVR, and pediatric cardiac surgery by senior directors.", count: "Amrita & Aster", displayOrder: 1 },
+  { id: "SPEC-002", name: "Robotic Orthopaedics", iconName: "Activity", desc: "MAKO robotic knee & anterior hip replacement with same-day ambulation.", count: "Aster Medcity", displayOrder: 2 },
+  { id: "SPEC-003", name: "Comprehensive Oncology", iconName: "Microscope", desc: "TrueBeam radiation, surgical resection, and precision immunotherapy.", count: "VPS Lakeshore", displayOrder: 3 },
+  { id: "SPEC-004", name: "Neurology & Neurosurgery", iconName: "Brain", desc: "Endoscopic skull base surgery, awake craniotomy, and robotic spine fusion.", count: "Rajagiri Hospital", displayOrder: 4 },
+  { id: "SPEC-005", name: "Classical Ayurveda", iconName: "Leaf", desc: "Authentic Ashtavaidya 14-21 day Panchakarma at Somatheeram Ayurvedic Village.", count: "Somatheeram", displayOrder: 5 },
+  { id: "SPEC-006", name: "Living-Donor Transplants", iconName: "Stethoscope", desc: "High-precision liver and kidney transplants with 96%+ survival record.", count: "Lakeshore & Amrita", displayOrder: 6 }
 ];
 
 const getSpecialtyIcon = (iconName?: string) => {

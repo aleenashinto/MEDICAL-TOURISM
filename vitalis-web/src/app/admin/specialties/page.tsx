@@ -75,7 +75,7 @@ const INITIAL_SPECIALTIES: SpecialtyItem[] = [
     published: "PUBLISHED",
     proceduresCount: 18,
     hospitals: ["Aster Medcity, Kochi", "Amrita Institute of Medical Sciences", "Rajagiri Hospital, Aluva"],
-    doctors: ["Dr. K. S. Muralidharan, DM, FACC", "Dr. Manoj P. Nair, MCh"],
+    doctors: ["Dr. K. S. Muralidharan, DM, FACC"],
     keyProcedures: [
       "Robotic Mitral & Aortic Valve Replacement",
       "Off-Pump Coronary Artery Bypass (CABG)",
@@ -100,8 +100,8 @@ const INITIAL_SPECIALTIES: SpecialtyItem[] = [
     status: "ACTIVE",
     published: "PUBLISHED",
     proceduresCount: 14,
-    hospitals: ["Aster Medcity, Kochi", "VPS Lakeshore, Kochi", "Rajagiri Hospital, Aluva"],
-    doctors: ["Dr. Vijay Anand, MS (Ortho), MCh", "Dr. Rajesh K. Varghese"],
+    hospitals: ["Aster Medcity, Kochi", "VPS Lakeshore Hospital, Kochi", "Rajagiri Hospital, Aluva"],
+    doctors: ["Dr. Vijay Anand, MS (Ortho), MCh"],
     keyProcedures: [
       "Total Knee Replacement (Robotic & Minimally Invasive)",
       "Total Hip Arthroplasty (Bilateral / Unilateral)",
@@ -118,7 +118,7 @@ const INITIAL_SPECIALTIES: SpecialtyItem[] = [
     name: "Comprehensive Oncology",
     code: "ONCO",
     category: "Medical, Surgical & Radiation",
-    shortDescription: "TrueBeam radiation, surgical resection, and immunotherapy at RCC & Aster.",
+    shortDescription: "Precision radiation, surgical resection, and immunotherapy at Aster & Amrita.",
     fullDescription: "Multidisciplinary comprehensive tumor boards, PET-CT fusion imaging, precision targeted biological therapies, robotic HIPEC, and organ-preserving oncology.",
     iconName: "Microscope",
     image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80",
@@ -126,8 +126,8 @@ const INITIAL_SPECIALTIES: SpecialtyItem[] = [
     status: "ACTIVE",
     published: "PUBLISHED",
     proceduresCount: 15,
-    hospitals: ["Amrita Institute of Medical Sciences", "Aster Medcity, Kochi", "VPS Lakeshore, Kochi"],
-    doctors: ["Dr. Thomas Mathew, DM, MRCP", "Dr. Sanjeev Kumar, MCh"],
+    hospitals: ["Amrita Institute of Medical Sciences", "Aster Medcity, Kochi", "VPS Lakeshore Hospital, Kochi"],
+    doctors: ["Dr. Deepa Pillai, MD, DM"],
     keyProcedures: [
       "TrueBeam Stereotactic Radiotherapy",
       "Robotic HIPEC for Peritoneal Carcinomatosis",
@@ -135,7 +135,7 @@ const INITIAL_SPECIALTIES: SpecialtyItem[] = [
       "Precision Immunotherapy & Genomic Profiling"
     ],
     accreditations: ["JCI Comprehensive Cancer Center", "ESMO Recognized"],
-    leadDoctor: "Dr. Thomas Mathew, DM, MRCP (Oncology)",
+    leadDoctor: "Dr. Deepa Pillai, MD, DM",
     seoTitle: "Cancer Care & Oncology in Kerala - MAIDES",
     seoDescription: "World-class cancer treatments, TrueBeam radiation, and bone marrow transplants in Kerala."
   },
@@ -153,7 +153,7 @@ const INITIAL_SPECIALTIES: SpecialtyItem[] = [
     published: "PUBLISHED",
     proceduresCount: 11,
     hospitals: ["Rajagiri Hospital, Aluva", "Aster Medcity, Kochi", "Amrita Institute of Medical Sciences"],
-    doctors: ["Dr. Harikrishnan Pillai, MCh", "Dr. George Joseph, DM"],
+    doctors: ["Dr. Rajesh K., MCh"],
     keyProcedures: [
       "Endoscopic Skull Base & Brain Tumor Resection",
       "Deep Brain Stimulation (DBS) for Parkinson's",
@@ -161,7 +161,7 @@ const INITIAL_SPECIALTIES: SpecialtyItem[] = [
       "Microscopic Discectomy & Artificial Disc Replacement"
     ],
     accreditations: ["NABH Stroke Certified", "World Stroke Organization Center"],
-    leadDoctor: "Dr. Harikrishnan Pillai, MCh (Neurosurgery)",
+    leadDoctor: "Dr. Rajesh K., MCh",
     seoTitle: "Neurosurgery & Neurology in Kerala",
     seoDescription: "Expert neurological surgery and brain tumor resection in Kerala quaternary centers."
   },
@@ -170,7 +170,7 @@ const INITIAL_SPECIALTIES: SpecialtyItem[] = [
     name: "Classical Ayurveda",
     code: "AYUR",
     category: "Holistic & Traditional",
-    shortDescription: "Authentic Ashtavaidya 14-21 day Panchakarma at Kottakkal Arya Vaidya Sala.",
+    shortDescription: "Authentic Ashtavaidya 14-21 day Panchakarma at Somatheeram Ayurvedic Village.",
     fullDescription: "Authentic centuries-old Kerala Ayurvedic heritage delivered in serene NABH/Ayush Platinum accredited seaside hospitals and retreats for arthritis, neurological recovery, and deep detox.",
     iconName: "Leaf",
     image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80",
@@ -178,8 +178,8 @@ const INITIAL_SPECIALTIES: SpecialtyItem[] = [
     status: "ACTIVE",
     published: "PUBLISHED",
     proceduresCount: 24,
-    hospitals: ["Somatheeram Ayurvedic Village, Kovalam", "Vaidyaratnam Oushadhasala, Thrissur"],
-    doctors: ["Dr. Arya Varma, BAMS, MD", "Dr. Sreedharan Vaidyan"],
+    hospitals: ["Somatheeram Ayurvedic Village, Kovalam"],
+    doctors: ["Dr. Arya Varma, BAMS, MD"],
     keyProcedures: [
       "Classical Panchakarma 21-Day Detoxification",
       "Shirodhara & Rasayana Rejuvenation Protocols",
@@ -187,7 +187,7 @@ const INITIAL_SPECIALTIES: SpecialtyItem[] = [
       "Neurological Rehabilitation & Paraplegia Care"
     ],
     accreditations: ["Ayush Platinum Certified", "Green Leaf Certified"],
-    leadDoctor: "Dr. Arya Varma, BAMS, MD (Ayurveda)",
+    leadDoctor: "Dr. Arya Varma, BAMS, MD",
     seoTitle: "Authentic Kerala Ayurveda & Panchakarma Treatments",
     seoDescription: "Traditional Ashtavaidya Ayurvedic treatments, Panchakarma, and holistic wellness in Kerala."
   },
@@ -204,8 +204,8 @@ const INITIAL_SPECIALTIES: SpecialtyItem[] = [
     status: "ACTIVE",
     published: "PUBLISHED",
     proceduresCount: 9,
-    hospitals: ["VPS Lakeshore, Kochi", "Aster Medcity, Kochi", "Amrita Institute of Medical Sciences"],
-    doctors: ["Dr. Venugopal B., MS, MCh", "Dr. Aby Sankar, MS, FRCS"],
+    hospitals: ["VPS Lakeshore Hospital, Kochi", "Aster Medcity, Kochi", "Amrita Institute of Medical Sciences"],
+    doctors: ["Dr. K. S. Muralidharan, DM, FACC"],
     keyProcedures: [
       "Living & Cadaveric Donor Liver Transplantation",
       "ABO-Incompatible Renal Transplantation",
@@ -213,7 +213,7 @@ const INITIAL_SPECIALTIES: SpecialtyItem[] = [
       "Pancreatic Whipple & Complex Biliary Surgery"
     ],
     accreditations: ["Government Certified Transplant Center", "NABH Organ Unit"],
-    leadDoctor: "Dr. Venugopal B., MS, MCh (GI Surgery)",
+    leadDoctor: "Dr. K. S. Muralidharan, DM, FACC",
     seoTitle: "Liver & Kidney Transplants in Kerala",
     seoDescription: "Quaternary organ transplantation in Kerala with high success rates and international patient care."
   },
