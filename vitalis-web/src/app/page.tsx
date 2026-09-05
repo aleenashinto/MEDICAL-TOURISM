@@ -7,12 +7,14 @@ import { Footer } from "@/components/Footer";
 import { AIIntakeModal } from "@/components/AIIntakeModal";
 import { CareConciergeDrawer } from "@/components/CareConciergeDrawer";
 import { FloatingConciergeWidget } from "@/components/FloatingConciergeWidget";
+import { GlobalSearchOverlay } from "@/components/GlobalSearchOverlay";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
   const [intakeOpen, setIntakeOpen] = useState(false);
   const [conciergeOpen, setConciergeOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const handleIntakeSuccess = (profile: any) => {
     // Redirect to patient portal with simulated data
@@ -24,11 +26,13 @@ export default function Home() {
       <Navbar 
         onOpenIntake={() => setIntakeOpen(true)}
         onOpenConcierge={() => setConciergeOpen(true)}
+        onOpenSearch={() => setSearchOpen(true)}
       />
 
       <LandingPage 
         onOpenIntake={() => setIntakeOpen(true)}
         onOpenConcierge={() => setConciergeOpen(true)}
+        onOpenSearch={() => setSearchOpen(true)}
       />
 
       <Footer />
@@ -51,6 +55,15 @@ export default function Home() {
       <FloatingConciergeWidget 
         onOpenIntake={() => setIntakeOpen(true)}
         onOpenConcierge={() => setConciergeOpen(true)}
+      />
+
+      <GlobalSearchOverlay
+        isOpen={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        onOpenIntake={() => {
+          setSearchOpen(false);
+          setIntakeOpen(true);
+        }}
       />
 
       {/* Mobile Sticky Bottom Quick Action Bar */}

@@ -55,10 +55,12 @@ import { HorizontalJourneyTimeline } from "@/components/HorizontalJourneyTimelin
 import { HospitalCompareModal } from "@/components/HospitalCompareModal";
 import { DoctorCompareModal } from "@/components/DoctorCompareModal";
 import { MedicalCareWizard } from "@/components/MedicalCareWizard";
+import { CustomCarePlanBuilder } from "@/components/CustomCarePlanBuilder";
 
 interface LandingPageProps {
   onOpenIntake: () => void;
   onOpenConcierge: () => void;
+  onOpenSearch?: () => void;
 }
 
 const DEFAULT_SPECIALTIES = [
@@ -90,7 +92,7 @@ const getSpecialtyIcon = (iconName?: string) => {
   }
 };
 
-export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps) {
+export function LandingPage({ onOpenIntake, onOpenConcierge, onOpenSearch }: LandingPageProps) {
   const [selectedDistrict, setSelectedDistrict] = useState<string>("All");
   const [apptFullName, setApptFullName] = useState("");
   const [apptSpecialty, setApptSpecialty] = useState("Cardiology & Bypass");
@@ -569,18 +571,21 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       {/* 4. SIGNATURE INTERACTIVE "TELL US WHAT YOU NEED" MEDICAL CARE WIZARD */}
       <MedicalCareWizard onOpenIntake={onOpenIntake} />
 
-      {/* 5. 360° INTERACTIVE VIRTUAL REALITY TOUR & HOSPITAL IMMERSION */}
+      {/* 5. INTERACTIVE 5-STEP CUSTOM CARE PLAN ARCHITECT */}
+      <CustomCarePlanBuilder onOpenIntake={onOpenIntake} />
+
+      {/* 6. 360° INTERACTIVE VIRTUAL REALITY TOUR & HOSPITAL IMMERSION */}
       <section id="virtual-tour-360" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-6 sm:pt-10">
         <VirtualTour360Viewer onBookConsultation={onOpenIntake} />
       </section>
 
-      {/* 6. 3D FLIGHT CORRIDOR TELEMETRY & 360° GLOBAL BENCHMARK CALCULATOR */}
+      {/* 7. 3D FLIGHT CORRIDOR TELEMETRY & 360° GLOBAL BENCHMARK CALCULATOR */}
       <section id="calculator" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-8 sm:pt-12 space-y-12">
         <Kerala3DCorridorMap onOpenIntake={onOpenIntake} />
         <CostCalculator360 onOpenIntake={onOpenIntake} />
       </section>
 
-      {/* 7. THE INTERACTIVE KERALA PATIENT JOURNEY PATHWAY (3D TIMELINE) */}
+      {/* 8. THE INTERACTIVE KERALA PATIENT JOURNEY PATHWAY (3D TIMELINE) */}
       <section id="journey" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-4">
         <HorizontalJourneyTimeline onOpenIntake={onOpenIntake} />
       </section>

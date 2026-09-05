@@ -16,10 +16,11 @@ import {
 interface NavbarProps {
   onOpenIntake?: () => void;
   onOpenConcierge?: () => void;
+  onOpenSearch?: () => void;
   style?: "transparent" | "white";
 }
 
-export function Navbar({ onOpenIntake, onOpenConcierge, style = "transparent" }: NavbarProps) {
+export function Navbar({ onOpenIntake, onOpenConcierge, onOpenSearch, style = "transparent" }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
@@ -111,7 +112,23 @@ export function Navbar({ onOpenIntake, onOpenConcierge, style = "transparent" }:
           </nav>
 
           {/* Right Action Section */}
-          <div className="hidden sm:flex items-center space-x-3">
+          <div className="hidden sm:flex items-center space-x-2.5">
+            {/* Quick Search Trigger */}
+            <button
+              onClick={onOpenSearch}
+              aria-label="Search doctors, hospitals, treatments"
+              className={`p-2.5 rounded-full transition-all flex items-center space-x-1.5 text-xs font-bold cursor-pointer ${
+                isWhite
+                  ? "bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-[#0E82FD]"
+                  : "bg-white/10 hover:bg-white/20 text-white border border-white/20"
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <span className="hidden xl:inline text-[11px] font-medium opacity-80">Search...</span>
+            </button>
+
             <button
               onClick={onOpenIntake}
               className="flex items-center pl-4 sm:pl-5 pr-1.5 py-1.5 rounded-full bg-gradient-to-r from-[#0E82FD] to-[#0284C7] hover:from-[#0360D9] hover:to-[#0E82FD] text-white text-xs font-black shadow-[0_8px_20px_rgba(14,130,253,0.35)] hover:shadow-[0_10px_25px_rgba(14,130,253,0.5)] hover:scale-[1.02] transition-all duration-300 group cursor-pointer"
@@ -123,8 +140,21 @@ export function Navbar({ onOpenIntake, onOpenConcierge, style = "transparent" }:
             </button>
           </div>
 
-          {/* Mobile Hamburger */}
-          <div className="flex md:hidden items-center space-x-2 shrink-0">
+          {/* Mobile Hamburger & Search */}
+          <div className="flex md:hidden items-center space-x-1.5 shrink-0">
+            <button
+              onClick={onOpenSearch}
+              className={`p-2 rounded-xl transition-all ${
+                isWhite 
+                  ? "bg-slate-100 text-slate-700 hover:bg-slate-200" 
+                  : "bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/20"
+              }`}
+              aria-label="Search"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`p-2 rounded-xl transition-all ${
