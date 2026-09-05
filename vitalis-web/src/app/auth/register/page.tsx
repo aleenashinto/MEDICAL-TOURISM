@@ -213,12 +213,15 @@ export default function RegisterPage() {
           <form className="space-y-4" onSubmit={handleSubmit} noValidate>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300">First Name *</label>
+                <label htmlFor="reg-first-name" className="block text-xs font-medium text-slate-300">First Name *</label>
                 <div className="mt-1 relative rounded-xl shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                     <User className="h-4 w-4" />
                   </div>
                   <input
+                    id="reg-first-name"
+                    name="given-name"
+                    autoComplete="given-name"
                     type="text"
                     required
                     placeholder="Sarah"
@@ -236,8 +239,11 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300">Last Name *</label>
+                <label htmlFor="reg-last-name" className="block text-xs font-medium text-slate-300">Last Name *</label>
                 <input
+                  id="reg-last-name"
+                  name="family-name"
+                  autoComplete="family-name"
                   type="text"
                   required
                   placeholder="Jenkins"
@@ -256,12 +262,15 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300">Email Address *</label>
+                <label htmlFor="reg-email" className="block text-xs font-medium text-slate-300">Email Address *</label>
                 <div className="mt-1 relative rounded-xl shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                     <Mail className="h-4 w-4" />
                   </div>
                   <input
+                    id="reg-email"
+                    name="email"
+                    autoComplete="email"
                     type="email"
                     required
                     placeholder="sarah@example.com"
@@ -279,12 +288,15 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300">Phone (with Country Code) *</label>
+                <label htmlFor="reg-phone" className="block text-xs font-medium text-slate-300">Phone (with Country Code) *</label>
                 <div className="mt-1 relative rounded-xl shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                     <Phone className="h-4 w-4" />
                   </div>
                   <input
+                    id="reg-phone"
+                    name="tel"
+                    autoComplete="tel"
                     type="tel"
                     required
                     placeholder="+971 50 123 4567"
@@ -304,8 +316,11 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300">Country of Residence *</label>
+                <label htmlFor="reg-country" className="block text-xs font-medium text-slate-300">Country of Residence *</label>
                 <select
+                  id="reg-country"
+                  name="country-name"
+                  autoComplete="country-name"
                   value={formData.country}
                   onChange={(e) => handleCountryChange(e.target.value)}
                   className="mt-1 block w-full px-3 py-2 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-[#0E82FD] focus:outline-none"
@@ -319,8 +334,11 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300">Date of Birth</label>
+                <label htmlFor="reg-dob" className="block text-xs font-medium text-slate-300">Date of Birth</label>
                 <input
+                  id="reg-dob"
+                  name="bday"
+                  autoComplete="bday"
                   type="date"
                   value={formData.dob}
                   onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
@@ -329,8 +347,10 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300">Gender</label>
+                <label htmlFor="reg-gender" className="block text-xs font-medium text-slate-300">Gender</label>
                 <select
+                  id="reg-gender"
+                  name="sex"
                   value={formData.gender}
                   onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                   className="mt-1 block w-full px-3 py-2 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-[#0E82FD] focus:outline-none"
@@ -344,12 +364,15 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300">Password (min 8 chars) *</label>
+                <label htmlFor="reg-password" className="block text-xs font-medium text-slate-300">Password (min 8 chars) *</label>
                 <div className="mt-1 relative rounded-xl shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                     <Lock className="h-4 w-4" />
                   </div>
                   <input
+                    id="reg-password"
+                    name="new-password"
+                    autoComplete="new-password"
                     type={showPassword ? "text" : "password"}
                     required
                     placeholder="••••••••"
@@ -364,6 +387,7 @@ export default function RegisterPage() {
                   />
                   <button
                     type="button"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 cursor-pointer"
                   >
@@ -387,12 +411,15 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300">Confirm Password *</label>
+                <label htmlFor="reg-confirm-password" className="block text-xs font-medium text-slate-300">Confirm Password *</label>
                 <div className="mt-1 relative rounded-xl shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                     <Lock className="h-4 w-4" />
                   </div>
                   <input
+                    id="reg-confirm-password"
+                    name="confirm-password"
+                    autoComplete="new-password"
                     type={showConfirmPassword ? "text" : "password"}
                     required
                     placeholder="••••••••"
@@ -407,6 +434,7 @@ export default function RegisterPage() {
                   />
                   <button
                     type="button"
+                    aria-label={showConfirmPassword ? "Hide password confirmation" : "Show password confirmation"}
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 cursor-pointer"
                   >
@@ -422,6 +450,7 @@ export default function RegisterPage() {
               <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-300">
                 <input
                   type="checkbox"
+                  id="reg-terms"
                   checked={formData.agreeTerms}
                   onChange={(e) => {
                     setFormData({ ...formData, agreeTerms: e.target.checked });

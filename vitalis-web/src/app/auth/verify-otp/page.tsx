@@ -17,8 +17,11 @@ export default function VerifyOtpPage() {
   const [resendNotification, setResendNotification] = useState(false);
 
   useEffect(() => {
-    router.replace("/patient/dashboard");
-  }, [router]);
+    if (typeof window !== "undefined") {
+      const email = localStorage.getItem("maides_user_email");
+      if (email) setUserEmail(email);
+    }
+  }, []);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
