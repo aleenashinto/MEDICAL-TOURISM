@@ -96,20 +96,52 @@ export default function BlogPage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Load published articles from shared CMS store
+  // Load published articles from shared CMS store & API
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("maides_cms_articles_v3");
-      if (saved) {
-        const parsed: CMSArticle[] = JSON.parse(saved);
-        const liveArticles = parsed.filter(a => a.status === "PUBLISHED");
-        if (liveArticles.length > 0) {
-          setArticles(liveArticles);
+    const loadPublishedArticles = async () => {
+      let remoteArticles: CMSArticle[] = [];
+      let localArticles: CMSArticle[] = [];
+
+      try {
+        const res = await fetch("/api/articles?public=true", { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.articles) && data.articles.length > 0) {
+            remoteArticles = data.articles;
+          }
+        }
+      } catch (e) {}
+
+      if (typeof window !== "undefined") {
+        const saved = localStorage.getItem("maides_cms_articles_v3");
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) {
+              localArticles = parsed.filter((a: any) => a.status === "PUBLISHED");
+            }
+          } catch (e) {}
         }
       }
-    } catch (e) {
-      console.error(e);
-    }
+
+      const map = new Map<string, CMSArticle>();
+      DEFAULT_POSTS.forEach(a => map.set(a.id, a));
+      localArticles.forEach(a => map.set(a.id, a));
+      remoteArticles.forEach(a => map.set(a.id, { ...(map.get(a.id) || {}), ...a }));
+
+      const publishedOnly = Array.from(map.values()).filter(a => a.status === "PUBLISHED");
+      if (publishedOnly.length > 0) {
+        setArticles(publishedOnly);
+      }
+    };
+
+    loadPublishedArticles();
+    window.addEventListener("storage", loadPublishedArticles);
+    window.addEventListener("maides_cms_updated", loadPublishedArticles);
+    return () => {
+      window.removeEventListener("storage", loadPublishedArticles);
+      window.removeEventListener("maides_cms_updated", loadPublishedArticles);
+    };
   }, []);
 
   const filtered = articles.filter((p) => {

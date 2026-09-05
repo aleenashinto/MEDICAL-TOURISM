@@ -164,24 +164,62 @@ export default function CMSAdminPage() {
     tags: ["Kerala", "Medical Tourism"]
   });
 
-  // Load from LocalStorage
+  // Load from API & LocalStorage
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("maides_cms_articles_v3");
-      if (saved) {
-        setArticles(JSON.parse(saved));
-      } else {
-        setArticles(DEFAULT_CMS_ARTICLES);
-        localStorage.setItem("maides_cms_articles_v3", JSON.stringify(DEFAULT_CMS_ARTICLES));
+    const fetchArticles = async () => {
+      let remoteArticles: CMSArticle[] = [];
+      let localArticles: CMSArticle[] = [];
+
+      try {
+        const res = await fetch("/api/articles", { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.articles) && data.articles.length > 0) {
+            remoteArticles = data.articles;
+          }
+        }
+      } catch (e) {}
+
+      if (typeof window !== "undefined") {
+        const saved = localStorage.getItem("maides_cms_articles_v3");
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) {
+              localArticles = parsed;
+            }
+          } catch (e) {}
+        }
       }
-    } catch (e) {
-      setArticles(DEFAULT_CMS_ARTICLES);
-    }
+
+      const map = new Map<string, CMSArticle>();
+      DEFAULT_CMS_ARTICLES.forEach(a => map.set(a.id, a));
+      localArticles.forEach(a => map.set(a.id, a));
+      remoteArticles.forEach(a => map.set(a.id, { ...(map.get(a.id) || {}), ...a }));
+
+      const combined = Array.from(map.values());
+      setArticles(combined);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("maides_cms_articles_v3", JSON.stringify(combined));
+      }
+    };
+
+    fetchArticles();
+    window.addEventListener("storage", fetchArticles);
+    window.addEventListener("maides_cms_updated", fetchArticles);
+    return () => {
+      window.removeEventListener("storage", fetchArticles);
+      window.removeEventListener("maides_cms_updated", fetchArticles);
+    };
   }, []);
 
   const saveArticles = (data: CMSArticle[]) => {
     setArticles(data);
-    localStorage.setItem("maides_cms_articles_v3", JSON.stringify(data));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("maides_cms_articles_v3", JSON.stringify(data));
+      window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new CustomEvent("maides_cms_updated"));
+    }
   };
 
   // Open Create Modal
@@ -212,7 +250,7 @@ export default function CMSAdminPage() {
   };
 
   // Save Article (Create or Update)
-  const handleSaveArticle = (e: React.FormEvent) => {
+  const handleSaveArticle = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.content) {
       alert("Please enter title and content.");
@@ -223,13 +261,23 @@ export default function CMSAdminPage() {
     const timeStr = new Date().toISOString().split("T")[0];
 
     if (editingArticle) {
-      const updated = articles.map(a => a.id === editingArticle.id ? {
-        ...a,
+      const updatedItem: CMSArticle = {
+        ...editingArticle,
         ...formData,
         slug: generatedSlug,
         publishedAt: formData.publishedAt || timeStr,
-      } as CMSArticle : a);
+      } as CMSArticle;
+      
+      const updated = articles.map(a => a.id === editingArticle.id ? updatedItem : a);
       saveArticles(updated);
+
+      try {
+        await fetch("/api/articles", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedItem)
+        });
+      } catch(e) {}
     } else {
       const newArt: CMSArticle = {
         id: "CMS-" + Math.floor(100 + Math.random() * 900),
@@ -247,7 +295,16 @@ export default function CMSAdminPage() {
         status: (formData.status as CMSArticle["status"]) || "PUBLISHED",
         tags: formData.tags || ["Medical Tourism", "Kerala"]
       };
+      
       saveArticles([newArt, ...articles]);
+
+      try {
+        await fetch("/api/articles", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newArt)
+        });
+      } catch(e) {}
     }
 
     setIsEditorOpen(false);
@@ -255,10 +312,14 @@ export default function CMSAdminPage() {
   };
 
   // Delete Article
-  const handleDeleteArticle = (id: string) => {
+  const handleDeleteArticle = async (id: string) => {
     if (confirm("Are you sure you want to delete this article? It will be removed from the public website.")) {
       const updated = articles.filter(a => a.id !== id);
       saveArticles(updated);
+
+      try {
+        await fetch(`/api/articles?id=${id}`, { method: "DELETE" });
+      } catch(e) {}
     }
   };
 
