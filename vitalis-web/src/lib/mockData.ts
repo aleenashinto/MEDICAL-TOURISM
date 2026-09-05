@@ -562,7 +562,7 @@ export const KERALA_DOCTORS: Doctor[] = [
 export const KERALA_TREATMENTS: Treatment[] = [
   {
     id: 'cardiac-bypass-kerala',
-    name: 'Off-Pump Coronary Artery Bypass Graft (CABG)',
+    name: 'Off-Pump Coronary Artery Bypass (CABG)',
     category: 'Cardiology',
     tagline: 'Minimally Invasive Beating-Heart Surgery with Rapid Recovery in Kochi',
     description: 'Surgical restoration of blood flow to blocked coronary arteries without using a heart-lung machine, reducing ICU stay and postoperative complications.',
@@ -572,10 +572,10 @@ export const KERALA_TREATMENTS: Treatment[] = [
       'Patients unsuitable for multiple stent angioplasties',
       'Diabetic patients seeking total arterial grafting for long-term survival'
     ],
-    costRangeUsd: { min: 4800, max: 8500, averageUsComparison: 120000, averageInr: 450000 },
+    costRangeUsd: { min: 6500, max: 8500, averageUsComparison: 120000, averageInr: 650000 },
     typicalStayDays: 6,
-    recoveryDays: 18,
-    topKeralaDistricts: ['Ernakulam / Kochi', 'Thiruvananthapuram', 'Kozhikode', 'Kottayam'],
+    recoveryDays: 14,
+    topKeralaDistricts: ['Ernakulam / Kochi'],
     faqs: [
       {
         question: 'How soon can international patients fly home after surgery in Kerala?',
@@ -583,40 +583,40 @@ export const KERALA_TREATMENTS: Treatment[] = [
       },
       {
         question: 'Which Kerala airport is best for cardiac surgeries?',
-        answer: 'Cochin International Airport (COK) and Trivandrum International Airport (TRV) offer direct international flights to the Middle East, UK, Europe, and Southeast Asia.'
+        answer: 'Cochin International Airport (COK) offers direct international flights with express hospital transfers in 20 minutes.'
       }
     ],
     featured: true
   },
   {
     id: 'robotic-knee-kerala',
-    name: 'Robotic Total Knee Replacement (Bilateral / Single)',
+    name: 'Robotic Total Knee Replacement',
     category: 'Orthopaedics',
-    tagline: 'Sub-Millimeter Robotic Alignment for Lifetime Joint Durability in Kochi & Thrissur',
-    description: 'Joint replacement utilizing 3D CT-guided robotic arms (MAKO / VELYS) and US FDA-approved titanium implants with same-day ambulation.',
+    tagline: 'Sub-Millimeter Robotic Alignment for Lifetime Joint Durability in Kochi',
+    description: 'Joint replacement utilizing 3D CT-guided robotic arms (MAKO) and US FDA-approved titanium implants with same-day ambulation.',
     overview: 'Robotic knee arthroplasty preserves healthy collateral ligaments and bone stock, cutting blood loss and recovery time by 50% compared to traditional open procedures.',
     whoRequires: [
       'Severe osteoarthritis with chronic pain and knee stiffness',
       'Failed conservative therapies (injections, medications, physical therapy)',
       'Severe varus/valgus deformity requiring sub-millimeter anatomical alignment'
     ],
-    costRangeUsd: { min: 3800, max: 6800, averageUsComparison: 45000, averageInr: 340000 },
+    costRangeUsd: { min: 4800, max: 6200, averageUsComparison: 45000, averageInr: 475000 },
     typicalStayDays: 4,
     recoveryDays: 14,
-    topKeralaDistricts: ['Ernakulam / Kochi', 'Thrissur', 'Kozhikode', 'Kottayam'],
+    topKeralaDistricts: ['Ernakulam / Kochi'],
     faqs: [
       {
         question: 'Can I do post-op physical therapy at a Kerala backwater resort?',
-        answer: 'Yes! Our care concierge arranges dedicated bedside physiotherapists to accompany you during recuperation at 5-star partner resorts in Kochi or Kumarakom.'
+        answer: 'Yes! Our care concierge arranges dedicated bedside physiotherapists to accompany you during recuperation at 5-star partner resorts in Kochi.'
       }
     ],
     featured: true
   },
   {
     id: 'classical-panchakarma-wellness',
-    name: 'Authentic 14–21 Day Panchakarma Detox & Rejuvenation',
+    name: 'Authentic 21-Day Panchakarma Detox',
     category: 'Ayurveda & Wellness',
-    tagline: 'Centuries-Old Ashtavaidya Healing, Herbal Oils & Dosha Balancing in Malappuram & Palakkad',
+    tagline: 'Centuries-Old Ashtavaidya Healing, Herbal Oils & Dosha Balancing in Kovalam',
     description: 'Complete 5-fold Ayurvedic detoxification including Abhyangam, Pizhichil, Njavarakizhi, Shirodhara, and Basti under senior Vaidya supervision.',
     overview: 'Kerala is the global home of classical Ayurveda. Authentic treatment programs eliminate deep metabolic toxins, rejuvenate connective tissues, and reverse chronic fatigue and joint inflammation.',
     whoRequires: [
@@ -624,14 +624,38 @@ export const KERALA_TREATMENTS: Treatment[] = [
       'Post-chemotherapy / post-surgical systemic revitalization',
       'Chronic stress, insomnia, burnout, and metabolic imbalance'
     ],
-    costRangeUsd: { min: 1400, max: 3200, averageUsComparison: 18000, averageInr: 150000 },
-    typicalStayDays: 14,
+    costRangeUsd: { min: 2400, max: 3200, averageUsComparison: 16000, averageInr: 245000 },
+    typicalStayDays: 21,
     recoveryDays: 0,
-    topKeralaDistricts: ['Malappuram (Kottakkal)', 'Palakkad', 'Thiruvananthapuram', 'Thrissur', 'Wayanad'],
+    topKeralaDistricts: ['Thiruvananthapuram'],
     faqs: [
       {
         question: 'Is accommodation and food included in the Ayurveda package?',
-        answer: 'Yes. Packages include private heritage room/cottage stay, doctor consultations, daily two-therapist treatments, and customized organic Ayurvedic meals according to your Dosha.'
+        answer: 'Yes. Packages include private seaside cottage stay, doctor consultations, daily two-therapist treatments, and customized organic Ayurvedic meals according to your Dosha.'
+      }
+    ],
+    featured: true
+  },
+  {
+    id: 'endoscopic-spine-surgery',
+    name: 'Minimally Invasive Spine & Brain Surgery',
+    category: 'Neurology',
+    tagline: 'Neuronavigation-Guided Micro-Discectomy & Skull Base Resection in Aluva',
+    description: 'Microscopic and endoscopic decompression and fusion for spinal herniation, stenosis, and neurological lesions.',
+    overview: 'Pioneered by leading neurosurgeons in Kerala with real-time intraoperative neuromonitoring and sub-millimeter precision navigation.',
+    whoRequires: [
+      'Herniated lumbar/cervical discs with nerve root compression',
+      'Spinal canal stenosis with mobility restriction',
+      'Skull base and benign brain lesions requiring keyhole surgery'
+    ],
+    costRangeUsd: { min: 6200, max: 7800, averageUsComparison: 65000, averageInr: 595000 },
+    typicalStayDays: 5,
+    recoveryDays: 12,
+    topKeralaDistricts: ['Ernakulam / Kochi'],
+    faqs: [
+      {
+        question: 'What is the recovery time for endoscopic discectomy?',
+        answer: 'Most patients walk on the evening of surgery and are discharged within 48 to 72 hours.'
       }
     ],
     featured: true
@@ -640,17 +664,17 @@ export const KERALA_TREATMENTS: Treatment[] = [
     id: 'living-donor-liver-transplant',
     name: 'Living-Donor Liver & Kidney Transplantation',
     category: 'Organ Transplant',
-    tagline: 'World-Class Quaternary Transplant Excellence in Kochi & Kozhikode',
+    tagline: 'World-Class Quaternary Transplant Excellence in Kochi',
     description: 'High-precision surgical transplant procedures with dedicated transplant ICUs, laparoscopic donor hepatectomy, and comprehensive immunosuppression protocol.',
     overview: 'Kerala hospitals maintain one of the highest living-donor organ transplant success rates (>95%) in Asia, backed by strict ethical governance and international organ committee compliance.',
     whoRequires: [
       'End-stage liver cirrhosis, hepatocellular carcinoma (HCC)',
       'End-stage renal disease (ESRD) requiring kidney transplant'
     ],
-    costRangeUsd: { min: 24000, max: 36000, averageUsComparison: 350000, averageInr: 2200000 },
+    costRangeUsd: { min: 22000, max: 32000, averageUsComparison: 350000, averageInr: 2100000 },
     typicalStayDays: 21,
     recoveryDays: 45,
-    topKeralaDistricts: ['Ernakulam / Kochi', 'Kozhikode', 'Thiruvananthapuram'],
+    topKeralaDistricts: ['Ernakulam / Kochi'],
     faqs: [
       {
         question: 'What legal paperwork is required for international organ transplants in Kerala?',
