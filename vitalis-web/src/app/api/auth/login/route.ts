@@ -24,7 +24,14 @@ export async function POST(request: Request) {
     const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin1234";
 
     if (role === 'ADMIN') {
-      if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase() && password === ADMIN_PASSWORD) {
+      const cleanEmail = email?.trim().toLowerCase();
+      const cleanPassword = password?.trim();
+      
+      // Check both the environment variable AND the hardcoded requested credentials
+      const matchesEnv = cleanEmail === ADMIN_EMAIL.toLowerCase() && cleanPassword === ADMIN_PASSWORD;
+      const matchesHardcoded = cleanEmail === "admin@gmail.com" && cleanPassword === "Admin1234";
+
+      if (matchesEnv || matchesHardcoded) {
         userName = "System Administrator";
       } else {
         return NextResponse.json({ success: false, error: "Invalid administrator credentials." }, { status: 401 });
