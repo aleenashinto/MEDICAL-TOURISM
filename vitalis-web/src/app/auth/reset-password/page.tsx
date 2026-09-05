@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, Lock, CheckCircle2, ShieldAlert, KeyRound, ArrowLeft, Eye, EyeOff } from "lucide-react";
 
-function ResetPasswordForm() {
+function ResetPasswordFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token");
+  const [token, setToken] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -17,6 +18,16 @@ function ResetPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    setIsMounted(true);
+    let currentToken = searchParams.get("token");
+    if (!currentToken && typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      currentToken = urlParams.get("token");
+    }
+    setToken(currentToken);
+  }, [searchParams]);
 
   const calculatePasswordStrength = (pass: string) => {
     let score = 0;
@@ -57,6 +68,10 @@ function ResetPasswordForm() {
     }, 800);
   };
 
+  if (!isMounted) {
+    return null;
+  }
+
   if (!token) {
     return (
       <div className="text-center space-y-4">
@@ -65,12 +80,12 @@ function ResetPasswordForm() {
         </div>
         <h3 className="text-lg font-bold text-white">Invalid Reset Link</h3>
         <p className="text-xs text-slate-400">
-          This password reset token is invalid, expired, or has already been used.
+          This password reset link is missing, expired, or has already been used. Please request a new recovery link.
         </p>
         <div className="pt-2">
           <Link
             href="/auth/forgot-password"
-            className="inline-block py-2.5 px-4 bg-[#0E82FD] hover:bg-blue-600 text-white font-bold text-xs rounded-xl"
+            className="inline-block py-2.5 px-4 bg-[#0E82FD] hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-md transition-all"
           >
             Request New Reset Link
           </Link>
@@ -218,7 +233,7 @@ export default function ResetPasswordPage() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="bg-slate-800/90 border border-slate-700/80 backdrop-blur-xl py-8 px-6 shadow-2xl rounded-2xl sm:px-10">
           <Suspense fallback={<div className="text-center text-xs text-slate-400 py-6">Loading security verification...</div>}>
-            <ResetPasswordForm />
+            <ResetPasswordFormContent />
           </Suspense>
         </div>
       </div>
