@@ -65,12 +65,11 @@ interface LandingPageProps {
 
 
 const DEFAULT_SPECIALTIES = [
-  { id: "SPEC-001", name: "Cardiology & Bypass", iconName: "HeartPulse", desc: "Off-Pump CABG, TAVR, and pediatric cardiac surgery by senior directors.", count: "Amrita & Aster", displayOrder: 1 },
-  { id: "SPEC-002", name: "Robotic Orthopaedics", iconName: "Activity", desc: "MAKO robotic knee & anterior hip replacement with same-day ambulation.", count: "Aster Medcity", displayOrder: 2 },
-  { id: "SPEC-003", name: "Comprehensive Oncology", iconName: "Microscope", desc: "TrueBeam radiation, surgical resection, and precision immunotherapy.", count: "VPS Lakeshore", displayOrder: 3 },
-  { id: "SPEC-004", name: "Neurology & Neurosurgery", iconName: "Brain", desc: "Endoscopic skull base surgery, awake craniotomy, and robotic spine fusion.", count: "Rajagiri Hospital", displayOrder: 4 },
-  { id: "SPEC-005", name: "Classical Ayurveda", iconName: "Leaf", desc: "Authentic Ashtavaidya 14-21 day Panchakarma at Somatheeram Ayurvedic Village.", count: "Somatheeram", displayOrder: 5 },
-  { id: "SPEC-006", name: "Living-Donor Transplants", iconName: "Stethoscope", desc: "High-precision liver and kidney transplants with 96%+ survival record.", count: "Lakeshore & Amrita", displayOrder: 6 }
+  { id: "SPEC-001", name: "Cardiology & Cardiac Surgery", iconName: "HeartPulse", desc: "Off-Pump CABG, TAVR, and beating-heart cardiac surgery by senior directors.", count: "Amrita & Aster", displayOrder: 1 },
+  { id: "SPEC-002", name: "Orthopaedics & Joint Replacement", iconName: "Activity", desc: "MAKO robotic knee & anterior hip replacement with same-day ambulation.", count: "Aster Medcity", displayOrder: 2 },
+  { id: "SPEC-003", name: "Neurology & Spine Surgery", iconName: "Brain", desc: "Endoscopic skull base surgery, micro-discectomy, and neuronavigation spine surgery.", count: "Rajagiri Hospital", displayOrder: 3 },
+  { id: "SPEC-004", name: "Classical Ayurveda & Panchakarma", iconName: "Leaf", desc: "Authentic Ashtavaidya 14-21 day Panchakarma at Somatheeram Ayurvedic Village.", count: "Somatheeram", displayOrder: 4 },
+  { id: "SPEC-005", name: "Oncology & Cancer Care", iconName: "Microscope", desc: "Precision oncology, immunotherapy, and multi-organ cancer treatment at VPS Lakeshore.", count: "VPS Lakeshore", displayOrder: 5 }
 ];
 
 const getSpecialtyIcon = (iconName?: string) => {
