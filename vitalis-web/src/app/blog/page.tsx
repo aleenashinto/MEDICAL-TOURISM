@@ -228,10 +228,10 @@ export default function BlogPage() {
               <>
                 {/* Featured Post Card */}
                 {featuredPost && (
-                  <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all grid grid-cols-1 lg:grid-cols-12">
-                    <div className="lg:col-span-7 h-64 lg:h-auto relative overflow-hidden bg-slate-100">
-                      <img src={featuredPost.image} alt={featuredPost.title} className="w-full h-full object-cover" />
-                    </div>
+                  <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all grid grid-cols-1 lg:grid-cols-12 group">
+                    <Link href={`/blog/${featuredPost.slug}`} className="lg:col-span-7 h-64 lg:h-auto relative overflow-hidden bg-slate-100 block">
+                      <img src={featuredPost.image} alt={featuredPost.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    </Link>
                     <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-4">
                       <div className="space-y-3">
                         <div className="flex items-center gap-2">
@@ -240,9 +240,11 @@ export default function BlogPage() {
                           </span>
                           <span className="text-xs text-slate-400">{featuredPost.readTime}</span>
                         </div>
-                        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 leading-tight">
-                          {featuredPost.title}
-                        </h2>
+                        <Link href={`/blog/${featuredPost.slug}`} className="block group-hover:text-blue-600 transition-colors">
+                          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 leading-tight">
+                            {featuredPost.title}
+                          </h2>
+                        </Link>
                         <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
                           {featuredPost.excerpt}
                         </p>
@@ -252,12 +254,12 @@ export default function BlogPage() {
                         <div className="text-xs text-slate-500">
                           By <strong className="text-slate-900">{featuredPost.author}</strong> • {featuredPost.publishedAt}
                         </div>
-                        <button 
-                          onClick={() => onOpenIntake && onOpenIntake()}
-                          className="flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700"
+                        <Link 
+                          href={`/blog/${featuredPost.slug}`}
+                          className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl transition"
                         >
-                          Consult Specialists <ChevronRight className="w-4 h-4" />
-                        </button>
+                          Read Full Article <ChevronRight className="w-4 h-4" />
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -269,15 +271,15 @@ export default function BlogPage() {
                     {regularPosts.map((post) => (
                       <div 
                         key={post.id} 
-                        className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                        className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between group"
                       >
                         <div>
-                          <div className="h-48 w-full overflow-hidden bg-slate-100 relative">
-                            <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
+                          <Link href={`/blog/${post.slug}`} className="h-48 w-full overflow-hidden bg-slate-100 relative block">
+                            <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-[11px] font-bold text-slate-800 shadow-sm">
                               {post.category}
                             </span>
-                          </div>
+                          </Link>
                           <div className="p-5 space-y-2">
                             <div className="flex items-center gap-2 text-[11px] text-slate-400">
                               <Clock className="w-3.5 h-3.5" />
@@ -285,9 +287,11 @@ export default function BlogPage() {
                               <span>•</span>
                               <span>{post.publishedAt}</span>
                             </div>
-                            <h3 className="text-base font-bold text-slate-900 line-clamp-2 leading-snug">
-                              {post.title}
-                            </h3>
+                            <Link href={`/blog/${post.slug}`} className="block group-hover:text-blue-600 transition-colors">
+                              <h3 className="text-base font-bold text-slate-900 line-clamp-2 leading-snug">
+                                {post.title}
+                              </h3>
+                            </Link>
                             <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
                               {post.excerpt}
                             </p>
@@ -295,13 +299,13 @@ export default function BlogPage() {
                         </div>
 
                         <div className="p-5 pt-0 border-t border-slate-50 mt-4 flex items-center justify-between text-xs text-slate-500">
-                          <span className="truncate max-w-[150px]">By {post.author}</span>
-                          <button 
-                            onClick={() => onOpenIntake && onOpenIntake()}
+                          <span className="truncate max-w-[140px]">By {post.author}</span>
+                          <Link 
+                            href={`/blog/${post.slug}`}
                             className="text-blue-600 font-bold hover:underline flex items-center gap-0.5"
                           >
-                            Inquire Care <ChevronRight className="w-3.5 h-3.5" />
-                          </button>
+                            Read Article <ChevronRight className="w-3.5 h-3.5" />
+                          </Link>
                         </div>
                       </div>
                     ))}
