@@ -75,8 +75,15 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
         }
       }
 
+      const decodedSlug = decodeURIComponent(slug).toLowerCase().trim();
+      const normalize = (str: string) => (str || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
       const found = articlesList.find(
-        (a) => a.slug === slug || a.id.toLowerCase() === slug.toLowerCase()
+        (a) =>
+          a.slug.toLowerCase() === decodedSlug ||
+          a.id.toLowerCase() === decodedSlug ||
+          normalize(a.slug) === normalize(decodedSlug) ||
+          normalize(a.title) === normalize(decodedSlug)
       );
 
       if (found) {
