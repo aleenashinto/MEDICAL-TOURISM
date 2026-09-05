@@ -205,6 +205,15 @@ export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
+    if (id === 'all') {
+      globalArticlesStore = [];
+      return NextResponse.json({
+        success: true,
+        message: 'All articles deleted successfully',
+        articles: []
+      });
+    }
+
     if (!id) {
       return NextResponse.json({ success: false, error: 'Article ID required' }, { status: 400 });
     }

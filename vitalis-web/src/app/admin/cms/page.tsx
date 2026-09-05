@@ -167,14 +167,14 @@ export default function CMSAdminPage() {
   // Load from API & LocalStorage
   useEffect(() => {
     const fetchArticles = async () => {
-      let remoteArticles: CMSArticle[] = [];
-      let localArticles: CMSArticle[] = [];
+      let remoteArticles: CMSArticle[] | null = null;
+      let localArticles: CMSArticle[] | null = null;
 
       try {
         const res = await fetch("/api/articles", { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
-          if (data.success && Array.isArray(data.articles) && data.articles.length > 0) {
+          if (data.success && Array.isArray(data.articles)) {
             remoteArticles = data.articles;
           }
         }
@@ -182,7 +182,7 @@ export default function CMSAdminPage() {
 
       if (typeof window !== "undefined") {
         const saved = localStorage.getItem("maides_cms_articles_v3");
-        if (saved) {
+        if (saved !== null) {
           try {
             const parsed = JSON.parse(saved);
             if (Array.isArray(parsed)) {
@@ -192,15 +192,15 @@ export default function CMSAdminPage() {
         }
       }
 
-      const map = new Map<string, CMSArticle>();
-      DEFAULT_CMS_ARTICLES.forEach(a => map.set(a.id, a));
-      localArticles.forEach(a => map.set(a.id, a));
-      remoteArticles.forEach(a => map.set(a.id, { ...(map.get(a.id) || {}), ...a }));
-
-      const combined = Array.from(map.values());
-      setArticles(combined);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("maides_cms_articles_v3", JSON.stringify(combined));
+      if (localArticles !== null) {
+        setArticles(localArticles);
+      } else if (remoteArticles !== null) {
+        setArticles(remoteArticles);
+      } else {
+        setArticles(DEFAULT_CMS_ARTICLES);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("maides_cms_articles_v3", JSON.stringify(DEFAULT_CMS_ARTICLES));
+        }
       }
     };
 

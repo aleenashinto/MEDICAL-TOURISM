@@ -92,21 +92,22 @@ const DEFAULT_POSTS: CMSArticle[] = [
 const CATEGORIES = ["All", "Medical Tourism Guide", "Cost Comparison", "Ayurveda Guide", "Orthopaedics", "Visa & Travel", "NRI Patients", "Cardiology", "Patient Stories"];
 
 export default function BlogPage() {
-  const [articles, setArticles] = useState<CMSArticle[]>(DEFAULT_POSTS);
+  const [articles, setArticles] = useState<CMSArticle[]>([]);
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   // Load published articles from shared CMS store & API
   useEffect(() => {
     const loadPublishedArticles = async () => {
-      let remoteArticles: CMSArticle[] = [];
-      let localArticles: CMSArticle[] = [];
+      let remoteArticles: CMSArticle[] | null = null;
+      let localArticles: CMSArticle[] | null = null;
 
       try {
         const res = await fetch("/api/articles?public=true", { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
-          if (data.success && Array.isArray(data.articles) && data.articles.length > 0) {
+          if (data.success && Array.isArray(data.articles)) {
             remoteArticles = data.articles;
           }
         }
@@ -114,7 +115,7 @@ export default function BlogPage() {
 
       if (typeof window !== "undefined") {
         const saved = localStorage.getItem("maides_cms_articles_v3");
-        if (saved) {
+        if (saved !== null) {
           try {
             const parsed = JSON.parse(saved);
             if (Array.isArray(parsed)) {
@@ -124,15 +125,15 @@ export default function BlogPage() {
         }
       }
 
-      const map = new Map<string, CMSArticle>();
-      DEFAULT_POSTS.forEach(a => map.set(a.id, a));
-      localArticles.forEach(a => map.set(a.id, a));
-      remoteArticles.forEach(a => map.set(a.id, { ...(map.get(a.id) || {}), ...a }));
-
-      const publishedOnly = Array.from(map.values()).filter(a => a.status === "PUBLISHED");
-      if (publishedOnly.length > 0) {
-        setArticles(publishedOnly);
+      // If admin has an explicit local array (including empty), respect it
+      if (localArticles !== null) {
+        setArticles(localArticles);
+      } else if (remoteArticles !== null) {
+        setArticles(remoteArticles);
+      } else {
+        setArticles([]);
       }
+      setIsLoading(false);
     };
 
     loadPublishedArticles();
@@ -199,85 +200,115 @@ export default function BlogPage() {
               </div>
             </div>
 
-            {/* Featured Post Card */}
-            {featuredPost && (
-              <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all grid grid-cols-1 lg:grid-cols-12">
-                <div className="lg:col-span-7 h-64 lg:h-auto relative overflow-hidden bg-slate-100">
-                  <img src={featuredPost.image} alt={featuredPost.title} className="w-full h-full object-cover" />
+            {/* Posts Content or Empty State */}
+            {filtered.length === 0 ? (
+              <div className="bg-white rounded-3xl border border-slate-200 p-12 sm:p-16 text-center space-y-4 shadow-sm max-w-2xl mx-auto">
+                <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                  <BookOpen className="w-8 h-8" />
                 </div>
-                <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold">
-                        {featuredPost.category}
-                      </span>
-                      <span className="text-xs text-slate-400">{featuredPost.readTime}</span>
-                    </div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900 leading-tight">
-                      {featuredPost.title}
-                    </h2>
-                    <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
-                      {featuredPost.excerpt}
-                    </p>
-                  </div>
-
-                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                    <div className="text-xs text-slate-500">
-                      By <strong className="text-slate-900">{featuredPost.author}</strong> • {featuredPost.publishedAt}
-                    </div>
-                    <button 
-                      onClick={() => onOpenIntake && onOpenIntake()}
-                      className="flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700"
-                    >
-                      Consult Specialists <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
+                <div className="space-y-1">
+                  <h3 className="text-xl font-bold text-slate-900">No Articles Found</h3>
+                  <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                    {searchQuery 
+                      ? `No publications match "${searchQuery}". Try selecting another category or clearing search filters.`
+                      : "There are currently no articles published in this category. Our medical editorial team updates clinical guides regularly."}
+                  </p>
+                </div>
+                <div className="pt-2">
+                  <button
+                    onClick={() => onOpenIntake && onOpenIntake()}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-[#0E82FD] hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/20 transition-all cursor-pointer"
+                  >
+                    <span>Request Medical Information</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
-            )}
-
-            {/* Grid of Regular Posts */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {regularPosts.map((post) => (
-                <div 
-                  key={post.id} 
-                  className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="h-48 w-full overflow-hidden bg-slate-100 relative">
-                      <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
-                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-[11px] font-bold text-slate-800 shadow-sm">
-                        {post.category}
-                      </span>
+            ) : (
+              <>
+                {/* Featured Post Card */}
+                {featuredPost && (
+                  <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all grid grid-cols-1 lg:grid-cols-12">
+                    <div className="lg:col-span-7 h-64 lg:h-auto relative overflow-hidden bg-slate-100">
+                      <img src={featuredPost.image} alt={featuredPost.title} className="w-full h-full object-cover" />
                     </div>
-                    <div className="p-5 space-y-2">
-                      <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                        <Clock className="w-3.5 h-3.5" />
-                        <span>{post.readTime}</span>
-                        <span>•</span>
-                        <span>{post.publishedAt}</span>
+                    <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold">
+                            {featuredPost.category}
+                          </span>
+                          <span className="text-xs text-slate-400">{featuredPost.readTime}</span>
+                        </div>
+                        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 leading-tight">
+                          {featuredPost.title}
+                        </h2>
+                        <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
+                          {featuredPost.excerpt}
+                        </p>
                       </div>
-                      <h3 className="text-base font-bold text-slate-900 line-clamp-2 leading-snug">
-                        {post.title}
-                      </h3>
-                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                        {post.excerpt}
-                      </p>
+
+                      <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <div className="text-xs text-slate-500">
+                          By <strong className="text-slate-900">{featuredPost.author}</strong> • {featuredPost.publishedAt}
+                        </div>
+                        <button 
+                          onClick={() => onOpenIntake && onOpenIntake()}
+                          className="flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700"
+                        >
+                          Consult Specialists <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
+                )}
 
-                  <div className="p-5 pt-0 border-t border-slate-50 mt-4 flex items-center justify-between text-xs text-slate-500">
-                    <span className="truncate max-w-[150px]">By {post.author}</span>
-                    <button 
-                      onClick={() => onOpenIntake && onOpenIntake()}
-                      className="text-blue-600 font-bold hover:underline flex items-center gap-0.5"
-                    >
-                      Inquire Care <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
+                {/* Grid of Regular Posts */}
+                {regularPosts.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {regularPosts.map((post) => (
+                      <div 
+                        key={post.id} 
+                        className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="h-48 w-full overflow-hidden bg-slate-100 relative">
+                            <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
+                            <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-[11px] font-bold text-slate-800 shadow-sm">
+                              {post.category}
+                            </span>
+                          </div>
+                          <div className="p-5 space-y-2">
+                            <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                              <Clock className="w-3.5 h-3.5" />
+                              <span>{post.readTime}</span>
+                              <span>•</span>
+                              <span>{post.publishedAt}</span>
+                            </div>
+                            <h3 className="text-base font-bold text-slate-900 line-clamp-2 leading-snug">
+                              {post.title}
+                            </h3>
+                            <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                              {post.excerpt}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="p-5 pt-0 border-t border-slate-50 mt-4 flex items-center justify-between text-xs text-slate-500">
+                          <span className="truncate max-w-[150px]">By {post.author}</span>
+                          <button 
+                            onClick={() => onOpenIntake && onOpenIntake()}
+                            className="text-blue-600 font-bold hover:underline flex items-center gap-0.5"
+                          >
+                            Inquire Care <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
-              ))}
-            </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       )}
