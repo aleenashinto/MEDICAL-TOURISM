@@ -15,15 +15,15 @@ export default function HospitalsPage() {
   const [allHospitals, setAllHospitals] = useState<any[]>(KERALA_HOSPITALS);
 
   useEffect(() => {
-    const loadHospitals = () => {
+    const loadHospitals = async () => {
+      // 1. Fetch from server API
       try {
-        const stored = localStorage.getItem("maides_admin_hospitals");
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          const activeHosps = parsed
-            .filter((h: any) => h.status === "ACTIVE" && (h.published === "PUBLISHED" || !h.published))
-            .map((h: any) => ({
-              id: h.id,
+        const res = await fetch("/api/hospitals?public=true");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.hospitals) && data.hospitals.length > 0) {
+            const mapped = data.hospitals.map((h: any, idx: number) => ({
+              id: h.id || `hosp-${idx}`,
               name: h.name,
               tagline: h.tagline || `${h.accreditations?.[0] || "Accredited"} quaternary medical campus in ${h.city || "Kerala"}`,
               accreditations: Array.isArray(h.accreditations) ? h.accreditations : [h.accreditations || "NABH Certified"],
@@ -44,29 +44,73 @@ export default function HospitalsPage() {
               airportDistanceKm: h.airportDistanceKm || 25,
               vipRoomsAvailable: h.vipRoomsAvailable ?? true,
               ayurvedaWingAvailable: h.ayurvedaWingAvailable ?? true,
-              displayOrder: Number(h.displayOrder) || 99,
+              displayOrder: Number(h.displayOrder) || (idx + 1),
               featured: true
             }));
 
-          const merged = [...activeHosps];
-          KERALA_HOSPITALS.forEach(kh => {
-            if (!merged.some(m => m.name.toLowerCase() === kh.name.toLowerCase() || m.id === kh.id)) {
-              merged.push({ ...kh, displayOrder: 99 });
-            }
-          });
-          merged.sort((a, b) => (a.displayOrder || 99) - (b.displayOrder || 99));
-          setAllHospitals(merged);
-        } else {
-          setAllHospitals(KERALA_HOSPITALS);
+            mapped.sort((a: any, b: any) => (Number(a.displayOrder) || 999) - (Number(b.displayOrder) || 999));
+            setAllHospitals(mapped);
+            return;
+          }
         }
-      } catch (e) {
-        setAllHospitals(KERALA_HOSPITALS);
+      } catch (err) {
+        // Fallback to localStorage / initial data
       }
+
+      try {
+        const stored = typeof window !== "undefined" ? localStorage.getItem("maides_admin_hospitals") : null;
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const activeHosps = parsed
+            .filter((h: any) => {
+              const s = (h.status || "ACTIVE").toUpperCase();
+              const p = (h.published || "PUBLISHED").toUpperCase();
+              return s === "ACTIVE" && p === "PUBLISHED";
+            })
+            .map((h: any, idx: number) => ({
+              id: h.id || `hosp-${idx}`,
+              name: h.name,
+              tagline: h.tagline || `${h.accreditations?.[0] || "Accredited"} quaternary medical campus in ${h.city || "Kerala"}`,
+              accreditations: Array.isArray(h.accreditations) ? h.accreditations : [h.accreditations || "NABH Certified"],
+              region: h.region || "Central Kerala",
+              district: h.district || "Ernakulam / Kochi",
+              city: h.city || "Kochi",
+              type: h.specialties?.includes("Classical Ayurveda") ? "Ayurveda & Wellness" : "Multispecialty",
+              establishedYear: h.establishedYear || 2018,
+              bedsCount: parseInt(h.beds) || 500,
+              internationalPatientsAnnual: h.internationalPatientsAnnual || 18500,
+              languages: h.languages || ["English", "Arabic", "Malayalam", "Hindi"],
+              specialties: Array.isArray(h.specialties) ? h.specialties : ["Multispecialty Healthcare"],
+              rating: h.rating || 4.92,
+              reviewCount: h.reviewCount || 1280,
+              image: h.image || "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=1200&q=80",
+              description: h.shortDescription || h.fullDescription || `${h.name} is a premier accredited hospital campus in Kerala.`,
+              nearestAirport: h.nearestAirport || "Cochin International Airport (COK)",
+              airportDistanceKm: h.airportDistanceKm || 25,
+              vipRoomsAvailable: h.vipRoomsAvailable ?? true,
+              ayurvedaWingAvailable: h.ayurvedaWingAvailable ?? true,
+              displayOrder: Number(h.displayOrder) || (idx + 1),
+              featured: true
+            }));
+
+          if (activeHosps.length > 0) {
+            activeHosps.sort((a: any, b: any) => (Number(a.displayOrder) || 999) - (Number(b.displayOrder) || 999));
+            setAllHospitals(activeHosps);
+            return;
+          }
+        }
+      } catch (e) {}
+
+      setAllHospitals(KERALA_HOSPITALS);
     };
 
     loadHospitals();
     window.addEventListener("storage", loadHospitals);
-    return () => window.removeEventListener("storage", loadHospitals);
+    window.addEventListener("maides_hospitals_updated", loadHospitals);
+    return () => {
+      window.removeEventListener("storage", loadHospitals);
+      window.removeEventListener("maides_hospitals_updated", loadHospitals);
+    };
   }, []);
 
   return (

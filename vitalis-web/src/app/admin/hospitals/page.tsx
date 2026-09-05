@@ -442,19 +442,42 @@ export default function HospitalsAdminPage() {
     published: "PUBLISHED" as "PUBLISHED" | "DRAFT"
   });
 
-  // Load from localStorage
+  // Load from Server API and localStorage
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("maides_admin_hospitals");
-      if (stored) {
-        setHospitals(JSON.parse(stored));
-      } else {
+    const fetchServerHospitals = async () => {
+      try {
+        const res = await fetch("/api/hospitals");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.hospitals) && data.hospitals.length > 0) {
+            setHospitals(data.hospitals);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("maides_admin_hospitals", JSON.stringify(data.hospitals));
+            }
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to fetch hospitals from server API, using localStorage cache:", err);
+      }
+
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("maides_admin_hospitals");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setHospitals(parsed);
+              return;
+            }
+          } catch (e) {}
+        }
         setHospitals(INITIAL_HOSPITALS);
         localStorage.setItem("maides_admin_hospitals", JSON.stringify(INITIAL_HOSPITALS));
       }
-    } catch {
-      setHospitals(INITIAL_HOSPITALS);
-    }
+    };
+
+    fetchServerHospitals();
 
     // Load available specialties
     try {
@@ -481,10 +504,32 @@ export default function HospitalsAdminPage() {
     } catch {}
   }, []);
 
-  const saveToStorage = (updated: HospitalAdminItem[]) => {
+  const saveToStorage = async (
+    updated: HospitalAdminItem[],
+    serverAction?: { method: "POST" | "PUT" | "DELETE"; payload?: any; queryId?: string }
+  ) => {
     setHospitals(updated);
-    localStorage.setItem("maides_admin_hospitals", JSON.stringify(updated));
-    window.dispatchEvent(new Event("storage"));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("maides_admin_hospitals", JSON.stringify(updated));
+      window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new CustomEvent("maides_hospitals_updated", { detail: updated }));
+    }
+
+    if (serverAction) {
+      try {
+        let url = "/api/hospitals";
+        if (serverAction.queryId) {
+          url += `?id=${encodeURIComponent(serverAction.queryId)}`;
+        }
+        await fetch(url, {
+          method: serverAction.method,
+          headers: { "Content-Type": "application/json" },
+          body: serverAction.payload ? JSON.stringify(serverAction.payload) : undefined
+        });
+      } catch (e) {
+        console.error("API background sync error", e);
+      }
+    }
   };
 
   const showToast = (msg: string) => {
@@ -495,7 +540,6 @@ export default function HospitalsAdminPage() {
   // Open Create
   const handleOpenAdd = () => {
     setFormError(null);
-    const nextOrder = hospitals.length ? Math.max(...hospitals.map(h => h.displayOrder || 0)) + 1 : 1;
     setFormData({
       name: "",
       tagline: "",
@@ -528,7 +572,7 @@ export default function HospitalsAdminPage() {
       languages: ["English", "Arabic", "Malayalam", "Hindi"],
       vipRoomsAvailable: true,
       ayurvedaWingAvailable: true,
-      displayOrder: nextOrder,
+      displayOrder: 1,
       status: "ACTIVE",
       published: "PUBLISHED"
     });
@@ -553,7 +597,7 @@ export default function HospitalsAdminPage() {
       setFormError('A hospital named "' + trimmedName + '" is already registered.');
       return false;
     }
-    if (formData.email && !/^[^s@]+@[^s@]+.[^s@]+$/.test(formData.email.trim())) {
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
       setFormError("Please enter a valid international contact email address.");
       return false;
     }
@@ -607,14 +651,14 @@ export default function HospitalsAdminPage() {
       ayurvedaWingAvailable: formData.ayurvedaWingAvailable,
       rating: 4.92,
       reviewCount: 1540,
-      displayOrder: Number(formData.displayOrder) || (hospitals.length + 1),
+      displayOrder: Number(formData.displayOrder) || 1,
       status: formData.status,
       published: formData.published,
       casesActive: 0
     };
 
     const updated = [newHosp, ...hospitals];
-    saveToStorage(updated);
+    saveToStorage(updated, { method: "POST", payload: newHosp });
     setIsAddModalOpen(false);
     showToast(`Hospital "${newHosp.name}" successfully registered and published to public landing.`);
   };
@@ -666,9 +710,10 @@ export default function HospitalsAdminPage() {
 
     const cleanName = formData.name.trim().replace(/<[^>]*>?/gm, '');
 
+    let updatedHosp: HospitalAdminItem | null = null;
     const updated = hospitals.map((h) => {
       if (h.id === activeHospital.id) {
-        return {
+        updatedHosp = {
           ...h,
           name: cleanName,
           tagline: formData.tagline.trim() || h.tagline,
@@ -701,39 +746,52 @@ export default function HospitalsAdminPage() {
           status: formData.status,
           published: formData.published
         };
+        return updatedHosp;
       }
       return h;
     });
 
-    saveToStorage(updated);
+    saveToStorage(updated, { method: "PUT", payload: updatedHosp });
     setIsEditModalOpen(false);
     showToast(`Hospital "${formData.name}" updated successfully.`);
   };
 
   // Toggle Status
   const handleToggleStatus = (id: string) => {
+    let targetHosp: HospitalAdminItem | undefined;
     const updated = hospitals.map((h) => {
       if (h.id === id) {
         const nextStatus = h.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
         showToast(`Hospital "${h.name}" status changed to ${nextStatus}.`);
-        return { ...h, status: nextStatus as "ACTIVE" | "INACTIVE" };
+        targetHosp = { ...h, status: nextStatus as "ACTIVE" | "INACTIVE" };
+        return targetHosp;
       }
       return h;
     });
-    saveToStorage(updated);
+    if (targetHosp) {
+      saveToStorage(updated, { method: "PUT", payload: targetHosp });
+    } else {
+      saveToStorage(updated);
+    }
   };
 
   // Toggle Published
   const handleTogglePublished = (id: string) => {
+    let targetHosp: HospitalAdminItem | undefined;
     const updated = hospitals.map((h) => {
       if (h.id === id) {
         const nextPub = h.published === "PUBLISHED" ? "DRAFT" : "PUBLISHED";
         showToast(`Hospital "${h.name}" public visibility set to ${nextPub}.`);
-        return { ...h, published: nextPub as "PUBLISHED" | "DRAFT" };
+        targetHosp = { ...h, published: nextPub as "PUBLISHED" | "DRAFT" };
+        return targetHosp;
       }
       return h;
     });
-    saveToStorage(updated);
+    if (targetHosp) {
+      saveToStorage(updated, { method: "PUT", payload: targetHosp });
+    } else {
+      saveToStorage(updated);
+    }
   };
 
   // Open View
@@ -751,9 +809,9 @@ export default function HospitalsAdminPage() {
   // Confirm Delete
   const handleConfirmDelete = () => {
     if (!activeHospital) return;
-    const name = activeHospital.name;
-    const updated = hospitals.filter((h) => h.id !== activeHospital.id);
-    saveToStorage(updated);
+    const { id, name } = activeHospital;
+    const updated = hospitals.filter((h) => h.id !== id);
+    saveToStorage(updated, { method: "DELETE", queryId: id });
     setIsDeleteModalOpen(false);
     showToast(`Hospital "${name}" removed from accredited database.`);
   };

@@ -192,47 +192,90 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
 
       fetchLiveDoctors();
 
-      // 2. Load Admin Hospitals (Active & Published Only)
-      try {
-        const storedHosps = localStorage.getItem("maides_admin_hospitals");
-        if (storedHosps) {
-          const parsed = JSON.parse(storedHosps);
-          const activeAdminHosps = parsed
-            .filter((h: any) => h.status === "ACTIVE" && (h.published === "PUBLISHED" || !h.published))
-            .map((h: any) => ({
-              id: h.id,
-              name: h.name,
-              city: h.city || "Kochi, Kerala",
-              district: h.district || "Ernakulam",
-              region: h.region || "Central Kerala",
-              accreditations: Array.isArray(h.accreditations) ? h.accreditations : [h.accreditations || "NABH Accredited"],
-              specialties: Array.isArray(h.specialties) ? h.specialties : (typeof h.specialties === "string" ? h.specialties.split(",").map((s: string) => s.trim()) : ["Multispecialty Healthcare"]),
-              rating: h.rating || 4.92,
-              reviewCount: h.reviewCount || 1450,
-              image: h.image || "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=1200&q=80",
-              description: h.description || `${h.name} is a leading NABH/JCI accredited quaternary healthcare destination in Kerala providing world-class medical tourism care.`,
-              internationalServices: Array.isArray(h.internationalServices) && h.internationalServices.length > 0 ? h.internationalServices : [
-                "24/7 International Patient Concierge Desk",
-                "Direct Airport Limousine Escort",
-                "Medical eVisa Fast-Track Letter in 4 Hours"
-              ],
-              displayOrder: Number(h.displayOrder) || 99
-            }));
+      // 2. Load Admin Hospitals (Active & Published Only from Server API & Storage)
+      const fetchLiveHospitals = async () => {
+        try {
+          const res = await fetch("/api/hospitals?public=true");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && Array.isArray(data.hospitals) && data.hospitals.length > 0) {
+              const activeHosps = data.hospitals.map((h: any, idx: number) => ({
+                id: h.id || `admin-hosp-${idx}`,
+                name: h.name,
+                city: h.city || "Kochi, Kerala",
+                district: h.district || "Ernakulam / Kochi",
+                region: h.region || "Central Kerala",
+                accreditations: Array.isArray(h.accreditations) ? h.accreditations : [h.accreditations || "NABH Accredited"],
+                specialties: Array.isArray(h.specialties) ? h.specialties : (typeof h.specialties === "string" ? h.specialties.split(",").map((s: string) => s.trim()) : ["Multispecialty Healthcare"]),
+                rating: h.rating || 4.92,
+                reviewCount: h.reviewCount || 1450,
+                image: h.image || "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=1200&q=80",
+                description: h.shortDescription || h.fullDescription || `${h.name} is a leading NABH/JCI accredited quaternary healthcare destination in Kerala providing world-class medical tourism care.`,
+                internationalServices: Array.isArray(h.internationalServices) && h.internationalServices.length > 0 ? h.internationalServices : [
+                  "24/7 International Patient Concierge Desk",
+                  "Direct Airport Limousine Escort",
+                  "Medical eVisa Fast-Track Letter in 4 Hours"
+                ],
+                displayOrder: typeof h.displayOrder === "number" ? h.displayOrder : (Number(h.displayOrder) || (idx + 1))
+              }));
 
-          const mergedHosps = [...activeAdminHosps];
-          KERALA_HOSPITALS.forEach(kh => {
-            if (!mergedHosps.some(m => m.name.toLowerCase() === kh.name.toLowerCase() || m.id === kh.id)) {
-              mergedHosps.push({ ...kh, displayOrder: 99 });
+              activeHosps.sort((a: any, b: any) => (Number(a.displayOrder) || 999) - (Number(b.displayOrder) || 999));
+              setLandingHospitals(activeHosps);
+              return;
             }
-          });
-          mergedHosps.sort((a, b) => (a.displayOrder || 99) - (b.displayOrder || 99));
-          setLandingHospitals(mergedHosps);
-        } else {
-          setLandingHospitals(KERALA_HOSPITALS);
+          }
+        } catch (err) {
+          // Network fallback to local storage
         }
-      } catch (e) {
-        setLandingHospitals(KERALA_HOSPITALS);
-      }
+
+        try {
+          const storedHosps = typeof window !== "undefined" ? localStorage.getItem("maides_admin_hospitals") : null;
+          if (storedHosps) {
+            const parsed = JSON.parse(storedHosps);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              const activeAdminHosps = parsed
+                .filter((h: any) => {
+                  const s = (h.status || "ACTIVE").toUpperCase();
+                  const p = (h.published || "PUBLISHED").toUpperCase();
+                  return s === "ACTIVE" && p === "PUBLISHED";
+                })
+                .map((h: any, idx: number) => ({
+                  id: h.id || `admin-hosp-${idx}`,
+                  name: h.name,
+                  city: h.city || "Kochi, Kerala",
+                  district: h.district || "Ernakulam",
+                  region: h.region || "Central Kerala",
+                  accreditations: Array.isArray(h.accreditations) ? h.accreditations : [h.accreditations || "NABH Accredited"],
+                  specialties: Array.isArray(h.specialties) ? h.specialties : (typeof h.specialties === "string" ? h.specialties.split(",").map((s: string) => s.trim()) : ["Multispecialty Healthcare"]),
+                  rating: h.rating || 4.92,
+                  reviewCount: h.reviewCount || 1450,
+                  image: h.image || "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=1200&q=80",
+                  description: h.shortDescription || h.fullDescription || `${h.name} is a leading NABH/JCI accredited quaternary healthcare destination in Kerala providing world-class medical tourism care.`,
+                  internationalServices: Array.isArray(h.internationalServices) && h.internationalServices.length > 0 ? h.internationalServices : [
+                    "24/7 International Patient Concierge Desk",
+                    "Direct Airport Limousine Escort",
+                    "Medical eVisa Fast-Track Letter in 4 Hours"
+                  ],
+                  displayOrder: typeof h.displayOrder === "number" ? h.displayOrder : (Number(h.displayOrder) || (idx + 1))
+                }));
+
+              if (activeAdminHosps.length > 0) {
+                activeAdminHosps.sort((a, b) => (Number(a.displayOrder) || 999) - (Number(b.displayOrder) || 999));
+                setLandingHospitals(activeAdminHosps);
+                return;
+              }
+            }
+          }
+        } catch (e) {}
+
+        const fallbackHosps = KERALA_HOSPITALS.map((h: any, idx: number) => ({
+          ...h,
+          displayOrder: idx + 1
+        }));
+        setLandingHospitals(fallbackHosps);
+      };
+
+      fetchLiveHospitals();
 
       // 3. Load Admin Specialties (Active & Published Only)
       try {
