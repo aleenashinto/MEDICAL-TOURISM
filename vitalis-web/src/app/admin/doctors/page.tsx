@@ -250,44 +250,44 @@ export default function DoctorManagementPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Load from Storage
+  // Load from Server API & Storage
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      // 1. Doctors
-      const stored = localStorage.getItem("maides_admin_doctors");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            const normalized = parsed.map((d: any) => ({
-              ...d,
-              experienceYears: typeof d.experienceYears === "number" 
-                ? d.experienceYears 
-                : parseInt(d.experience) || 15,
-              languages: Array.isArray(d.languages) 
-                ? d.languages 
-                : typeof d.languages === "string" 
-                  ? d.languages.split(",").map((s: string) => s.trim()) 
-                  : ["English", "Malayalam", "Hindi"],
-              displayOrder: d.displayOrder || 99,
-              published: d.published || "PUBLISHED",
-              status: d.status || "ACTIVE",
-              avatar: d.avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80"
-            }));
-            setDoctors(normalized);
-          } else {
-            setDoctors(INITIAL_DOCTORS);
-            localStorage.setItem("maides_admin_doctors", JSON.stringify(INITIAL_DOCTORS));
+    const fetchServerDoctors = async () => {
+      try {
+        const res = await fetch("/api/doctors");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.doctors) && data.doctors.length > 0) {
+            setDoctors(data.doctors);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("maides_admin_doctors", JSON.stringify(data.doctors));
+            }
+            return;
           }
-        } catch (e) {
-          console.error("Failed to parse doctors", e);
-          setDoctors(INITIAL_DOCTORS);
         }
-      } else {
+      } catch (err) {
+        console.error("Could not fetch server doctors, falling back to storage", err);
+      }
+
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("maides_admin_doctors");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setDoctors(parsed);
+              return;
+            }
+          } catch (e) {}
+        }
         setDoctors(INITIAL_DOCTORS);
         localStorage.setItem("maides_admin_doctors", JSON.stringify(INITIAL_DOCTORS));
       }
+    };
 
+    fetchServerDoctors();
+
+    if (typeof window !== "undefined") {
       // 2. Cross-link Medical Specialties
       const storedSpecs = localStorage.getItem("maides_admin_specialties");
       if (storedSpecs) {
@@ -318,12 +318,28 @@ export default function DoctorManagementPage() {
     }
   }, []);
 
-  const saveDoctorsToStorage = (updated: Doctor[]) => {
+  const saveDoctorsToStorage = async (updated: Doctor[], serverAction?: { method: "POST" | "PUT" | "DELETE", payload?: any, queryId?: string }) => {
     setDoctors(updated);
     if (typeof window !== "undefined") {
       localStorage.setItem("maides_admin_doctors", JSON.stringify(updated));
       window.dispatchEvent(new Event("storage"));
       window.dispatchEvent(new CustomEvent("maides_doctors_updated", { detail: updated }));
+    }
+
+    if (serverAction) {
+      try {
+        let url = "/api/doctors";
+        if (serverAction.queryId) {
+          url += `?id=${encodeURIComponent(serverAction.queryId)}`;
+        }
+        await fetch(url, {
+          method: serverAction.method,
+          headers: { "Content-Type": "application/json" },
+          body: serverAction.payload ? JSON.stringify(serverAction.payload) : undefined
+        });
+      } catch (e) {
+        console.error("API background sync error", e);
+      }
     }
   };
 
@@ -448,9 +464,9 @@ export default function DoctorManagementPage() {
     };
 
     const updated = [newDoc, ...doctors];
-    saveDoctorsToStorage(updated);
+    saveDoctorsToStorage(updated, { method: "POST", payload: newDoc });
     setIsAddModalOpen(false);
-    showToast("Doctor " + newDoc.name + " created and published to Landing & Public Directory!");
+    showToast("Doctor " + newDoc.name + " created and published globally to Landing & Public Directory!");
   };
 
   // Submit Edit
@@ -458,9 +474,10 @@ export default function DoctorManagementPage() {
     e.preventDefault();
     if (!selectedDoctor || !validateForm()) return;
 
+    let updatedDocObj: Doctor | null = null;
     const updated = doctors.map(d => {
       if (d.id === selectedDoctor.id) {
-        return {
+        const item: Doctor = {
           ...d,
           ...formData,
           name: formData.name!.trim(),
@@ -468,21 +485,24 @@ export default function DoctorManagementPage() {
           displayOrder: Number(formData.displayOrder) || d.displayOrder,
           casesHandled: Number(formData.casesHandled) || d.casesHandled,
           updatedAt: new Date().toISOString()
-        } as Doctor;
+        };
+        updatedDocObj = item;
+        return item;
       }
       return d;
     });
 
-    saveDoctorsToStorage(updated);
+    saveDoctorsToStorage(updated, updatedDocObj ? { method: "PUT", payload: updatedDocObj } : undefined);
     setIsEditModalOpen(false);
-    showToast("Profile for Dr. " + formData.name + " updated successfully!");
+    showToast("Profile for Dr. " + formData.name + " updated globally!");
   };
 
   // Confirm Delete
   const handleConfirmDelete = () => {
     if (!selectedDoctor) return;
-    const updated = doctors.filter(d => d.id !== selectedDoctor.id);
-    saveDoctorsToStorage(updated);
+    const deletedId = selectedDoctor.id;
+    const updated = doctors.filter(d => d.id !== deletedId);
+    saveDoctorsToStorage(updated, { method: "DELETE", queryId: deletedId });
     setIsDeleteModalOpen(false);
     showToast("Dr. " + selectedDoctor.name + " removed from clinical faculty list.");
     setSelectedDoctor(null);
@@ -491,16 +511,18 @@ export default function DoctorManagementPage() {
   // Quick Toggle Status
   const handleToggleStatus = (doc: Doctor) => {
     const nextStatus: "ACTIVE" | "ON_LEAVE" | "INACTIVE" = doc.status === "ACTIVE" ? "INACTIVE" : doc.status === "INACTIVE" ? "ON_LEAVE" : "ACTIVE";
-    const updated = doctors.map(d => d.id === doc.id ? { ...d, status: nextStatus, updatedAt: new Date().toISOString() } as Doctor : d);
-    saveDoctorsToStorage(updated);
+    const updatedDoc = { ...doc, status: nextStatus, updatedAt: new Date().toISOString() };
+    const updated = doctors.map(d => d.id === doc.id ? (updatedDoc as Doctor) : d);
+    saveDoctorsToStorage(updated, { method: "PUT", payload: updatedDoc });
     showToast("Dr. " + doc.name + " status updated to " + nextStatus);
   };
 
   // Quick Toggle Published
   const handleTogglePublished = (doc: Doctor) => {
     const nextPub: "PUBLISHED" | "DRAFT" = doc.published === "PUBLISHED" ? "DRAFT" : "PUBLISHED";
-    const updated = doctors.map(d => d.id === doc.id ? { ...d, published: nextPub, updatedAt: new Date().toISOString() } as Doctor : d);
-    saveDoctorsToStorage(updated);
+    const updatedDoc = { ...doc, published: nextPub, updatedAt: new Date().toISOString() };
+    const updated = doctors.map(d => d.id === doc.id ? (updatedDoc as Doctor) : d);
+    saveDoctorsToStorage(updated, { method: "PUT", payload: updatedDoc });
     showToast("Dr. " + doc.name + " " + (nextPub === "PUBLISHED" ? "published to public website" : "unpublished (Draft mode)"));
   };
 

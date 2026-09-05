@@ -46,13 +46,58 @@ export default function DoctorsPage() {
 
   // Load from Admin Doctors storage or fallback to mock data
   useEffect(() => {
-    const loadDoctors = () => {
+    const loadDoctors = async () => {
+      try {
+        const res = await fetch("/api/doctors?public=true");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.doctors) && data.doctors.length > 0) {
+            const formattedDocs = data.doctors.map((d: any, idx: number) => ({
+              id: d.id || `admin-doc-${idx}`,
+              name: d.name,
+              title: d.title || "Senior Medical Consultant",
+              specialty: d.specialty || "Medical Specialty",
+              subSpecialty: d.bio || d.fullBiography || "Specialist clinical care and patient consultation.",
+              qualifications: d.education || d.qualifications || d.certifications || "MBBS, MS, Board Certified",
+              experienceYears: typeof d.experienceYears === "number" ? d.experienceYears : (parseInt(d.experience) || 15),
+              hospitalName: d.hospital || d.hospitalName || "Aster Medcity, Kochi",
+              city: d.city || (d.hospital?.includes("Trivandrum") ? "Thiruvananthapuram, Kerala" : d.hospital?.includes("Calicut") ? "Kozhikode, Kerala" : "Kochi, Kerala"),
+              avatar: d.avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=400",
+              rating: d.rating || "4.95",
+              reviewCount: d.casesHandled || 120,
+              languages: Array.isArray(d.languages) ? d.languages : (typeof d.languages === "string" ? d.languages.split(",").map((l: string) => l.trim()) : (d.languages || ["English", "Hindi", "Malayalam"])),
+              consultationFeeUSD: d.consultationFee ? parseInt(String(d.consultationFee).replace(/[^0-9]/g, '')) || 60 : 60,
+              nextAvailableDate: "Tomorrow",
+              videoConsultationAvailable: true,
+              publicationsCount: 12,
+              areasOfExpertise: ["Clinical Diagnostics", "Advanced Surgery", "Patient Care"],
+              displayOrder: typeof d.displayOrder === "number" ? d.displayOrder : (Number(d.displayOrder) || (idx + 1))
+            }));
+
+            const merged: any[] = [...formattedDocs];
+            KERALA_DOCTORS.forEach(kd => {
+              if (!merged.some(m => m.name.toLowerCase().trim() === kd.name.toLowerCase().trim() || m.id === kd.id)) {
+                merged.push({ 
+                  ...kd, 
+                  consultationFeeUSD: kd.consultationFeeUsd || 60,
+                  displayOrder: 999 
+                });
+              }
+            });
+            merged.sort((a, b) => (Number(a.displayOrder) || 999) - (Number(b.displayOrder) || 999));
+            setDoctorsList(merged);
+            return;
+          }
+        }
+      } catch (err) {
+        // Fallback to storage
+      }
+
       try {
         const stored = typeof window !== "undefined" ? localStorage.getItem("maides_admin_doctors") : null;
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            // Map admin doctors format to public view format: ONLY ACTIVE AND PUBLISHED
             const formattedAdminDocs = parsed
               .filter((d: any) => {
                 const s = (d.status || "ACTIVE").toUpperCase();
@@ -81,7 +126,6 @@ export default function DoctorsPage() {
                 displayOrder: typeof d.displayOrder === "number" ? d.displayOrder : (Number(d.displayOrder) || (idx + 1))
               }));
 
-            // Merge without duplicates, prioritizing admin doctors
             if (formattedAdminDocs.length > 0) {
               const merged: any[] = [...formattedAdminDocs];
               KERALA_DOCTORS.forEach(kd => {
