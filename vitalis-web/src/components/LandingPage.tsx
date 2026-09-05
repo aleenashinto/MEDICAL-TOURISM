@@ -538,21 +538,19 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
 
               {/* Action Buttons Group with 360 Virtual Tour CTA */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
-                <Link
-                  href="/auth/login"
-                  className="flex items-center justify-between pl-5 sm:pl-6 pr-2 py-2 rounded-full bg-gradient-to-r from-[#0E82FD] to-[#38BDF8] hover:from-[#0360D9] hover:to-[#0E82FD] text-white font-black text-xs uppercase tracking-wider transition-all duration-300 shadow-[0_10px_30px_rgba(14,130,253,0.45)] hover:shadow-[0_15px_35px_rgba(14,130,253,0.6)] hover:scale-[1.02] group cursor-pointer"
+                <button
+                  onClick={onOpenIntake}
+                  className="px-6 sm:px-8 py-4 rounded-full bg-gradient-to-r from-[#0E82FD] via-blue-500 to-[#38BDF8] hover:from-blue-600 hover:to-cyan-400 text-white font-bold text-xs uppercase tracking-wider text-center shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-[1.03] transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer group"
                 >
-                  <span className="pr-3 sm:pr-4 font-bold text-xs sm:text-[13px]">Get Medical Assistance</span>
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white text-[#0E82FD] flex items-center justify-center transition-all duration-300 group-hover:rotate-45 shadow-sm">
-                    <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
-                  </div>
-                </Link>
+                  <span>Begin Free Medical Review</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
 
                 <a
                   href="#virtual-tour-360"
-                  className="px-5 sm:px-6 py-3.5 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-400/40 font-bold text-xs uppercase tracking-wider text-center backdrop-blur-md transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-cyan-900/20"
+                  className="px-5 sm:px-6 py-4 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-400/40 font-bold text-xs uppercase tracking-wider text-center backdrop-blur-md transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-cyan-900/20 hover:scale-[1.03]"
                 >
-                  <Sparkles className="w-4 h-4 text-cyan-300" />
+                  <Sparkles className="w-4 h-4 text-cyan-300 animate-spin-360" />
                   <span>360° Virtual Tour</span>
                 </a>
 
@@ -560,7 +558,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                   href="https://wa.me"
                   target="_blank"
                   rel="noreferrer"
-                  className="px-4 py-3.5 rounded-full bg-emerald-600/90 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider text-center transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-emerald-900/30"
+                  className="px-4 py-4 rounded-full bg-emerald-600/90 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider text-center transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-emerald-900/30 hover:scale-[1.03]"
                 >
                   <MessageSquare className="w-4 h-4" />
                   <span>WhatsApp</span>
@@ -606,7 +604,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               <div className="absolute w-[260px] h-[260px] sm:w-[360px] sm:h-[360px] lg:w-[440px] lg:h-[440px] rounded-full border border-sky-300/15" />
 
               {/* Main Cutout Doctor Arch Frame */}
-              <div className="relative z-10 w-full max-w-[320px] sm:max-w-[420px] rounded-t-[160px] sm:rounded-t-[200px] rounded-b-3xl bg-gradient-to-b from-blue-500/20 via-white/5 to-white/10 p-2 sm:p-2.5 backdrop-blur-xl border border-white/25 shadow-2xl overflow-hidden">
+              <div className="relative z-10 w-full max-w-[320px] sm:max-w-[420px] rounded-t-[160px] sm:rounded-t-[200px] rounded-b-3xl bg-gradient-to-b from-blue-500/20 via-white/5 to-white/10 p-2 sm:p-2.5 backdrop-blur-xl border border-white/25 shadow-2xl overflow-hidden animate-float-slow">
                 <div className="w-full h-[360px] sm:h-[460px] lg:h-[540px] rounded-t-[150px] sm:rounded-t-[190px] rounded-b-2xl overflow-hidden relative">
                   <img 
                     src={landingDoctors[0]?.avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=1000&q=80"} 
@@ -630,7 +628,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               </div>
 
               {/* Floating Badge 1: 4-Hour Visa Guarantee */}
-              <div className="absolute top-2 left-0 sm:-top-4 sm:-left-6 z-20 p-2.5 sm:p-3.5 rounded-2xl bg-white/95 backdrop-blur-xl shadow-xl border border-slate-100 flex items-center space-x-2.5 sm:space-x-3">
+              <div className="absolute top-2 left-0 sm:-top-4 sm:-left-6 z-20 p-2.5 sm:p-3.5 rounded-2xl bg-white/95 backdrop-blur-xl shadow-2xl border border-slate-100 flex items-center space-x-2.5 sm:space-x-3 animate-float-slow">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#0E82FD] shadow-inner shrink-0">
                   <ShieldCheck className="w-4 h-4 sm:w-6 sm:h-6 stroke-[2.5]" />
                 </div>
@@ -641,7 +639,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               </div>
 
               {/* Floating Badge 2: Cost Savings */}
-              <div className="absolute bottom-6 left-0 sm:bottom-12 sm:-left-8 z-20 p-2.5 sm:p-3.5 rounded-2xl bg-[#0F2042]/90 backdrop-blur-xl shadow-2xl border border-white/20 text-white flex items-center space-x-2.5 sm:space-x-3">
+              <div className="absolute bottom-6 left-0 sm:bottom-12 sm:-left-8 z-20 p-2.5 sm:p-3.5 rounded-2xl bg-[#0F2042]/90 backdrop-blur-xl shadow-2xl border border-white/20 text-white flex items-center space-x-2.5 sm:space-x-3 animate-float-reverse">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shrink-0">
                   <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
@@ -652,7 +650,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               </div>
 
               {/* Floating Badge 3: 14 Kerala Hubs */}
-              <div className="absolute top-1/2 right-0 sm:-right-8 -translate-y-1/2 z-20 p-3.5 rounded-2xl bg-white/95 backdrop-blur-xl shadow-xl border border-slate-100 flex items-center space-x-3 hidden sm:flex">
+              <div className="absolute top-1/2 right-0 sm:-right-8 -translate-y-1/2 z-20 p-3.5 rounded-2xl bg-white/95 backdrop-blur-xl shadow-2xl border border-slate-100 flex items-center space-x-3 hidden sm:flex animate-float-slow">
                 <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#0E82FD] flex items-center justify-center shrink-0">
                   <MapPin className="w-5 h-5" />
                 </div>
