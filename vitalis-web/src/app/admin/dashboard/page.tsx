@@ -40,32 +40,117 @@ export default function AdminDashboardPage() {
     grossVolume: "$482,500"
   });
 
-  // Calculate dynamic stats from localStorage if available
-  useEffect(() => {
-    try {
-      const savedPatients = localStorage.getItem("maides_admin_patients");
-      const savedCases = localStorage.getItem("maides_admin_cases");
-      const savedAppointments = localStorage.getItem("maides_admin_appointments");
-      const savedTickets = localStorage.getItem("maides_admin_tickets");
-
-      const patientsArr = savedPatients ? JSON.parse(savedPatients) : null;
-      const casesArr = savedCases ? JSON.parse(savedCases) : null;
-      const aptsArr = savedAppointments ? JSON.parse(savedAppointments) : null;
-      const ticketsArr = savedTickets ? JSON.parse(savedTickets) : null;
-
-      setStats(prev => ({
-        ...prev,
-        totalPatients: patientsArr ? patientsArr.length : prev.totalPatients,
-        activePatients: patientsArr ? patientsArr.filter((p: any) => p.status === "ACTIVE").length : prev.activePatients,
-        totalCases: casesArr ? casesArr.length : prev.totalCases,
-        activeCases: casesArr ? casesArr.filter((c: any) => c.status !== "Completed" && c.status !== "Cancelled").length : prev.activeCases,
-        upcomingAppointments: aptsArr ? aptsArr.filter((a: any) => a.status === "CONFIRMED" || a.status === "REQUESTED").length : prev.upcomingAppointments,
-        completedAppointments: aptsArr ? aptsArr.filter((a: any) => a.status === "COMPLETED").length : prev.completedAppointments,
-        openTickets: ticketsArr ? ticketsArr.filter((t: any) => t.status === "Open" || t.status === "In Progress").length : prev.openTickets
-      }));
-    } catch {
-      // fallback
+  const [liveEnquiries, setLiveEnquiries] = useState<any[]>([
+    {
+      id: "ENQ-2026-004",
+      patient: "Sarah Jenkins",
+      country: "United Kingdom",
+      treatment: "Minimally Invasive Knee Replacement",
+      hospital: "Aster Medcity, Kochi",
+      priority: "HIGH",
+      status: "CLINICAL_TRIAGE",
+      time: "10 mins ago",
+    },
+    {
+      id: "ENQ-2026-003",
+      patient: "Mohammed Al-Maktoum",
+      country: "United Arab Emirates",
+      treatment: "Robotic Cardiac Valve Repair",
+      hospital: "Amrita Institute, Kochi",
+      priority: "CRITICAL",
+      status: "QUOTATION_SENT",
+      time: "2 hours ago",
+    },
+    {
+      id: "ENQ-2026-002",
+      patient: "Elena Rostova",
+      country: "Germany",
+      treatment: "Ayurvedic Rejuvenation & Panchakarma",
+      hospital: "Somatheeram Ayurvedic Village",
+      priority: "MEDIUM",
+      status: "VISA_PROCESSING",
+      time: "5 hours ago",
     }
+  ]);
+
+  // Calculate dynamic stats from localStorage and API if available
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        const savedPatients = localStorage.getItem("maides_admin_patients");
+        const savedCases = localStorage.getItem("maides_admin_cases");
+        const savedAppointments = localStorage.getItem("maides_admin_appointments");
+        const savedTickets = localStorage.getItem("maides_admin_tickets");
+
+        const patientsArr = savedPatients ? JSON.parse(savedPatients) : null;
+        const casesArr = savedCases ? JSON.parse(savedCases) : null;
+        const aptsArr = savedAppointments ? JSON.parse(savedAppointments) : null;
+        const ticketsArr = savedTickets ? JSON.parse(savedTickets) : null;
+
+        setStats(prev => ({
+          ...prev,
+          totalPatients: patientsArr ? patientsArr.length : prev.totalPatients,
+          activePatients: patientsArr ? patientsArr.filter((p: any) => p.status === "ACTIVE").length : prev.activePatients,
+          totalCases: casesArr ? casesArr.length : prev.totalCases,
+          activeCases: casesArr ? casesArr.filter((c: any) => c.status !== "Completed" && c.status !== "Cancelled").length : prev.activeCases,
+          upcomingAppointments: aptsArr ? aptsArr.filter((a: any) => a.status === "CONFIRMED" || a.status === "REQUESTED").length : prev.upcomingAppointments,
+          completedAppointments: aptsArr ? aptsArr.filter((a: any) => a.status === "COMPLETED").length : prev.completedAppointments,
+          openTickets: ticketsArr ? ticketsArr.filter((t: any) => t.status === "Open" || t.status === "In Progress").length : prev.openTickets
+        }));
+      } catch (e) {}
+
+      // Load live enquiries for dashboard triage table
+      try {
+        const res = await fetch("/api/enquiries");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.enquiries) && data.enquiries.length > 0) {
+            const formatted = data.enquiries.slice(0, 5).map((e: any) => ({
+              id: e.id,
+              patient: e.name,
+              country: e.country,
+              treatment: e.treatment || e.specialty,
+              hospital: e.assignedHospital,
+              priority: e.urgency || "HIGH",
+              status: e.status === "NEW" ? "CLINICAL_TRIAGE" : e.status === "TRIAGED" ? "QUOTATION_SENT" : e.status,
+              time: e.submittedAt || "Just now"
+            }));
+            setLiveEnquiries(formatted);
+            return;
+          }
+        }
+      } catch (e) {}
+
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("maides_admin_enquiries");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              const formatted = parsed.slice(0, 5).map((e: any) => ({
+                id: e.id,
+                patient: e.name,
+                country: e.country,
+                treatment: e.treatment || e.specialty,
+                hospital: e.assignedHospital,
+                priority: e.urgency || "HIGH",
+                status: e.status === "NEW" ? "CLINICAL_TRIAGE" : e.status === "TRIAGED" ? "QUOTATION_SENT" : e.status,
+                time: e.submittedAt || "Just now"
+              }));
+              setLiveEnquiries(formatted);
+            }
+          } catch (e) {}
+        }
+      }
+    };
+
+    loadDashboardData();
+    window.addEventListener("storage", loadDashboardData);
+    window.addEventListener("maides_enquiries_updated", loadDashboardData);
+    return () => {
+      window.removeEventListener("storage", loadDashboardData);
+      window.removeEventListener("maides_enquiries_updated", loadDashboardData);
+    };
   }, []);
 
   const coreKpis = [
@@ -135,39 +220,6 @@ export default function AdminDashboardPage() {
       time: "5 hours ago",
       icon: FileCheck2,
       color: "text-amber-400"
-    }
-  ];
-
-  const recentEnquiries = [
-    {
-      id: "ENQ-2026-004",
-      patient: "Sarah Jenkins",
-      country: "United Kingdom",
-      treatment: "Minimally Invasive Knee Replacement",
-      hospital: "Aster Medcity, Kochi",
-      priority: "HIGH",
-      status: "CLINICAL_TRIAGE",
-      time: "10 mins ago",
-    },
-    {
-      id: "ENQ-2026-003",
-      patient: "Mohammed Al-Maktoum",
-      country: "United Arab Emirates",
-      treatment: "Robotic Cardiac Valve Repair",
-      hospital: "Amrita Institute, Kochi",
-      priority: "CRITICAL",
-      status: "QUOTATION_SENT",
-      time: "2 hours ago",
-    },
-    {
-      id: "ENQ-2026-002",
-      patient: "Elena Rostova",
-      country: "Germany",
-      treatment: "Ayurvedic Rejuvenation & Panchakarma",
-      hospital: "Somatheeram Ayurvedic Village",
-      priority: "MEDIUM",
-      status: "VISA_PROCESSING",
-      time: "5 hours ago",
     }
   ];
 
@@ -275,7 +327,7 @@ export default function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
-                {recentEnquiries.map((enq) => (
+                {liveEnquiries.map((enq) => (
                   <tr key={enq.id} className="hover:bg-slate-900/40 transition-colors group">
                     <td className="py-3.5">
                       <div className="font-semibold text-slate-200 group-hover:text-blue-400 transition-colors">
@@ -295,7 +347,7 @@ export default function AdminDashboardPage() {
                     <td className="py-3.5 text-slate-500 text-[11px]">{enq.time}</td>
                     <td className="py-3.5 text-right">
                       <Link
-                        href="/admin/cases"
+                        href="/admin/enquiries"
                         className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-[#0E82FD] text-slate-200 hover:text-white font-medium text-[11px] transition-all"
                       >
                         Review

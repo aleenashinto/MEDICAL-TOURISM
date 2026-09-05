@@ -86,25 +86,125 @@ export default function EnquiriesPage() {
   ]);
 
   React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("maides_admin_enquiries");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setEnquiries(prev => {
-              const existingIds = new Set(prev.map(p => p.id));
-              const newItems = parsed.filter((item: any) => !existingIds.has(item.id));
-              return [...newItems, ...prev];
-            });
+    const fetchEnquiries = async () => {
+      // 1. Try fetching from server API
+      try {
+        const res = await fetch("/api/enquiries");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.enquiries) && data.enquiries.length > 0) {
+            setEnquiries(data.enquiries);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("maides_admin_enquiries", JSON.stringify(data.enquiries));
+            }
+            return;
           }
-        } catch(e) {}
+        }
+      } catch (e) {
+        console.warn("Could not fetch enquiries from server API, falling back to local cache", e);
       }
-    }
+
+      // 2. Fallback to localStorage
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("maides_admin_enquiries");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setEnquiries(parsed);
+              return;
+            }
+          } catch(e) {}
+        }
+      }
+    };
+
+    fetchEnquiries();
+
+    const handleStorageUpdate = () => {
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("maides_admin_enquiries");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setEnquiries(parsed);
+            }
+          } catch (e) {}
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageUpdate);
+    window.addEventListener("maides_enquiries_updated", handleStorageUpdate);
+    return () => {
+      window.removeEventListener("storage", handleStorageUpdate);
+      window.removeEventListener("maides_enquiries_updated", handleStorageUpdate);
+    };
   }, []);
 
-  const handleConvertCase = (enq: any) => {
-    setEnquiries(prev => prev.map(item => item.id === enq.id ? { ...item, status: "CONVERTED" } : item));
+  const handleConvertCase = async (enq: any) => {
+    const updated = enquiries.map(item => item.id === enq.id ? { ...item, status: "CONVERTED" } : item);
+    setEnquiries(updated);
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("maides_admin_enquiries", JSON.stringify(updated));
+
+      // Also create an active case in maides_admin_cases
+      try {
+        const storedCases = localStorage.getItem("maides_admin_cases");
+        const existingCases = storedCases ? JSON.parse(storedCases) : [];
+        const newCaseId = `CAS-2026-${Math.floor(100 + Math.random() * 900)}`;
+        const newCase = {
+          id: newCaseId,
+          patientId: `PAT-${Math.floor(100 + Math.random() * 900)}`,
+          patientName: enq.name,
+          country: enq.country,
+          condition: enq.summary || enq.notes || enq.treatment,
+          specialty: enq.specialty || enq.treatment,
+          treatment: enq.treatment,
+          hospital: enq.assignedHospital || "Aster Medcity, Kochi",
+          doctor: "Senior Specialist Consultant",
+          status: "Under Review",
+          estimatedCost: enq.budget || "$6,500",
+          expectedTreatmentDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+          coordinator: "Admin Primary",
+          priority: enq.urgency === "CRITICAL" ? "High" : enq.urgency === "HIGH" ? "High" : "Medium",
+          notes: [
+            {
+              id: "NOTE-1",
+              author: "System Intake Coordinator",
+              date: new Date().toISOString().replace("T", " ").substring(0, 16),
+              text: `Enquiry ${enq.id} converted into active medical case. Clinical summary: ${enq.summary || enq.notes}`
+            }
+          ],
+          timeline: [
+            {
+              id: "TL-1",
+              title: "Case Created from Enquiry",
+              date: new Date().toISOString().split("T")[0],
+              description: `Converted from international lead ${enq.id} (${enq.name}).`,
+              author: "Admin Desk"
+            }
+          ]
+        };
+
+        const updatedCases = [newCase, ...existingCases.filter((c: any) => c.id !== newCase.id)];
+        localStorage.setItem("maides_admin_cases", JSON.stringify(updatedCases));
+      } catch (e) {
+        console.error("Error creating case", e);
+      }
+    }
+
+    // Sync to API
+    try {
+      await fetch("/api/enquiries", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...enq, status: "CONVERTED" })
+      });
+    } catch (e) {}
+
     setSuccessToast(`Enquiry ${enq.id} for ${enq.name} successfully converted to an Active Medical Case!`);
     setTimeout(() => {
       setSuccessToast(null);

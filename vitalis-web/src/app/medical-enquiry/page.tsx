@@ -31,12 +31,90 @@ export default function MedicalEnquiryPage() {
     specialty: "", district: "", summary: "", budget: "", timeline: "", consent: false,
   });
   const [files, setFiles] = useState<File[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [referenceId, setReferenceId] = useState("");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) setFiles(Array.from(e.target.files));
   };
 
-  const handleSubmit = () => setStep(4);
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    const generatedRefId = `ENQ-2026-${Math.floor(100 + Math.random() * 900)}`;
+    setReferenceId(generatedRefId);
+
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    let assignedHosp = "Aster Medcity, Kochi";
+    const spec = (form.specialty || "").toLowerCase();
+    if (spec.includes("ayurveda") || (form.district && form.district.includes("Thiruvananthapuram"))) {
+      assignedHosp = "Somatheeram Ayurvedic Village, Kovalam";
+    } else if (spec.includes("cardio") || spec.includes("neuro")) {
+      assignedHosp = "Amrita Institute of Medical Sciences";
+    } else if (spec.includes("onco") || spec.includes("gastro")) {
+      assignedHosp = "VPS Lakeshore Hospital, Kochi";
+    } else if (spec.includes("ortho") || spec.includes("joint")) {
+      assignedHosp = "Aster Medcity, Kochi";
+    } else if (spec.includes("transplant") || spec.includes("uro")) {
+      assignedHosp = "Rajagiri Hospital, Aluva";
+    }
+
+    let urgency: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' = "MEDIUM";
+    const timeline = (form.timeline || "").toLowerCase();
+    if (timeline.includes("asap") || timeline.includes("2 weeks") || spec.includes("onco") || spec.includes("cardio")) {
+      urgency = "HIGH";
+    }
+
+    const payload = {
+      id: generatedRefId,
+      name: form.name.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim(),
+      country: form.country,
+      language: form.language,
+      treatment: form.specialty || "Specialist Clinical Consultation",
+      specialty: form.specialty || "General Quaternary Healthcare",
+      district: form.district || "Ernakulam / Kochi",
+      summary: form.summary,
+      budget: form.budget || "USD 5,000 – 10,000",
+      timeline: form.timeline || "Flexible",
+      urgency: urgency,
+      submittedAt: formattedDate,
+      status: "NEW",
+      assignedHospital: assignedHosp,
+      notes: form.summary ? `Patient Note: ${form.summary}` : "Medical records uploaded. Assigned for lead triage review.",
+      documents: files.map(f => ({ name: f.name, size: f.size }))
+    };
+
+    // Save to localStorage for instant local sync
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("maides_admin_enquiries");
+        const existing = stored ? JSON.parse(stored) : [];
+        const updated = [payload, ...existing.filter((e: any) => e.id !== payload.id)];
+        localStorage.setItem("maides_admin_enquiries", JSON.stringify(updated));
+        window.dispatchEvent(new Event("storage"));
+        window.dispatchEvent(new CustomEvent("maides_enquiries_updated", { detail: updated }));
+      } catch (e) {
+        console.error("Local storage sync error", e);
+      }
+    }
+
+    // Save to Backend API
+    try {
+      await fetch("/api/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {
+      console.warn("Could not sync to /api/enquiries, saved to local cache:", e);
+    }
+
+    setSubmitting(false);
+    setStep(4);
+  };
 
   return (
     <PublicPageLayout navbarStyle="white">
@@ -250,9 +328,9 @@ export default function MedicalEnquiryPage() {
 
                   <div className="flex gap-3 pt-2">
                     <button onClick={() => setStep(2)} className="flex-1 py-3.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition-all">Back</button>
-                    <button onClick={handleSubmit} disabled={!form.consent}
+                    <button onClick={handleSubmit} disabled={!form.consent || submitting}
                       className="flex-1 py-3.5 rounded-xl bg-[#0E82FD] text-white text-xs font-black hover:bg-blue-600 disabled:bg-slate-200 disabled:text-slate-400 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20">
-                      Submit Enquiry <ArrowUpRight className="w-4 h-4" />
+                      {submitting ? "Submitting..." : "Submit Enquiry"} <ArrowUpRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -283,7 +361,7 @@ export default function MedicalEnquiryPage() {
                     ))}
                   </div>
                   <div className="text-xs text-slate-400">
-                    Reference ID: <strong className="text-[#0E82FD]">MAIDES-{Date.now().toString(36).toUpperCase()}</strong>
+                    Reference ID: <strong className="text-[#0E82FD]">{referenceId || `MAIDES-${Date.now().toString(36).toUpperCase()}`}</strong>
                   </div>
                 </div>
               )}
