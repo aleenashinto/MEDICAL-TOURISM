@@ -59,6 +59,8 @@ import { Kerala3DCorridorMap } from "@/components/Kerala3DCorridorMap";
 import { CostCalculator360 } from "@/components/CostCalculator360";
 import { HorizontalJourneyTimeline } from "@/components/HorizontalJourneyTimeline";
 import { HospitalCompareModal } from "@/components/HospitalCompareModal";
+import { DoctorCompareModal } from "@/components/DoctorCompareModal";
+import { MedicalCareWizard } from "@/components/MedicalCareWizard";
 
 interface LandingPageProps {
   onOpenIntake: () => void;
@@ -115,6 +117,8 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
   const [landingPackages, setLandingPackages] = useState<any[]>(KERALA_SAMPLE_PACKAGES);
   const [compareModalOpen, setCompareModalOpen] = useState(false);
   const [compareInitialHospitalId, setCompareInitialHospitalId] = useState<string | undefined>(undefined);
+  const [docCompareModalOpen, setDocCompareModalOpen] = useState(false);
+  const [docCompareInitialId, setDocCompareInitialId] = useState<string | undefined>(undefined);
 
   // Load and hydrate Admin-uploaded doctors, hospitals, specialties & packages in real-time
   useEffect(() => {
@@ -878,6 +882,90 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
         </div>
       </section>
 
+      {/* 1.5 CONCIERGE "HOW CAN WE HELP YOU?" ACTION TRIAD */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-4">
+        <div className="text-center mb-6">
+          <span className="text-[10px] font-black tracking-widest text-[#0E82FD] uppercase">Instant Access</span>
+          <h2 className="text-xl sm:text-2xl font-black text-[#0F2042] mt-0.5">How Can MAIDES Help You Today?</h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+          
+          {/* Card 1: Find Doctor */}
+          <Link
+            href="/doctors"
+            className="p-6 rounded-3xl bg-white border-2 border-slate-100 hover:border-[#0E82FD] shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0E82FD] group-hover:bg-[#0E82FD] group-hover:text-white transition-colors flex items-center justify-center">
+                <Stethoscope className="w-6 h-6" />
+              </div>
+              <div className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-blue-50 text-slate-400 group-hover:text-[#0E82FD] flex items-center justify-center transition-colors">
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-[#0F2042] group-hover:text-[#0E82FD] transition-colors">Find a Doctor</h3>
+              <p className="text-xs text-slate-500 mt-1">Browse 120+ verified chief surgeons, cardiac directors & Ayurveda Ashtavaidyas in Kerala.</p>
+            </div>
+            <div className="text-xs font-bold text-[#0E82FD] pt-2 border-t border-slate-100 flex items-center space-x-1">
+              <span>View Specialists Directory</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </div>
+          </Link>
+
+          {/* Card 2: Find Hospital */}
+          <Link
+            href="/hospitals"
+            className="p-6 rounded-3xl bg-white border-2 border-slate-100 hover:border-emerald-500 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors flex items-center justify-center">
+                <Building2 className="w-6 h-6" />
+              </div>
+              <div className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-emerald-50 text-slate-400 group-hover:text-emerald-600 flex items-center justify-center transition-colors">
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-[#0F2042] group-hover:text-emerald-600 transition-colors">Find a Hospital</h3>
+              <p className="text-xs text-slate-500 mt-1">Explore JCI & NABH accredited quaternary medical centers across Cochin, Trivandrum & Calicut.</p>
+            </div>
+            <div className="text-xs font-bold text-emerald-600 pt-2 border-t border-slate-100 flex items-center space-x-1">
+              <span>Explore Kerala Hospitals</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </div>
+          </Link>
+
+          {/* Card 3: Estimate Cost */}
+          <a
+            href="#care-wizard"
+            className="p-6 rounded-3xl bg-white border-2 border-slate-100 hover:border-sky-500 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 group-hover:bg-sky-600 group-hover:text-white transition-colors flex items-center justify-center">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <div className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-sky-50 text-slate-400 group-hover:text-sky-600 flex items-center justify-center transition-colors">
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-[#0F2042] group-hover:text-sky-600 transition-colors">Estimate Treatment Cost</h3>
+              <p className="text-xs text-slate-500 mt-1">Get an instant transparent price benchmark comparing Kerala quaternary care vs UAE, UK & USA.</p>
+            </div>
+            <div className="text-xs font-bold text-sky-600 pt-2 border-t border-slate-100 flex items-center space-x-1">
+              <span>Launch Care Plan Wizard</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+      {/* 1.6 INTERACTIVE "TELL US WHAT YOU NEED" MEDICAL CARE WIZARD */}
+      <MedicalCareWizard onOpenIntake={onOpenIntake} />
+
       {/* 2. INTRODUCTION TO MAIDES / ABOUT US (SECTION 10 & 4) */}
       <section id="about" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-4 sm:pt-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center">
@@ -1435,12 +1523,21 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-slate-100">
+              <div className="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2">
+                <button 
+                  onClick={() => {
+                    setDocCompareInitialId(doc.id);
+                    setDocCompareModalOpen(true);
+                  }}
+                  className="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all text-center cursor-pointer"
+                >
+                  Compare
+                </button>
                 <button 
                   onClick={onOpenIntake}
-                  className="w-full py-2.5 rounded-xl bg-blue-50 hover:bg-[#0E82FD] hover:text-white text-xs font-bold text-[#0E82FD] transition-all flex items-center justify-center space-x-1.5 cursor-pointer shadow-xs"
+                  className="py-2.5 rounded-xl bg-[#0E82FD] hover:bg-blue-600 text-white text-xs font-bold transition-all flex items-center justify-center space-x-1 shadow-sm cursor-pointer"
                 >
-                  <span>View Profile & Book</span>
+                  <span>Book</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -2013,6 +2110,14 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
             onOpenIntake();
           }
         }}
+      />
+
+      {/* Doctor Comparison Modal */}
+      <DoctorCompareModal
+        isOpen={docCompareModalOpen}
+        onClose={() => setDocCompareModalOpen(false)}
+        initialDoctorId={docCompareInitialId}
+        onOpenIntake={onOpenIntake}
       />
 
     </div>
