@@ -126,10 +126,13 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
             const activeAdminDocs = parsed
-              .filter((d: any) => d.status === "ACTIVE" && (d.published === "PUBLISHED" || !d.published))
-              .sort((a: any, b: any) => (Number(a.displayOrder) || 99) - (Number(b.displayOrder) || 99))
-              .map((d: any) => ({
-                id: d.id,
+              .filter((d: any) => {
+                const s = (d.status || "ACTIVE").toUpperCase();
+                const p = (d.published || "PUBLISHED").toUpperCase();
+                return s === "ACTIVE" && p === "PUBLISHED";
+              })
+              .map((d: any, idx: number) => ({
+                id: d.id || `admin-doc-${idx}`,
                 name: d.name,
                 title: d.title || "Senior Specialist Doctor",
                 qualifications: d.education || d.qualifications || d.certifications || "MBBS, MS, Board Certified",
@@ -139,18 +142,21 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                 rating: d.rating || "4.95",
                 avatar: d.avatar || d.image || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400",
                 specialty: d.specialty || "Specialty",
-                displayOrder: Number(d.displayOrder) || 99
+                displayOrder: typeof d.displayOrder === "number" ? d.displayOrder : (Number(d.displayOrder) || (idx + 1))
               }));
             
-            // Merge admin doctors first, ensuring newly added admin doctors take highest priority
-            const merged = [...activeAdminDocs];
-            KERALA_DOCTORS.forEach(kd => {
-              if (!merged.some(m => m.name.toLowerCase().trim() === kd.name.toLowerCase().trim() || m.id === kd.id)) {
-                merged.push({ ...kd, displayOrder: 99 });
-              }
-            });
-            merged.sort((a, b) => (Number(a.displayOrder) || 99) - (Number(b.displayOrder) || 99));
-            setLandingDoctors(merged);
+            if (activeAdminDocs.length > 0) {
+              const merged = [...activeAdminDocs];
+              KERALA_DOCTORS.forEach(kd => {
+                if (!merged.some(m => m.name.toLowerCase().trim() === kd.name.toLowerCase().trim() || m.id === kd.id)) {
+                  merged.push({ ...kd, displayOrder: 999 });
+                }
+              });
+              merged.sort((a, b) => (Number(a.displayOrder) || 999) - (Number(b.displayOrder) || 999));
+              setLandingDoctors(merged);
+            } else {
+              setLandingDoctors(KERALA_DOCTORS);
+            }
           } else {
             setLandingDoctors(KERALA_DOCTORS);
           }
