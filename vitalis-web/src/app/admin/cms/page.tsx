@@ -355,6 +355,22 @@ export default function CMSAdminPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
+          {articles.length > 0 && (
+            <button
+              onClick={async () => {
+                if (confirm("Are you sure you want to remove ALL articles from the website and CMS?")) {
+                  saveArticles([]);
+                  try {
+                    await fetch("/api/articles?id=all", { method: "DELETE" });
+                  } catch(e) {}
+                }
+              }}
+              className="flex items-center gap-1.5 px-3.5 py-2.5 bg-rose-500/10 hover:bg-rose-600 text-rose-300 hover:text-white text-xs font-semibold rounded-xl border border-rose-500/30 transition-all cursor-pointer"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Clear All Articles</span>
+            </button>
+          )}
           <Link
             href="/blog"
             target="_blank"
