@@ -678,7 +678,7 @@ export const KERALA_SAMPLE_PACKAGES: PackageOffer[] = [
       'Minimally Invasive Beating-Heart CABG by Senior Director Dr. K. S. Muralidharan',
       'Presidential Waterfront Inpatient Suite with Attendant Bed & Halal / Continental Dining',
       'Fast-Track Kerala Medical eVisa Invitation Letter in 4 Hours',
-      '7-Night 5-Star Backwater Resort Stay Post-Discharge (Grand Hyatt / Le Meridien Kochi)',
+      '7-Night 5-Star Backwater Resort Stay Post-Discharge (Grand Hyatt Kochi)',
       'VIP Airport Limousine Chauffeur from Cochin International Airport (COK)',
       '12 Months Complimentary Telemedicine Follow-Up'
     ],
@@ -746,6 +746,32 @@ export const KERALA_SAMPLE_PACKAGES: PackageOffer[] = [
       'Daily in-room physical therapy sessions'
     ],
     recommendedFor: 'Patients seeking world-standard robotic joint precision at 85% savings compared to Western hospitals.'
+  },
+  {
+    id: 'pkg-rajagiri-spine-neuro',
+    title: 'Rajagiri Endoscopic Skull Base & Spine Center',
+    tier: 'Value Accredited',
+    treatmentName: 'Minimally Invasive Spine & Brain Surgery',
+    hospitalName: 'Rajagiri Hospital, Aluva',
+    doctorName: 'Dr. Rajesh K.',
+    district: 'Ernakulam / Kochi',
+    city: 'Aluva, Kochi',
+    priceUsd: 6800,
+    priceInr: 595000,
+    durationDays: 10,
+    highlights: [
+      'Neuronavigation guided micro-discectomy by Senior Surgeon Dr. Rajesh K.',
+      'World-class neuro-intensive monitoring with 1:1 nurse ratio',
+      'Cochin International Airport (COK) direct reception (15 km)',
+      'Post-operative recovery & physical rehabilitation'
+    ],
+    inclusions: [
+      'Microscopic & Endoscopic neurosurgical instrumentation fees',
+      'Pre-operative 3T MRI & neuro-radiology evaluations',
+      '3 Nights Neuro-ICU + 4 Nights Executive Private Room',
+      'Post-operative neurological rehabilitation & speech therapy'
+    ],
+    recommendedFor: 'Spinal stenosis, herniated disc, and brain tumor patients seeking minimally invasive neurosurgery.'
   }
 ];
 
