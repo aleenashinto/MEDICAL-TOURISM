@@ -52,6 +52,24 @@ export default function Home() {
         onOpenIntake={() => setIntakeOpen(true)}
         onOpenConcierge={() => setConciergeOpen(true)}
       />
+
+      {/* Mobile Sticky Bottom Quick Action Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-xl border-t border-slate-200/80 p-2.5 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+        <div className="grid grid-cols-2 gap-2">
+          <a
+            href="/doctors"
+            className="flex items-center justify-center space-x-1.5 py-3 rounded-2xl bg-slate-100 text-slate-800 text-xs font-bold active:scale-98 transition-all"
+          >
+            <span>👨‍⚕️ Find Doctor</span>
+          </a>
+          <button
+            onClick={() => setIntakeOpen(true)}
+            className="flex items-center justify-center space-x-1.5 py-3 rounded-2xl bg-gradient-to-r from-[#0E82FD] to-[#0284C7] text-white text-xs font-black shadow-md shadow-blue-500/30 active:scale-98 transition-all cursor-pointer"
+          >
+            <span>💬 Enquire Now</span>
+          </button>
+        </div>
+      </div>
     </main>
   );
 }

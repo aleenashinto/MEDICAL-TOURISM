@@ -822,6 +822,62 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
         </div>
       </section>
 
+      {/* GLOBAL TRUST BAR — Dedicated Country Corridors & Accreditations */}
+      <section className="-mt-14 sm:-mt-16 relative z-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="rounded-3xl bg-white/95 backdrop-blur-xl shadow-[0_15px_40px_rgba(15,32,66,0.1)] border border-slate-100 p-5 sm:p-7">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+            
+            {/* Left: Corridor Header with Pulse */}
+            <div className="flex items-center space-x-3 shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#0E82FD] flex items-center justify-center font-bold">
+                <Globe2 className="w-5 h-5 animate-spin-slow" />
+              </div>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs font-black text-[#0F2042] uppercase tracking-wider">Trusted Global Patient Corridors</span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                </div>
+                <p className="text-[11px] text-slate-500 font-medium">Daily medical arrivals to Kochi (COK) & Trivandrum (TRV)</p>
+              </div>
+            </div>
+
+            {/* Middle: Country Badges */}
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+              {[
+                { flag: "🇦🇪", name: "UAE (Dubai & Abu Dhabi)" },
+                { flag: "🇬🇧", name: "United Kingdom" },
+                { flag: "🇺🇸", name: "USA & Canada" },
+                { flag: "🇸🇦", name: "Saudi Arabia" },
+                { flag: "🇶🇦", name: "Qatar" },
+                { flag: "🇴🇲", name: "Oman" },
+                { flag: "🇰🇼", name: "Kuwait" },
+                { flag: "🇲🇻", name: "Maldives" }
+              ].map((c, idx) => (
+                <div 
+                  key={idx} 
+                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-blue-50 border border-slate-200/80 hover:border-blue-200 text-slate-700 hover:text-[#0E82FD] text-xs font-bold transition-all shadow-2xs"
+                >
+                  <span className="text-sm">{c.flag}</span>
+                  <span className="text-[11px]">{c.name}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Right: JCI / NABH Badges */}
+            <div className="flex items-center space-x-3 shrink-0 border-t lg:border-t-0 lg:border-l border-slate-100 pt-4 lg:pt-0 lg:pl-6">
+              <div className="text-center sm:text-right">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Accreditation</span>
+                <span className="text-xs font-black text-emerald-600">JCI & NABH Certified</span>
+              </div>
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-xs shadow-inner">
+                ✓
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* 2. INTRODUCTION TO MAIDES / ABOUT US (SECTION 10 & 4) */}
       <section id="about" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-4 sm:pt-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center">
