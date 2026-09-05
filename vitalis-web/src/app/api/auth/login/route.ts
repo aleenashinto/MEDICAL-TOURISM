@@ -53,7 +53,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: "Invalid credentials." }, { status: 401 });
       }
 
-      userName = user.patient ? ${user.patient.firstName}  : "Patient";
+      userName = user.patient ? `${user.patient.firstName} ${user.patient.lastName}` : "Patient";
     }
 
     const sessionPayload = { email, role: userRole, name: userName };
