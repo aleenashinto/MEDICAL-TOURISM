@@ -65,11 +65,14 @@ interface LandingPageProps {
 
 
 const DEFAULT_SPECIALTIES = [
-  { id: "SPEC-001", name: "Cardiology & Cardiac Surgery", iconName: "HeartPulse", desc: "Off-Pump CABG, TAVR, and beating-heart cardiac surgery by senior directors.", count: "Amrita & Aster", displayOrder: 1 },
-  { id: "SPEC-002", name: "Orthopaedics & Joint Replacement", iconName: "Activity", desc: "MAKO robotic knee & anterior hip replacement with same-day ambulation.", count: "Aster Medcity", displayOrder: 2 },
-  { id: "SPEC-003", name: "Neurology & Spine Surgery", iconName: "Brain", desc: "Endoscopic skull base surgery, micro-discectomy, and neuronavigation spine surgery.", count: "Rajagiri Hospital", displayOrder: 3 },
-  { id: "SPEC-004", name: "Classical Ayurveda & Panchakarma", iconName: "Leaf", desc: "Authentic Ashtavaidya 14-21 day Panchakarma at Somatheeram Ayurvedic Village.", count: "Somatheeram", displayOrder: 4 },
-  { id: "SPEC-005", name: "Oncology & Cancer Care", iconName: "Microscope", desc: "Precision oncology, immunotherapy, and multi-organ cancer treatment at VPS Lakeshore.", count: "VPS Lakeshore", displayOrder: 5 }
+  { id: "SPEC-001", name: "Cardiology & Cardiac Surgery", iconName: "HeartPulse", desc: "Off-Pump CABG, TAVR, and beating-heart cardiac surgery by senior directors.", count: "18+ Procedures", displayOrder: 1 },
+  { id: "SPEC-002", name: "Orthopaedics & Joint Replacement", iconName: "Activity", desc: "MAKO robotic knee & anterior hip replacement with same-day ambulation.", count: "14+ Procedures", displayOrder: 2 },
+  { id: "SPEC-003", name: "Neurology & Spine Surgery", iconName: "Brain", desc: "Endoscopic skull base surgery, micro-discectomy, and neuronavigation spine surgery.", count: "11+ Procedures", displayOrder: 3 },
+  { id: "SPEC-004", name: "Classical Ayurveda & Panchakarma", iconName: "Leaf", desc: "Authentic Ashtavaidya 14-21 day Panchakarma at Somatheeram Ayurvedic Village.", count: "24+ Procedures", displayOrder: 4 },
+  { id: "SPEC-005", name: "Oncology & Cancer Care", iconName: "Microscope", desc: "Precision oncology, immunotherapy, and multi-organ cancer treatment at VPS Lakeshore.", count: "15+ Procedures", displayOrder: 5 },
+  { id: "SPEC-006", name: "Gastroenterology & Hepatobiliary Sciences", iconName: "Ambulance", desc: "Advanced therapeutic endoscopy, ERCP, and comprehensive hepatobiliary surgical care.", count: "16+ Procedures", displayOrder: 6 },
+  { id: "SPEC-007", name: "Organ Transplant (Liver, Kidney, Heart)", iconName: "Stethoscope", desc: "High-volume living donor liver and renal transplants with >95% success rates.", count: "9+ Procedures", displayOrder: 7 },
+  { id: "SPEC-008", name: "Urology, Nephrology & Robotic Surgery", iconName: "UserCheck", desc: "DaVinci robotic prostatectomy, laser RIRS kidney stone clearance, and dialysis.", count: "14+ Procedures", displayOrder: 8 }
 ];
 
 const getSpecialtyIcon = (iconName?: string) => {

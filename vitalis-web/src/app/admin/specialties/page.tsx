@@ -191,6 +191,84 @@ const INITIAL_SPECIALTIES: SpecialtyItem[] = [
     leadDoctor: "Dr. Deepa Pillai, MD, DM",
     seoTitle: "Cancer Care & Oncology in Kerala - MAIDES",
     seoDescription: "World-class cancer treatments, TrueBeam radiation, and bone marrow transplants in Kerala."
+  },
+  {
+    id: "SPEC-006",
+    name: "Gastroenterology & Hepatobiliary Sciences",
+    code: "GASTRO",
+    category: "Medical & Surgical",
+    shortDescription: "Advanced therapeutic endoscopy, ERCP, and comprehensive hepatobiliary surgical care.",
+    fullDescription: "Premier digestive disease institute offering third-space endoscopy (POEM/ESD), endoscopic ultrasound, SpyGlass cholangioscopy, and laparoscopic gastrointestinal surgery.",
+    iconName: "Ambulance",
+    image: "https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=800&q=80",
+    displayOrder: 6,
+    status: "ACTIVE",
+    published: "PUBLISHED",
+    proceduresCount: 16,
+    hospitals: ["VPS Lakeshore Hospital, Kochi", "Aster Medcity, Kochi", "Rajagiri Hospital, Aluva"],
+    doctors: ["Dr. Roy J. Mukkada, MD, DM"],
+    keyProcedures: [
+      "Peroral Endoscopic Myotomy (POEM) for Achalasia",
+      "Endoscopic Retrograde Cholangiopancreatography (ERCP)",
+      "Endoscopic Submucosal Dissection (ESD)",
+      "Laparoscopic Bariatric & Metabolic Surgery"
+    ],
+    accreditations: ["JCI Accredited", "NABH Center of Excellence"],
+    leadDoctor: "Dr. Roy J. Mukkada, MD, DM",
+    seoTitle: "Gastroenterology & Liver Care in Kerala",
+    seoDescription: "Comprehensive therapeutic endoscopy and digestive health care in accredited Kerala hospitals."
+  },
+  {
+    id: "SPEC-007",
+    name: "Organ Transplant (Liver, Kidney, Heart)",
+    code: "TRANS",
+    category: "Surgical & Intensive Care",
+    shortDescription: "High-volume living donor liver and renal transplants with >95% success rates.",
+    fullDescription: "Dedicated multi-organ transplantation center with specialized transplant ICUs, HLA crossmatch matching labs, and international donor-recipient legal clearance desks.",
+    iconName: "Stethoscope",
+    image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80",
+    displayOrder: 7,
+    status: "ACTIVE",
+    published: "PUBLISHED",
+    proceduresCount: 9,
+    hospitals: ["Aster Medcity, Kochi", "Amrita Institute of Medical Sciences", "VPS Lakeshore Hospital, Kochi"],
+    doctors: ["Dr. Harikrishnan Pillai, MCh"],
+    keyProcedures: [
+      "Living Donor Liver Transplantation (Adult & Paediatric)",
+      "ABO-Incompatible Kidney Transplantation",
+      "Robotic Donor Nephrectomy",
+      "Combined Kidney-Pancreas Transplantation"
+    ],
+    accreditations: ["State Approved Transplant Center", "NOTTO Certified"],
+    leadDoctor: "Dr. Harikrishnan Pillai, MCh",
+    seoTitle: "Organ Transplantation in Kerala",
+    seoDescription: "World-recognized living donor liver, renal, and cardiac transplants in Kerala."
+  },
+  {
+    id: "SPEC-008",
+    name: "Urology, Nephrology & Robotic Surgery",
+    code: "URO",
+    category: "Interventional & Surgical",
+    shortDescription: "DaVinci robotic prostatectomy, laser RIRS kidney stone clearance, and dialysis.",
+    fullDescription: "Comprehensive renal sciences and urology center providing advanced laser endourology, robotic uro-oncology, and maintenance hemodialysis.",
+    iconName: "UserCheck",
+    image: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=80",
+    displayOrder: 8,
+    status: "ACTIVE",
+    published: "PUBLISHED",
+    proceduresCount: 14,
+    hospitals: ["Aster Medcity, Kochi", "Rajagiri Hospital, Aluva"],
+    doctors: ["Dr. Kishore T. A., MS, MCh"],
+    keyProcedures: [
+      "Robotic Radical Prostatectomy & Partial Nephrectomy",
+      "Retrograde Intrarenal Surgery (RIRS) Laser Lithotripsy",
+      "Holmium Laser Enucleation of Prostate (HoLEP)",
+      "Arteriovenous (AV) Fistula Creation & Dialysis"
+    ],
+    accreditations: ["NABH Nephrology Certified", "JCI Accredited"],
+    leadDoctor: "Dr. Kishore T. A., MS, MCh",
+    seoTitle: "Urology & Kidney Care Kerala",
+    seoDescription: "Advanced robotic urology, laser kidney stone surgery, and dialysis in Kerala."
   }
 ];
 
