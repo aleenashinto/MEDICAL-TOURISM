@@ -400,7 +400,7 @@ export default function DoctorsPage() {
                         className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0E82FD] text-white text-xs font-bold hover:bg-blue-600 transition-all shadow-sm shadow-blue-500/20 active:scale-95 cursor-pointer"
                       >
                         <Calendar className="w-3.5 h-3.5" />
-                        <span>Book Consultation</span>
+                        <span>Request Consultation</span>
                       </button>
                     </div>
                   </div>

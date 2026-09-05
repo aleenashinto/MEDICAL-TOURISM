@@ -185,9 +185,9 @@ export default function TreatmentsPage() {
                       <div className="pt-3 border-t border-slate-100">
                         <button
                           onClick={onOpenIntake}
-                          className="inline-flex items-center space-x-1 text-xs font-bold text-[#0E82FD] hover:text-blue-700"
+                          className="inline-flex items-center space-x-1 text-xs font-bold text-[#0E82FD] hover:text-blue-700 cursor-pointer"
                         >
-                          <span>Request Assistance</span>
+                          <span>Plan This Treatment</span>
                           <ChevronRight className="w-3.5 h-3.5" />
                         </button>
                       </div>

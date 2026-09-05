@@ -236,9 +236,9 @@ export default function HospitalsPage() {
                         </div>
                         <button
                           onClick={onOpenIntake}
-                          className="flex items-center gap-1 text-xs font-bold text-[#0E82FD] hover:text-blue-700"
+                          className="flex items-center gap-1 text-xs font-bold text-[#0E82FD] hover:text-blue-700 cursor-pointer"
                         >
-                          <span>Request Quote</span>
+                          <span>Explore Hospital</span>
                           <ArrowUpRight className="w-3.5 h-3.5" />
                         </button>
                       </div>

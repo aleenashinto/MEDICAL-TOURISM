@@ -543,22 +543,30 @@ export function LandingPage({ onOpenIntake, onOpenConcierge, onOpenSearch }: Lan
         </div>
       </section>
 
-      {/* 3. CONCIERGE "HOW CAN WE HELP YOU?" ACTION TRIAD */}
+      {/* 3. "START HERE — WHAT ARE YOU LOOKING FOR?" CONCIERGE EXPERIENCE */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-4">
-        <div className="text-center mb-6">
-          <span className="text-[10px] font-black tracking-widest text-[#0E82FD] uppercase">Instant Access</span>
-          <h2 className="text-xl sm:text-2xl font-black text-[#0F2042] mt-0.5">How Can MAIDES Help You Today?</h2>
+        <div className="text-center mb-8 space-y-2">
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-blue-50 text-[#0E82FD] text-[11px] font-black uppercase tracking-wider border border-blue-100">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Personalized Care Navigation</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black text-[#0F2042]">
+            What are you looking for today?
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">
+            Choose your starting point to explore Kerala’s accredited clinical faculty, hospitals, and surgical procedures.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           
           {/* Card 1: Find Doctor */}
           <Link
             href="/doctors"
-            className="p-6 rounded-3xl bg-white border-2 border-slate-100 hover:border-[#0E82FD] shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between space-y-4"
+            className="p-6 rounded-3xl bg-white border-2 border-slate-100 hover:border-[#0E82FD] shadow-xs hover:shadow-xl transition-all duration-300 group flex flex-col justify-between space-y-4"
           >
             <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0E82FD] group-hover:bg-[#0E82FD] group-hover:text-white transition-colors flex items-center justify-center">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0E82FD] group-hover:bg-[#0E82FD] group-hover:text-white transition-colors flex items-center justify-center shadow-inner">
                 <Stethoscope className="w-6 h-6" />
               </div>
               <div className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-blue-50 text-slate-400 group-hover:text-[#0E82FD] flex items-center justify-center transition-colors">
@@ -566,11 +574,11 @@ export function LandingPage({ onOpenIntake, onOpenConcierge, onOpenSearch }: Lan
               </div>
             </div>
             <div>
-              <h3 className="text-lg font-black text-[#0F2042] group-hover:text-[#0E82FD] transition-colors">Find a Doctor</h3>
-              <p className="text-xs text-slate-500 mt-1">Browse 120+ verified chief surgeons, cardiac directors & Ayurveda Ashtavaidyas in Kerala.</p>
+              <h3 className="text-base font-black text-[#0F2042] group-hover:text-[#0E82FD] transition-colors">Find a Doctor</h3>
+              <p className="text-xs text-slate-500 mt-1">120+ verified chief surgeons, cardiac directors & Ayurveda Ashtavaidyas.</p>
             </div>
-            <div className="text-xs font-bold text-[#0E82FD] pt-2 border-t border-slate-100 flex items-center space-x-1">
-              <span>View Specialists Directory</span>
+            <div className="text-xs font-bold text-[#0E82FD] pt-3 border-t border-slate-100 flex items-center space-x-1">
+              <span>Explore Specialists</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </div>
           </Link>
@@ -578,10 +586,10 @@ export function LandingPage({ onOpenIntake, onOpenConcierge, onOpenSearch }: Lan
           {/* Card 2: Find Hospital */}
           <Link
             href="/hospitals"
-            className="p-6 rounded-3xl bg-white border-2 border-slate-100 hover:border-emerald-500 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between space-y-4"
+            className="p-6 rounded-3xl bg-white border-2 border-slate-100 hover:border-emerald-500 shadow-xs hover:shadow-xl transition-all duration-300 group flex flex-col justify-between space-y-4"
           >
             <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors flex items-center justify-center">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors flex items-center justify-center shadow-inner">
                 <Building2 className="w-6 h-6" />
               </div>
               <div className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-emerald-50 text-slate-400 group-hover:text-emerald-600 flex items-center justify-center transition-colors">
@@ -589,34 +597,57 @@ export function LandingPage({ onOpenIntake, onOpenConcierge, onOpenSearch }: Lan
               </div>
             </div>
             <div>
-              <h3 className="text-lg font-black text-[#0F2042] group-hover:text-emerald-600 transition-colors">Find a Hospital</h3>
-              <p className="text-xs text-slate-500 mt-1">Explore JCI & NABH accredited quaternary medical centers across Cochin, Trivandrum & Calicut.</p>
+              <h3 className="text-base font-black text-[#0F2042] group-hover:text-emerald-600 transition-colors">Find a Hospital</h3>
+              <p className="text-xs text-slate-500 mt-1">JCI & NABH accredited quaternary campuses in Cochin, Trivandrum & Calicut.</p>
             </div>
-            <div className="text-xs font-bold text-emerald-600 pt-2 border-t border-slate-100 flex items-center space-x-1">
-              <span>Explore Kerala Hospitals</span>
+            <div className="text-xs font-bold text-emerald-600 pt-3 border-t border-slate-100 flex items-center space-x-1">
+              <span>Explore Hospitals</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </div>
           </Link>
 
-          {/* Card 3: Estimate Cost */}
-          <a
-            href="#care-wizard"
-            className="p-6 rounded-3xl bg-white border-2 border-slate-100 hover:border-sky-500 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between space-y-4"
+          {/* Card 3: Find Treatment */}
+          <Link
+            href="/treatments"
+            className="p-6 rounded-3xl bg-white border-2 border-slate-100 hover:border-cyan-500 shadow-xs hover:shadow-xl transition-all duration-300 group flex flex-col justify-between space-y-4"
           >
             <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 group-hover:bg-sky-600 group-hover:text-white transition-colors flex items-center justify-center">
-                <Sparkles className="w-6 h-6" />
+              <div className="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white transition-colors flex items-center justify-center shadow-inner">
+                <HeartPulse className="w-6 h-6" />
               </div>
-              <div className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-sky-50 text-slate-400 group-hover:text-sky-600 flex items-center justify-center transition-colors">
+              <div className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-cyan-50 text-slate-400 group-hover:text-cyan-600 flex items-center justify-center transition-colors">
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </div>
             </div>
             <div>
-              <h3 className="text-lg font-black text-[#0F2042] group-hover:text-sky-600 transition-colors">Estimate Treatment Cost</h3>
-              <p className="text-xs text-slate-500 mt-1">Get an instant transparent price benchmark comparing Kerala quaternary care vs UAE, UK & USA.</p>
+              <h3 className="text-base font-black text-[#0F2042] group-hover:text-cyan-600 transition-colors">Find a Treatment</h3>
+              <p className="text-xs text-slate-500 mt-1">Robotic joint replacement, cardiac bypass, organ transplants & oncology.</p>
             </div>
-            <div className="text-xs font-bold text-sky-600 pt-2 border-t border-slate-100 flex items-center space-x-1">
-              <span>Launch Care Plan Wizard</span>
+            <div className="text-xs font-bold text-cyan-600 pt-3 border-t border-slate-100 flex items-center space-x-1">
+              <span>Explore Treatments</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </div>
+          </Link>
+
+          {/* Card 4: Get a Cost Estimate / Care Plan */}
+          <a
+            href="#care-plan-builder"
+            className="p-6 rounded-3xl bg-white border-2 border-slate-100 hover:border-amber-500 shadow-xs hover:shadow-xl transition-all duration-300 group flex flex-col justify-between space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-colors flex items-center justify-center shadow-inner">
+                <DollarSign className="w-6 h-6" />
+              </div>
+              <div className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-amber-50 text-slate-400 group-hover:text-amber-600 flex items-center justify-center transition-colors">
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-base font-black text-[#0F2042] group-hover:text-amber-600 transition-colors">Get Cost Estimate</h3>
+              <p className="text-xs text-slate-500 mt-1">Transparent price benchmarks with up to 70% savings vs US, UK & UAE.</p>
+            </div>
+            <div className="text-xs font-bold text-amber-600 pt-3 border-t border-slate-100 flex items-center space-x-1">
+              <span>Build Care Plan</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </div>
           </a>
@@ -762,7 +793,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge, onOpenSearch }: Lan
                   onClick={onOpenIntake}
                   className="py-2.5 rounded-xl bg-[#0E82FD] hover:bg-blue-600 text-white text-xs font-bold transition-all flex items-center justify-center space-x-1 shadow-sm cursor-pointer"
                 >
-                  <span>Book</span>
+                  <span>Request Consultation</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -855,7 +886,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge, onOpenSearch }: Lan
                     onClick={onOpenIntake} 
                     className="py-2.5 rounded-xl bg-[#0E82FD] hover:bg-blue-600 text-white text-xs font-bold transition-all flex items-center justify-center space-x-1 shadow-sm cursor-pointer"
                   >
-                    <span>View Profile</span>
+                    <span>Explore Hospital</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>

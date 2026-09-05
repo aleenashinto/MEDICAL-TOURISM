@@ -154,14 +154,14 @@ export default function PackagesPage() {
                       <div className="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
                         <div>
                           <div className="text-[10px] text-slate-400">Package starting from</div>
-                          <div className="text-xl font-black text-[#0F2042]">\${p.priceUsd.toLocaleString()}</div>
+                          <div className="text-xl font-black text-[#0F2042]">${p.priceUsd.toLocaleString()}</div>
                           <div className="text-[10px] text-slate-400">≈ ₹{p.priceInr.toLocaleString()}</div>
                         </div>
                         <button
                           onClick={onOpenIntake}
-                          className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#0E82FD] text-white text-xs font-bold hover:bg-blue-600 transition-all shadow-md shadow-blue-500/20"
+                          className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#0E82FD] text-white text-xs font-bold hover:bg-blue-600 transition-all shadow-md shadow-blue-500/20 cursor-pointer"
                         >
-                          Enquire Now <ArrowUpRight className="w-3.5 h-3.5" />
+                          <span>Request Package</span> <ArrowUpRight className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
