@@ -64,12 +64,24 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({
     "Reports & Analytics": true,
     "Clinical Catalog": true,
     "Patient Operations": false,
     "Logistics & Invoicing": false
   });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const userRole = localStorage.getItem("maides_user_role");
+      if (userRole !== "ADMIN") {
+        window.location.href = "/auth/login";
+      } else {
+        setIsAuthorized(true);
+      }
+    }
+  }, [pathname]);
 
   const toggleSubmenu = (name: string) => {
     setExpandedMenus(prev => ({
