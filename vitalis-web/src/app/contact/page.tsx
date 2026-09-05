@@ -182,8 +182,12 @@ export default function ContactPage() {
                 <h3 className="text-sm font-black text-[#0F2042]">Prefer WhatsApp?</h3>
                 <p className="text-xs text-slate-600 mt-1">Chat directly with our international coordination team in Arabic, English, or Malayalam. Available 24/7.</p>
               </div>
-              <a href="https://wa.me/91XXXXXXXXXX" target="_blank" rel="noopener noreferrer"
-                className="px-6 py-3 rounded-full bg-[#25D366] text-white text-xs font-black hover:bg-green-600 transition-all shadow-lg whitespace-nowrap flex-shrink-0">
+              <a 
+                href="https://wa.me/914842908482?text=Hello%20MAIDES,%20I%20would%20like%20assistance%20with%20medical%20treatment%20in%20Kerala." 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="px-6 py-3 rounded-full bg-[#25D366] text-white text-xs font-black hover:bg-green-600 transition-all shadow-lg whitespace-nowrap flex-shrink-0 cursor-pointer"
+              >
                 Chat on WhatsApp
               </a>
             </div>

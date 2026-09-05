@@ -105,15 +105,24 @@ export function CostCalculator360({ onOpenIntake }: CostCalculator360Props = {})
   const [selectedProcedure, setSelectedProcedure] = useState<ProcedureCost>(PROCEDURES_DATA[0]);
   const [currency, setCurrency] = useState<"USD" | "GBP" | "AED" | "INR">("USD");
 
-  const internationalCost = 
-    currency === "USD" ? selectedProcedure.usaCostUsd :
-    currency === "GBP" ? Math.round(selectedProcedure.ukCostGbp * 1.3) :
-    currency === "AED" ? Math.round(selectedProcedure.uaeCostAed / 3.67) :
-    selectedProcedure.usaCostUsd;
+  const currencySymbol = 
+    currency === "USD" ? "$" :
+    currency === "GBP" ? "£" :
+    currency === "AED" ? "AED " : "₹";
 
-  const keralaCost = selectedProcedure.keralaCostUsd;
-  const savingsPercent = Math.round(((internationalCost - keralaCost) / internationalCost) * 100);
-  const savingsAmount = internationalCost - keralaCost;
+  const getConvertedPrice = (usd: number): number => {
+    switch(currency) {
+      case "USD": return usd;
+      case "GBP": return Math.round(usd * 0.79);
+      case "AED": return Math.round(usd * 3.67);
+      case "INR": return Math.round(usd * 84);
+    }
+  };
+
+  const internationalCostInCurr = getConvertedPrice(selectedProcedure.usaCostUsd);
+  const keralaCostInCurr = getConvertedPrice(selectedProcedure.keralaCostUsd);
+  const savingsPercent = Math.round(((internationalCostInCurr - keralaCostInCurr) / internationalCostInCurr) * 100);
+  const savingsAmountInCurr = internationalCostInCurr - keralaCostInCurr;
 
   return (
     <div className="rounded-3xl bg-white border border-slate-200 shadow-xl p-6 sm:p-10 space-y-8">
@@ -192,9 +201,9 @@ export function CostCalculator360({ onOpenIntake }: CostCalculator360Props = {})
                 Avg USA / UK / UAE Hospital Cost
               </span>
               <div className="text-2xl sm:text-3xl font-black text-slate-400 line-through">
-                ${internationalCost.toLocaleString()} USD
+                {currencySymbol}{internationalCostInCurr.toLocaleString()} {currency}
               </div>
-              <span className="text-[10px] text-slate-400 block font-medium">Excludes flight & travel</span>
+              <span className="text-[10px] text-slate-400 block font-medium">Excludes international flight & logistics</span>
             </div>
 
             {/* Kerala Cost Card */}
@@ -206,7 +215,7 @@ export function CostCalculator360({ onOpenIntake }: CostCalculator360Props = {})
                 </span>
               </div>
               <div className="text-2xl sm:text-3xl font-black text-white">
-                ${selectedProcedure.keralaCostUsd.toLocaleString()} USD
+                {currencySymbol}{keralaCostInCurr.toLocaleString()} {currency}
               </div>
               <span className="text-[10px] text-blue-100 block font-mono">
                 ₹{selectedProcedure.keralaCostInr.toLocaleString('en-IN')} INR
@@ -227,7 +236,7 @@ export function CostCalculator360({ onOpenIntake }: CostCalculator360Props = {})
             </div>
             <div className="text-right">
               <div className="text-base sm:text-lg font-black text-emerald-600">
-                ${savingsAmount.toLocaleString()} USD
+                {currencySymbol}{savingsAmountInCurr.toLocaleString()} {currency}
               </div>
               <span className="text-[10px] font-bold text-emerald-700">~{savingsPercent}% Lower</span>
             </div>
