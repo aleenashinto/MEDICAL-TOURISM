@@ -28,6 +28,20 @@ export default function EnquiriesPage() {
 
   const [enquiries, setEnquiries] = useState([
     {
+      id: "MAIDES-MTNYZU7H",
+      name: "ALEENA MATHEW",
+      email: "aleenakochumon2@gmail.com",
+      phone: "+971 50 821 4590",
+      country: "United Arab Emirates",
+      treatment: "Cardiology & Cardiac Surgery",
+      budget: "$8,500",
+      urgency: "HIGH",
+      submittedAt: "2026-09-05 11:25",
+      status: "NEW",
+      assignedHospital: "Amrita Institute of Medical Sciences",
+      notes: "Patient submitted medical enquiry for specialized clinical consultation and treatment planning in Kerala.",
+    },
+    {
       id: "ENQ-2026-004",
       name: "Sarah Jenkins",
       email: "sarah.jenkins@example.com",

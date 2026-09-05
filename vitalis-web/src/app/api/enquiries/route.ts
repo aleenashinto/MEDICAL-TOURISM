@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export interface ServerEnquiry {
   id: string;
@@ -22,6 +22,25 @@ export interface ServerEnquiry {
 }
 
 let globalEnquiriesStore: ServerEnquiry[] = [
+  {
+    id: "MAIDES-MTNYZU7H",
+    name: "ALEENA MATHEW",
+    email: "aleenakochumon2@gmail.com",
+    phone: "+971 50 821 4590",
+    country: "United Arab Emirates",
+    language: "English",
+    treatment: "Cardiology & Cardiac Surgery",
+    specialty: "Cardiology & Cardiac Surgery",
+    district: "Ernakulam / Kochi",
+    summary: "Patient submitted medical enquiry for specialized clinical consultation and treatment planning in Kerala.",
+    budget: "USD 5,000 – 10,000",
+    timeline: "ASAP (within 2 weeks)",
+    urgency: "HIGH",
+    submittedAt: "2026-09-05 11:25",
+    status: "NEW",
+    assignedHospital: "Amrita Institute of Medical Sciences",
+    notes: "Clinical records received. Assigned for rapid cardiologist triage and treatment estimation."
+  },
   {
     id: "ENQ-2026-004",
     name: "Sarah Jenkins",
