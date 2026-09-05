@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -32,30 +32,30 @@ export default function PatientProfilePage() {
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
-  // Profile Form State
+  // Profile Form State — initialized empty; populated from localStorage in useEffect
   const [profile, setProfile] = useState({
     patientId: "MED-2026-00125",
-    firstName: "Sarah",
-    lastName: "Jenkins",
-    email: "sarah.jenkins@example.com",
-    phone: "+44 7911 123456",
-    altPhone: "+44 7911 987654",
-    dob: "1982-04-12",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    altPhone: "",
+    dob: "",
     gender: "Female",
-    country: "United Kingdom",
-    state: "Greater London",
-    city: "London",
-    addressLine1: "42 Highfield Terrace, Flat 3B",
-    addressLine2: "Kensington",
-    postalCode: "SW7 2AZ",
-    passportNo: "UK9988221A",
-    passportExpiry: "2031-08-19",
-    nationality: "British",
-    emergencyName: "Mark Jenkins",
-    emergencyRelation: "Spouse",
-    emergencyPhone: "+44 7911 654321",
-    emergencyEmail: "mark.jenkins@example.com",
-    bloodGroup: "O Positive (O+)",
+    country: "",
+    state: "",
+    city: "",
+    addressLine1: "",
+    addressLine2: "",
+    postalCode: "",
+    passportNo: "",
+    passportExpiry: "",
+    nationality: "",
+    emergencyName: "",
+    emergencyRelation: "",
+    emergencyPhone: "",
+    emergencyEmail: "",
+    bloodGroup: "",
     status: "Active",
     emailVerified: true,
   });
@@ -64,31 +64,30 @@ export default function PatientProfilePage() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedName = localStorage.getItem("maides_user_name");
-      const storedEmail = localStorage.getItem("maides_user_email");
-      const storedLocation = localStorage.getItem("maides_user_location");
-      const storedPhone = localStorage.getItem("maides_user_phone");
+      const storedName = localStorage.getItem("maides_user_name") || "";
+      const storedEmail = localStorage.getItem("maides_user_email") || "";
+      const storedLocation = localStorage.getItem("maides_user_location") || "";
+      const storedPhone = localStorage.getItem("maides_user_phone") || "";
       const storedPhoto = localStorage.getItem("maides_user_photo");
 
       if (storedPhoto) setProfilePhoto(storedPhoto);
 
-      if (storedName || storedEmail) {
-        const parts = (storedName || "Sarah Jenkins").trim().split(" ");
-        const first = parts[0] || "Aleena";
-        const last = parts.slice(1).join(" ") || "";
+      const parts = storedName.trim().split(" ");
+      const first = parts[0] || "Patient";
+      const last = parts.slice(1).join(" ") || "";
 
-        const loaded = {
-          ...profile,
-          firstName: first,
-          lastName: last,
-          email: storedEmail || profile.email,
-          country: storedLocation || profile.country,
-          phone: storedPhone || profile.phone,
-        };
-        setProfile(loaded);
-        setInitialProfile(loaded);
-      }
+      const loaded = {
+        ...profile,
+        firstName: first,
+        lastName: last,
+        email: storedEmail,
+        country: storedLocation,
+        phone: storedPhone,
+      };
+      setProfile(loaded);
+      setInitialProfile(loaded);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -166,7 +165,7 @@ export default function PatientProfilePage() {
                 {profilePhoto ? (
                   <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <span>{`${profile.firstName[0] || "A"}${profile.lastName[0] || ""}`.toUpperCase()}</span>
+                  <span>{`${profile.firstName?.[0] ?? "P"}${profile.lastName?.[0] ?? ""}`.toUpperCase()}</span>
                 )}
               </div>
               <label

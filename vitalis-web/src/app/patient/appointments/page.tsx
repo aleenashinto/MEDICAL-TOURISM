@@ -64,6 +64,8 @@ export default function PatientAppointmentsPage() {
   const [activeTab, setActiveTab] = useState<"ALL" | "UPCOMING" | "REQUESTED" | "COMPLETED">("ALL");
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cancelTarget, setCancelTarget] = useState<string | null>(null);
 
   // Form states
   const [selectedDoctor, setSelectedDoctor] = useState("Dr. Vijay Anand (Chief Orthopedics, Aster Medcity)");
@@ -94,6 +96,7 @@ export default function PatientAppointmentsPage() {
 
   const handleRequestAppointment = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     let doctorName = "Dr. Vijay Anand";
     let specialty = "Chief Orthopedic Surgeon";
@@ -176,6 +179,18 @@ export default function PatientAppointmentsPage() {
     setToast("Consultation request submitted! Your clinical coordinator will review and confirm.");
     setShowModal(false);
     setPatientNotes("");
+    setIsSubmitting(false);
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  /** PP-013/098: Cancel appointment with confirm dialog */
+  const handleConfirmCancel = (id: string) => {
+    const updated = appointments.map((apt) =>
+      apt.id === id ? { ...apt, status: "CANCELLED" as const } : apt
+    );
+    saveAppointments(updated);
+    setCancelTarget(null);
+    setToast("Appointment cancelled successfully.");
     setTimeout(() => setToast(null), 4000);
   };
 
@@ -314,30 +329,76 @@ export default function PatientAppointmentsPage() {
                   <span>{apt.dateTime}</span>
                 </div>
 
-                {apt.status === "CONFIRMED" && apt.meetLink && (
-                  <a
-                    href={apt.meetLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-[#0E82FD] hover:bg-blue-600 text-white font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer shrink-0"
-                  >
-                    <Video className="w-4 h-4" />
-                    <span>Join Video Room</span>
-                    <ExternalLink className="w-3 h-3 text-blue-200" />
-                  </a>
-                )}
+                <div className="flex items-center gap-2">
+                  {apt.status === "CONFIRMED" && apt.meetLink && (
+                    <a
+                      href={apt.meetLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-[#0E82FD] hover:bg-blue-600 text-white font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer shrink-0"
+                    >
+                      <Video className="w-4 h-4" />
+                      <span>Join Video Room</span>
+                      <ExternalLink className="w-3 h-3 text-blue-200" />
+                    </a>
+                  )}
 
-                {apt.status === "REQUESTED" && (
-                  <div className="text-amber-700 font-semibold text-[11px] flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 animate-spin" />
-                    <span>Awaiting coordinator time slot allocation</span>
-                  </div>
-                )}
+                  {apt.status === "REQUESTED" && (
+                    <div className="text-amber-700 font-semibold text-[11px] flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 animate-spin" />
+                      <span>Awaiting coordinator time slot allocation</span>
+                    </div>
+                  )}
+
+                  {(apt.status === "CONFIRMED" || apt.status === "REQUESTED") && (
+                    <button
+                      onClick={() => setCancelTarget(apt.id)}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold border border-rose-200 transition-all cursor-pointer shrink-0"
+                      aria-label={`Cancel appointment ${apt.id}`}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                      <span>Cancel</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))
         )}
       </div>
+
+      {/* Cancel Confirmation Dialog — PP-013/098 */}
+      {cancelTarget && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in" role="dialog" aria-modal="true" aria-labelledby="cancel-dialog-title">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 animate-in zoom-in-95">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+                <AlertCircle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 id="cancel-dialog-title" className="font-bold text-slate-900 text-sm">Cancel Appointment?</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Are you sure you want to cancel appointment <span className="font-mono font-bold text-slate-700">{cancelTarget}</span>? This action cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end pt-2">
+              <button
+                onClick={() => setCancelTarget(null)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+              >
+                Keep Appointment
+              </button>
+              <button
+                onClick={() => handleConfirmCancel(cancelTarget)}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer"
+              >
+                Yes, Cancel It
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Appointment Request Modal */}
       {showModal && (
@@ -437,9 +498,10 @@ export default function PatientAppointmentsPage() {
                 </button>
                 <button 
                   type="submit" 
-                  className="px-5 py-2.5 bg-[#0E82FD] hover:bg-blue-600 text-white font-bold rounded-xl shadow-md transition-all cursor-pointer"
+                  disabled={isSubmitting}
+                  className="px-5 py-2.5 bg-[#0E82FD] hover:bg-blue-600 text-white font-bold rounded-xl shadow-md transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  Submit Consultation Request
+                  {isSubmitting ? "Submitting…" : "Submit Consultation Request"}
                 </button>
               </div>
             </form>

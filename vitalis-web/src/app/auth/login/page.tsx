@@ -207,7 +207,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="block w-full pl-10 pr-3 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:border-transparent transition-all"
-                  placeholder={role === "PATIENT" ? "Enter your patient email (e.g. sarah@example.com)" : "admin@gmail.com"}
+                  placeholder={role === "PATIENT" ? "" : "admin@gmail.com"}
                 />
               </div>
             </div>
@@ -238,7 +238,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   className="block w-full pl-10 pr-10 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:border-transparent transition-all"
-                  placeholder={role === "PATIENT" ? "Enter your patient password" : "••••••••"}
+                  placeholder={role === "PATIENT" ? "" : "••••••••"}
                 />
                 <button
                   type="button"

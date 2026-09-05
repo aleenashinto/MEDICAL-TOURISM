@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -21,26 +21,23 @@ import {
 
 export default function PatientDashboardPage() {
   const [user, setUser] = useState({
-    name: "Sarah Jenkins",
-    email: "sarah.jenkins@example.com",
-    location: "United Kingdom",
+    name: "",
+    email: "",
+    location: "",
     patientId: "MED-2026-00125"
   });
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedName = localStorage.getItem("maides_user_name");
-      const storedEmail = localStorage.getItem("maides_user_email");
-      const storedLocation = localStorage.getItem("maides_user_location");
-
-      if (storedName || storedEmail || storedLocation) {
-        setUser({
-          name: storedName || "Sarah Jenkins",
-          email: storedEmail || "sarah.jenkins@example.com",
-          location: storedLocation || "United Kingdom",
-          patientId: "MED-2026-00125"
-        });
-      }
+      const storedName = localStorage.getItem("maides_user_name") || "";
+      const storedEmail = localStorage.getItem("maides_user_email") || "";
+      const storedLocation = localStorage.getItem("maides_user_location") || "";
+      setUser({
+        name: storedName || "Patient",
+        email: storedEmail,
+        location: storedLocation,
+        patientId: "MED-2026-00125"
+      });
     }
   }, []);
 
@@ -153,8 +150,8 @@ export default function PatientDashboardPage() {
 
         <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
           <div className="relative">
-            <div className="absolute -left-6 top-1 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">
-              ?
+            <div className="absolute -left-6 top-1 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold">
+              1
             </div>
             <div>
               <div className="text-sm font-semibold text-slate-900">Enquiry Submitted & Qualified</div>
@@ -163,8 +160,8 @@ export default function PatientDashboardPage() {
           </div>
 
           <div className="relative">
-            <div className="absolute -left-6 top-1 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">
-              ?
+            <div className="absolute -left-6 top-1 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold">
+              2
             </div>
             <div>
               <div className="text-sm font-semibold text-slate-900">Doctor Second Opinion & Protocol Approved</div>
@@ -173,8 +170,8 @@ export default function PatientDashboardPage() {
           </div>
 
           <div className="relative">
-            <div className="absolute -left-6 top-1 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">
-              ?
+            <div className="absolute -left-6 top-1 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold">
+              3
             </div>
             <div>
               <div className="text-sm font-semibold text-slate-900">Treatment Quotation Accepted</div>
@@ -183,8 +180,8 @@ export default function PatientDashboardPage() {
           </div>
 
           <div className="relative">
-            <div className="absolute -left-6 top-1 w-5 h-5 rounded-full bg-blue-600 ring-4 ring-blue-100 flex items-center justify-center text-white text-[10px]">
-              ?
+            <div className="absolute -left-6 top-1 w-5 h-5 rounded-full bg-blue-600 ring-4 ring-blue-100 flex items-center justify-center text-white text-[10px] font-bold">
+              4
             </div>
             <div>
               <div className="text-sm font-bold text-blue-600">Travel, Visa & Airport Logistics (Current)</div>
