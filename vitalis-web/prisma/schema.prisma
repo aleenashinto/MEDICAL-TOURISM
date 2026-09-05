@@ -1,0 +1,211 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      String   @default("PATIENT")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  patient   Patient?
+  admin     Admin?
+}
+
+model Admin {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Patient {
+  id             String    @id @default(uuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName      String
+  lastName       String
+  country        String?
+  phone          String?
+  dateOfBirth    DateTime?
+  gender         String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  cases          MedicalCase[]
+  appointments   Appointment[]
+  documents      Document[]
+  invoices       Invoice[]
+  messages       Message[]
+  supportTickets SupportTicket[]
+  notifications  Notification[]
+  reviews        Review[]
+}
+
+model Hospital {
+  id            String   @id @default(uuid())
+  name          String
+  location      String
+  description   String?
+  accreditation String?
+  isPublished   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  doctors       Doctor[]
+  cases         MedicalCase[]
+  appointments  Appointment[]
+  treatments    Treatment[]
+  packages      Package[]
+}
+
+model Doctor {
+  id             String   @id @default(uuid())
+  hospitalId     String
+  hospital       Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  name           String
+  specialty      String
+  qualifications String?
+  experience     Int?
+  isPublished    Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  cases          MedicalCase[]
+  appointments   Appointment[]
+}
+
+model Treatment {
+  id          String   @id @default(uuid())
+  name        String
+  specialty   String
+  description String?
+  hospitalId  String
+  hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  packages    Package[]
+}
+
+model Package {
+  id          String   @id @default(uuid())
+  name        String
+  treatmentId String
+  treatment   Treatment @relation(fields: [treatmentId], references: [id], onDelete: Cascade)
+  hospitalId  String
+  hospital    Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  costRange   String?
+  duration    String?
+  inclusions  String?
+  isPublished Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model MedicalCase {
+  id           String   @id @default(uuid())
+  patientId    String
+  patient      Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  condition    String
+  specialty    String?
+  treatment    String?
+  hospitalId   String?
+  hospital     Hospital? @relation(fields: [hospitalId], references: [id])
+  doctorId     String?
+  doctor       Doctor?   @relation(fields: [doctorId], references: [id])
+  status       String   @default("New")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Appointment {
+  id              String   @id @default(uuid())
+  patientId       String
+  patient         Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  hospitalId      String?
+  hospital        Hospital? @relation(fields: [hospitalId], references: [id])
+  doctorId        String?
+  doctor          Doctor?   @relation(fields: [doctorId], references: [id])
+  appointmentDate DateTime
+  status          String   @default("Pending")
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Document {
+  id           String   @id @default(uuid())
+  patientId    String
+  patient      Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  fileName     String
+  fileUrl      String
+  documentType String
+  createdAt    DateTime @default(now())
+}
+
+model Invoice {
+  id            String   @id @default(uuid())
+  patientId     String
+  patient       Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  invoiceNumber String   @unique
+  amount        Float
+  currency      String   @default("USD")
+  status        String   @default("Pending")
+  createdAt     DateTime @default(now())
+  payments      Payment[]
+}
+
+model Payment {
+  id                   String   @id @default(uuid())
+  invoiceId            String
+  invoice              Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amount               Float
+  status               String   @default("Completed")
+  transactionReference String?
+  createdAt            DateTime @default(now())
+}
+
+model Message {
+  id             String   @id @default(uuid())
+  patientId      String
+  patient        Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  senderId       String
+  recipientId    String
+  text           String
+  category       String   @default("General")
+  status         String   @default("sent")
+  createdAt      DateTime @default(now())
+}
+
+model SupportTicket {
+  id          String   @id @default(uuid())
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  subject     String
+  description String
+  status      String   @default("Open")
+  createdAt   DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Review {
+  id          String   @id @default(uuid())
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  rating      Int
+  description String?
+  status      String   @default("Pending")
+  createdAt   DateTime @default(now())
+}

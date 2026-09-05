@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import prisma from '@/lib/prisma';
 
 // Helper to hash passwords using native Web Crypto API (works in Next.js)
 async function hashPassword(password: string): Promise<string> {
@@ -15,7 +15,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     
     // Explicitly destructure ONLY the fields we allow. This prevents Mass Assignment.
-    // Notice we do NOT extract `role` or `isAdmin` from the body.
     const { firstName, lastName, email, phone, country, dob, gender, password, agreeTerms } = body;
 
     // 1. Validate required fields
@@ -34,31 +33,40 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Password must be at least 8 characters" }, { status: 400 });
     }
 
-    // 4. Admin email reservation check
-    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@vitalis.health";
-    if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-      return NextResponse.json({ success: false, error: "Email is reserved" }, { status: 400 });
-    }
-
-    // 5. Database Duplicate Check
-    const existingUser = db.users.find(email);
+    // 4. Database Duplicate Check
+    const existingUser = await prisma.user.findUnique({
+      where: { email: email.toLowerCase().trim() }
+    });
+    
     if (existingUser) {
-      // Prevent Account Enumeration: Return a generic message or just say it exists
       return NextResponse.json({ success: false, error: "Email is already registered. Please log in." }, { status: 400 });
     }
 
-    // 6. Secure Password Hashing
+    // 5. Secure Password Hashing
     const hashedPassword = await hashPassword(password);
 
-    // 7. Database Insertion (Safe)
-    db.users.add({
-      email: email.toLowerCase().trim(),
-      password: hashedPassword, // Store the hash, NEVER the plaintext
-      name: `${firstName.trim()} ${lastName.trim()}`,
-      role: 'PATIENT' // Hardcoded on the server. Privilege escalation impossible.
+    // 6. Database Insertion via Prisma Transaction (User + Patient)
+    await prisma.$transaction(async (tx) => {
+      const newUser = await tx.user.create({
+        data: {
+          email: email.toLowerCase().trim(),
+          password: hashedPassword,
+          role: 'PATIENT',
+        }
+      });
+      
+      await tx.patient.create({
+        data: {
+          userId: newUser.id,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          phone: phone?.trim(),
+          country: country?.trim(),
+          gender: gender?.trim()
+        }
+      });
     });
 
-    // 8. Return success for OTP flow (do not issue session yet)
     return NextResponse.json({ success: true, message: "OTP sent" });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: "Registration failed due to a server error." }, { status: 500 });

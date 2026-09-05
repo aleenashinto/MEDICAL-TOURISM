@@ -16,7 +16,8 @@ import {
   AlertCircle,
   MapPin,
   Mail,
-  UserCheck
+  UserCheck,
+  RefreshCw
 } from "lucide-react";
 
 export default function PatientDashboardPage() {
@@ -27,19 +28,61 @@ export default function PatientDashboardPage() {
     patientId: "MED-2026-00125"
   });
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeCase, setActiveCase] = useState<any>(null);
+  const [nextAppointment, setNextAppointment] = useState<any>(null);
+
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedName = localStorage.getItem("maides_user_name") || "";
-      const storedEmail = localStorage.getItem("maides_user_email") || "";
-      const storedLocation = localStorage.getItem("maides_user_location") || "";
-      setUser({
-        name: storedName || "Patient",
-        email: storedEmail,
-        location: storedLocation,
-        patientId: "MED-2026-00125"
-      });
-    }
+    const fetchData = async () => {
+      try {
+        const [sessionRes, casesRes, apptsRes] = await Promise.all([
+          fetch('/api/auth/session'),
+          fetch('/api/cases'),
+          fetch('/api/appointments')
+        ]);
+        
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData.authenticated) {
+             setUser({
+               name: sessionData.session.name,
+               email: sessionData.session.email,
+               location: "International Patient",
+               patientId: "MED-2026-00125" // In a real DB, fetch actual patient ID
+             });
+          }
+        }
+        
+        if (casesRes.ok) {
+          const casesData = await casesRes.json();
+          if (casesData.cases && casesData.cases.length > 0) {
+             setActiveCase(casesData.cases[0]);
+          }
+        }
+
+        if (apptsRes.ok) {
+           const apptsData = await apptsRes.json();
+           if (apptsData.appointments && apptsData.appointments.length > 0) {
+              setNextAppointment(apptsData.appointments[0]);
+           }
+        }
+
+      } catch (error) {
+        console.error("Dashboard fetch error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <RefreshCw className="w-8 h-8 text-blue-500 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -88,8 +131,8 @@ export default function PatientDashboardPage() {
             <HeartPulse className="w-5 h-5 text-rose-500" />
           </div>
           <div className="mt-3">
-            <div className="text-base font-bold text-slate-900">Off-Pump CABG</div>
-            <div className="text-xs text-blue-600 font-medium mt-0.5">Aster Medcity, Kochi</div>
+            <div className="text-base font-bold text-slate-900">{activeCase ? activeCase.treatment : "No Active Case"}</div>
+            <div className="text-xs text-blue-600 font-medium mt-0.5">{activeCase ? activeCase.hospital : "N/A"}</div>
           </div>
         </div>
 
@@ -101,8 +144,8 @@ export default function PatientDashboardPage() {
             <Calendar className="w-5 h-5 text-blue-500" />
           </div>
           <div className="mt-3">
-            <div className="text-base font-bold text-slate-900">15 Oct 2026 • 10:30 AM</div>
-            <div className="text-xs text-slate-500 font-medium mt-0.5">Video Pre-Op Review</div>
+            <div className="text-base font-bold text-slate-900">{nextAppointment ? nextAppointment.dateTime : "No Upcoming"}</div>
+            <div className="text-xs text-slate-500 font-medium mt-0.5">{nextAppointment ? nextAppointment.service : "Book an appointment"}</div>
           </div>
         </div>
 

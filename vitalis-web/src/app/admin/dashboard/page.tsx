@@ -23,7 +23,8 @@ import {
   Activity,
   UserPlus,
   CalendarCheck,
-  BarChart3
+  BarChart3,
+  RefreshCw
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -73,84 +74,55 @@ export default function AdminDashboardPage() {
     }
   ]);
 
-  // Calculate dynamic stats from localStorage and API if available
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Calculate dynamic stats from API
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
-        const savedPatients = localStorage.getItem("maides_admin_patients");
-        const savedCases = localStorage.getItem("maides_admin_cases");
-        const savedAppointments = localStorage.getItem("maides_admin_appointments");
-        const savedTickets = localStorage.getItem("maides_admin_tickets");
+        const [enqRes, casesRes, apptsRes] = await Promise.all([
+          fetch("/api/enquiries"),
+          fetch("/api/cases"),
+          fetch("/api/appointments")
+        ]);
 
-        const patientsArr = savedPatients ? JSON.parse(savedPatients) : null;
-        const casesArr = savedCases ? JSON.parse(savedCases) : null;
-        const aptsArr = savedAppointments ? JSON.parse(savedAppointments) : null;
-        const ticketsArr = savedTickets ? JSON.parse(savedTickets) : null;
+        const enquiriesData = enqRes.ok ? await enqRes.json() : null;
+        const casesData = casesRes.ok ? await casesRes.json() : null;
+        const apptsData = apptsRes.ok ? await apptsRes.json() : null;
+
+        const casesArr = casesData?.cases || [];
+        const aptsArr = apptsData?.appointments || [];
 
         setStats(prev => ({
           ...prev,
-          totalPatients: patientsArr ? patientsArr.length : prev.totalPatients,
-          activePatients: patientsArr ? patientsArr.filter((p: any) => p.status === "ACTIVE").length : prev.activePatients,
-          totalCases: casesArr ? casesArr.length : prev.totalCases,
-          activeCases: casesArr ? casesArr.filter((c: any) => c.status !== "Completed" && c.status !== "Cancelled").length : prev.activeCases,
-          upcomingAppointments: aptsArr ? aptsArr.filter((a: any) => a.status === "CONFIRMED" || a.status === "REQUESTED").length : prev.upcomingAppointments,
-          completedAppointments: aptsArr ? aptsArr.filter((a: any) => a.status === "COMPLETED").length : prev.completedAppointments,
-          openTickets: ticketsArr ? ticketsArr.filter((t: any) => t.status === "Open" || t.status === "In Progress").length : prev.openTickets
+          totalCases: casesArr.length,
+          activeCases: casesArr.filter((c: any) => c.status !== "Completed" && c.status !== "Cancelled").length,
+          upcomingAppointments: aptsArr.filter((a: any) => a.status === "CONFIRMED" || a.status === "REQUESTED").length,
+          completedAppointments: aptsArr.filter((a: any) => a.status === "COMPLETED").length,
         }));
-      } catch (e) {}
 
-      // Load live enquiries for dashboard triage table
-      try {
-        const res = await fetch("/api/enquiries");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && Array.isArray(data.enquiries) && data.enquiries.length > 0) {
-            const formatted = data.enquiries.slice(0, 5).map((e: any) => ({
-              id: e.id,
-              patient: e.name,
-              country: e.country,
-              treatment: e.treatment || e.specialty,
-              hospital: e.assignedHospital,
-              priority: e.urgency || "HIGH",
-              status: e.status === "NEW" ? "CLINICAL_TRIAGE" : e.status === "TRIAGED" ? "QUOTATION_SENT" : e.status,
-              time: e.submittedAt || "Just now"
-            }));
-            setLiveEnquiries(formatted);
-            return;
-          }
+        // Load live enquiries for dashboard triage table
+        if (enquiriesData?.success && Array.isArray(enquiriesData.enquiries) && enquiriesData.enquiries.length > 0) {
+          const formatted = enquiriesData.enquiries.slice(0, 5).map((e: any) => ({
+            id: e.id,
+            patient: e.name,
+            country: e.country,
+            treatment: e.treatment || e.specialty,
+            hospital: e.assignedHospital,
+            priority: e.urgency || "HIGH",
+            status: e.status === "NEW" ? "CLINICAL_TRIAGE" : e.status === "TRIAGED" ? "QUOTATION_SENT" : e.status,
+            time: e.submittedAt || "Just now"
+          }));
+          setLiveEnquiries(formatted);
         }
-      } catch (e) {}
-
-      if (typeof window !== "undefined") {
-        const stored = localStorage.getItem("maides_admin_enquiries");
-        if (stored) {
-          try {
-            const parsed = JSON.parse(stored);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              const formatted = parsed.slice(0, 5).map((e: any) => ({
-                id: e.id,
-                patient: e.name,
-                country: e.country,
-                treatment: e.treatment || e.specialty,
-                hospital: e.assignedHospital,
-                priority: e.urgency || "HIGH",
-                status: e.status === "NEW" ? "CLINICAL_TRIAGE" : e.status === "TRIAGED" ? "QUOTATION_SENT" : e.status,
-                time: e.submittedAt || "Just now"
-              }));
-              setLiveEnquiries(formatted);
-            }
-          } catch (e) {}
-        }
+      } catch (error) {
+        console.error("Error loading admin dashboard data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     loadDashboardData();
-    window.addEventListener("storage", loadDashboardData);
-    window.addEventListener("maides_enquiries_updated", loadDashboardData);
-    return () => {
-      window.removeEventListener("storage", loadDashboardData);
-      window.removeEventListener("maides_enquiries_updated", loadDashboardData);
-    };
   }, []);
 
   const coreKpis = [
@@ -222,6 +194,14 @@ export default function AdminDashboardPage() {
       color: "text-amber-400"
     }
   ];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <RefreshCw className="w-8 h-8 text-[#0E82FD] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

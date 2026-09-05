@@ -77,12 +77,11 @@ export default function VerifyOtpPage() {
 
     try {
       const email = localStorage.getItem("maides_pending_email");
-      const password = localStorage.getItem("maides_pending_pass"); // In a real app we wouldn't store password, we would exchange OTP token for session token. This is a demo fallback.
       
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, password: password, role: 'PATIENT' }),
+        body: JSON.stringify({ email: email, otp: enteredOtp }),
       });
 
       const data = await response.json();
@@ -100,7 +99,6 @@ export default function VerifyOtpPage() {
         localStorage.setItem("maides_user_role", data.user.role);
         
         localStorage.removeItem("maides_pending_email");
-        localStorage.removeItem("maides_pending_pass");
       }
 
       setIsSuccess(true);

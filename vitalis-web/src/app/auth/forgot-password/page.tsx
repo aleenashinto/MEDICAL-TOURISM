@@ -10,7 +10,7 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -28,10 +28,33 @@ export default function ForgotPasswordPage() {
 
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: trimmedEmail })
+      });
+
+      const data = await response.json();
+      
+      // Even on failure, we don't expose if the account exists, but we handle true 500s safely
+      if (!response.ok && response.status === 500) {
+         setError("A server error occurred. Please try again later.");
+         setIsLoading(false);
+         return;
+      }
+
       setIsLoading(false);
       setIsSubmitted(true);
-    }, 800);
+      
+      // FOR DEMO PURPOSES ONLY: Retrieve the token so the user can click it in the UI
+      if (data.demo_token && typeof window !== "undefined") {
+        window.sessionStorage.setItem("demo_reset_token", data.demo_token);
+      }
+    } catch (err) {
+      setError("Network error. Please try again.");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -75,12 +98,20 @@ export default function ForgotPasswordPage() {
                 <p className="text-[11px] text-slate-400">
                   For demonstration & testing, click below to proceed directly with reset token:
                 </p>
-                <Link
-                  href="/auth/reset-password?token=demo_secure_token_123"
-                  className="block text-center py-2 px-3 bg-[#0E82FD] hover:bg-blue-600 text-white text-xs font-bold rounded-lg transition-all"
+                <button
+                  type="button"
+                  onClick={() => {
+                    const token = window.sessionStorage.getItem("demo_reset_token");
+                    if (token) {
+                      window.location.href = `/auth/reset-password?token=${token}`;
+                    } else {
+                      alert("No token generated (e.g. account did not exist). In a real app you'd check your email.");
+                    }
+                  }}
+                  className="block w-full text-center py-2 px-3 bg-[#0E82FD] hover:bg-blue-600 text-white text-xs font-bold rounded-lg transition-all"
                 >
                   Proceed to New Password Setup
-                </Link>
+                </button>
               </div>
 
               <div className="pt-2">

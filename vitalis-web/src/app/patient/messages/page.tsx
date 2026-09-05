@@ -39,76 +39,35 @@ export interface ChatMessage {
   attachments?: ChatAttachment[];
 }
 
-const DEFAULT_PATIENT_MESSAGES: ChatMessage[] = [
-  {
-    id: "msg-1",
-    conversationId: "conv-1",
-    sender: "patient",
-    senderName: "Sarah Jenkins",
-    text: "Hello, when will my medical visa invitation letter and FRRO documentation be ready?",
-    category: "Travel & Visa",
-    time: "10:15 AM",
-    timestamp: "2026-09-04T10:15:00Z",
-    status: "read"
-  },
-  {
-    id: "msg-2",
-    conversationId: "conv-1",
-    sender: "admin",
-    senderName: "Admin Coordinator (Rahul Nair)",
-    text: "Hello Sarah, Dr. Vijay Anand from Aster Medcity has approved and digitally signed your visa letter. I have attached the stamped copy below for your embassy appointment.",
-    category: "Travel & Visa",
-    time: "11:30 AM",
-    timestamp: "2026-09-04T11:30:00Z",
-    status: "read",
-    attachments: [
-      {
-        id: "att-1",
-        name: "Aster_Medcity_Visa_Invitation_Letter_Signed.pdf",
-        size: "1.4 MB",
-        type: "application/pdf"
-      }
-    ]
-  },
-  {
-    id: "msg-3",
-    conversationId: "conv-1",
-    sender: "patient",
-    senderName: "Sarah Jenkins",
-    text: "Thank you! I have downloaded the visa invitation letter. Our flight arrives on Sept 14th at Cochin Airport.",
-    category: "Travel & Visa",
-    time: "12:00 PM",
-    timestamp: "2026-09-04T12:00:00Z",
-    status: "read"
-  }
-];
+// Removed mocked messages per data isolation rules
 
 export default function PatientMessagesPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [replyText, setReplyText] = useState("");
   const [category, setCategory] = useState<ChatMessage["category"]>("General");
   const [selectedAttachment, setSelectedAttachment] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
-  // Load patient messages from shared localStorage key
   useEffect(() => {
-    try {
-      const savedMsgs = localStorage.getItem("maides_admin_messages_map_v3");
-      if (savedMsgs) {
-        const parsed = JSON.parse(savedMsgs);
-        if (parsed["conv-1"]) {
-          setMessages(parsed["conv-1"]);
-        } else {
-          setMessages(DEFAULT_PATIENT_MESSAGES);
+    const fetchMessages = async () => {
+      try {
+        const res = await fetch('/api/messages');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.messages) {
+            setMessages(data.messages);
+          }
         }
-      } else {
-        setMessages(DEFAULT_PATIENT_MESSAGES);
+      } catch (e) {
+        console.error("Failed to load messages");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (e) {
-      setMessages(DEFAULT_PATIENT_MESSAGES);
-    }
+    };
+    fetchMessages();
   }, []);
 
   // Auto-scroll
@@ -120,58 +79,7 @@ export default function PatientMessagesPage() {
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!replyText.trim() && !selectedAttachment) return;
-
-    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const newMsg: ChatMessage = {
-      id: "msg-" + Date.now(),
-      conversationId: "conv-1",
-      sender: "patient",
-      senderName: "Sarah Jenkins",
-      text: replyText.trim(),
-      category: category,
-      time: timeStr,
-      timestamp: new Date().toISOString(),
-      status: "sent",
-      attachments: selectedAttachment ? [
-        {
-          id: "att-" + Date.now(),
-          name: selectedAttachment.name,
-          size: (selectedAttachment.size / 1024).toFixed(0) + " KB",
-          type: selectedAttachment.type || "application/octet-stream"
-        }
-      ] : undefined
-    };
-
-    const updated = [...messages, newMsg];
-    setMessages(updated);
-
-    // Sync to admin backend localStorage
-    try {
-      const savedMsgs = localStorage.getItem("maides_admin_messages_map_v3");
-      const currentMap = savedMsgs ? JSON.parse(savedMsgs) : {};
-      currentMap["conv-1"] = updated;
-      localStorage.setItem("maides_admin_messages_map_v3", JSON.stringify(currentMap));
-
-      // Update conversation last message in admin
-      const savedConvs = localStorage.getItem("maides_admin_conversations_v3");
-      if (savedConvs) {
-        const convs = JSON.parse(savedConvs);
-        const updatedConvs = convs.map((c: any) => c.id === "conv-1" ? {
-          ...c,
-          lastMessageText: newMsg.text || "Attachment",
-          lastMessageTime: timeStr,
-          status: "Waiting for Admin",
-          unreadCount: (c.unreadCount || 0) + 1,
-          updatedAt: new Date().toISOString()
-        } : c);
-        localStorage.setItem("maides_admin_conversations_v3", JSON.stringify(updatedConvs));
-      }
-    } catch (err) {
-      console.error(err);
-    }
-
-    setReplyText("");
-    setSelectedAttachment(null);
+    alert("Message API POST not implemented yet");
   };
 
   return (

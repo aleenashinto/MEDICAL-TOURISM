@@ -26,47 +26,30 @@ export default function PatientCasesPage() {
   const [selectedCaseId, setSelectedCaseId] = useState("CAS-2026-089");
   const [toast, setToast] = useState<string | null>(null);
 
-  const patientCases = [
-    {
-      id: "CAS-2026-089",
-      treatment: "Minimally Invasive Total Knee Arthroplasty (Robotic Navigation)",
-      specialty: "Orthopedics & Joint Care",
-      hospital: "Aster Medcity, Kochi, Kerala",
-      doctor: "Dr. Vijay Anand (Chief Orthopedic Surgeon)",
-      status: "In Progress (Pre-Travel)",
-      progressPercent: 50,
-      estimatedCost: "$6,200",
-      steps: [
-        { step: 1, name: "Inquiry & Medical Records Submitted", status: "COMPLETED", date: "Aug 20, 2026" },
-        { step: 2, name: "Clinical Assessment & Doctor Opinion", status: "COMPLETED", date: "Aug 22, 2026" },
-        { step: 3, name: "Custom Treatment Plan & Quotation Accepted", status: "COMPLETED", date: "Aug 25, 2026" },
-        { step: 4, name: "Video Consultation with Dr. Vijay Anand", status: "COMPLETED", date: "Aug 28, 2026" },
-        { step: 5, name: "Indian Medical Visa Invitation Issued", status: "IN_PROGRESS", date: "Sep 02, 2026", active: true },
-        { step: 6, name: "Flight Tickets & Kochi Marriott Booking", status: "UPCOMING", date: "Estimated Sep 15, 2026" },
-        { step: 7, name: "Airport Pickup & Hospital Admission", status: "UPCOMING", date: "Estimated Sep 18, 2026" },
-        { step: 8, name: "Knee Replacement Procedure Performed", status: "UPCOMING", date: "Estimated Sep 20, 2026" },
-        { step: 9, name: "Physiotherapy & Discharge to Hotel", status: "UPCOMING", date: "Estimated Sep 25, 2026" },
-        { step: 10, name: "Fit-to-Fly Certificate & Post-Op Follow-up", status: "UPCOMING", date: "Estimated Oct 02, 2026" },
-      ],
-    },
-    {
-      id: "CAS-2026-062",
-      treatment: "Comprehensive Panchakarma Rejuvenation & Spinal Care",
-      specialty: "Ayurveda & Holistic Wellness",
-      hospital: "Somatheeram Ayurvedic Village, Kovalam",
-      doctor: "Dr. Arya Varma (Chief Ayurvedic Physician)",
-      status: "Completed",
-      progressPercent: 100,
-      estimatedCost: "$3,400",
-      steps: [
-        { step: 1, name: "Initial Ayurvedic Prakriti Evaluation", status: "COMPLETED", date: "Jun 10, 2026" },
-        { step: 2, name: "14-Day In-Patient Detoxification & Herbal Therapies", status: "COMPLETED", date: "Jun 18, 2026" },
-        { step: 3, name: "Discharge & Lifestyle Regimen Plan Issued", status: "COMPLETED", date: "Jul 02, 2026" },
-      ],
-    }
-  ];
+  const [patientCases, setPatientCases] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const activeCase = patientCases.find(c => c.id === selectedCaseId) || patientCases[0];
+  useEffect(() => {
+    const fetchCases = async () => {
+      try {
+        const res = await fetch('/api/cases');
+        if (res.ok) {
+          const data = await res.json();
+          setPatientCases(data.cases || []);
+          if (data.cases?.length > 0) {
+            setSelectedCaseId(data.cases[0].id);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch cases", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCases();
+  }, []);
+
+  const activeCase = patientCases.find(c => c.id === selectedCaseId) || null;
 
   const handleDownloadProposal = () => {
     const text = `MAIDES KERALA MEDICAL TOURISM - OFFICIAL TREATMENT PLAN
@@ -78,7 +61,7 @@ Consultant: ${activeCase.doctor}
 Estimated Treatment Package: ${activeCase.estimatedCost}
 
 Clinical Milestones:
-${activeCase.steps.map(s => `[${s.status}] Step ${s.step}: ${s.name} (${s.date})`).join("\n")}
+${activeCase.steps.map((s: any) => `[${s.status}] Step ${s.step}: ${s.name} (${s.date})`).join("\n")}
 
 Accreditation: JCI / NABH Accredited Facility.
 Helpline: +91 98470 11223 (24/7 International Liaison)`;
@@ -92,6 +75,26 @@ Helpline: +91 98470 11223 (24/7 International Liaison)`;
     setToast("Treatment proposal downloaded successfully!");
     setTimeout(() => setToast(null), 3000);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <RefreshCw className="w-8 h-8 text-blue-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!activeCase) {
+    return (
+      <div className="space-y-6 max-w-5xl mx-auto">
+        <div className="bg-white border border-slate-200 p-10 rounded-2xl shadow-sm text-center">
+          <HeartPulse className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-slate-900">No Medical Cases Found</h2>
+          <p className="text-slate-500 mt-2 text-sm">You do not have any active medical cases in your profile.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -193,7 +196,7 @@ Helpline: +91 98470 11223 (24/7 International Liaison)`;
         </h3>
 
         <div className="relative border-l-2 border-slate-100 ml-4 pl-6 space-y-6">
-          {activeCase.steps.map((s) => (
+          {activeCase.steps.map((s: any) => (
             <div key={s.step} className="relative">
               {/* Node Icon */}
               <div

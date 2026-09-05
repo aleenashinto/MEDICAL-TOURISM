@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { signToken } from '@/lib/session';
 import { cookies } from 'next/headers';
-import { db } from '@/lib/db';
+import prisma from '@/lib/prisma';
 
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -19,11 +19,10 @@ export async function POST(request: Request) {
     let userRole = role;
     let userName = "";
 
-    // Admin credentials must be managed via secure environment variables
+    // Admin credentials could also be fetched from the DB, but ENV is common
     const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@vitalis.health";
     const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "secure_admin_placeholder_change_in_prod";
 
-    // Simple demo validation logic
     if (role === 'ADMIN') {
       if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase() && password === ADMIN_PASSWORD) {
         userName = "System Administrator";
@@ -31,20 +30,23 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: "Invalid administrator credentials." }, { status: 401 });
       }
     } else {
-      // Patient Login
-      const user = db.users.find(email);
+      // Patient Login using Prisma
+      const user = await prisma.user.findUnique({
+        where: { email: email.toLowerCase().trim() },
+        include: { patient: true }
+      });
       
       if (!user) {
         return NextResponse.json({ success: false, error: "Account not found. Please register first." }, { status: 404 });
       }
 
       const inputHash = await hashPassword(password);
-      // Fallback logic for the pre-seeded sarah.jenkins account which has a plaintext password in db.ts
+      
       if (user.password !== inputHash && user.password !== password) {
         return NextResponse.json({ success: false, error: "Invalid credentials." }, { status: 401 });
       }
 
-      userName = user.name;
+      userName = user.patient ? ${user.patient.firstName}  : "Patient";
     }
 
     const sessionPayload = { email, role: userRole, name: userName };

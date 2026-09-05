@@ -41,7 +41,7 @@ function ResetPasswordFormContent() {
 
   const passStrength = calculatePasswordStrength(password);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -62,10 +62,31 @@ function ResetPasswordFormContent() {
 
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Failed to reset password.");
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(false);
       setIsSuccess(true);
-    }, 800);
+      // Clean up demo token if it exists
+      if (typeof window !== "undefined") {
+        window.sessionStorage.removeItem("demo_reset_token");
+      }
+    } catch (err) {
+      setError("Network error. Please try again.");
+      setIsLoading(false);
+    }
   };
 
   if (!isMounted) {

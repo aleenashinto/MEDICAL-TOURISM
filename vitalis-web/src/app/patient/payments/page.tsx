@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   CreditCard, 
   DollarSign, 
@@ -21,39 +21,31 @@ export default function PatientPaymentsPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPaid, setIsPaid] = useState(false);
 
-  const [invoice, setInvoice] = useState({
-    invoiceNo: "INV-2026-042",
-    treatment: "Total Knee Replacement All-Inclusive Package",
-    hospital: "Aster Medcity, Kochi",
-    breakdown: [
-      { item: "Surgical Procedure & Surgeon Fee (Dr. Vijay Anand)", amount: "$3,400" },
-      { item: "US FDA Approved Titanium Knee Implant (Stryker / Zimmer)", amount: "$1,200" },
-      { item: "5 Days Private Deluxe Room Hospital Stay & Nursing", amount: "$800" },
-      { item: "Post-Op Physiotherapy, Medicines & Airport Transfers", amount: "$500" },
-      { item: "Vitalis Platform Escrow & Coordination Fee (Included)", amount: "$300" },
-    ],
-    totalUSD: "$6,200",
-    totalINR: "₹5,14,600",
-    status: "DEPOSIT_PAID",
-    depositPaid: "$1,500",
-    balanceDue: "$4,700",
-  });
+  const [invoice, setInvoice] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPayments = async () => {
+      try {
+        const res = await fetch('/api/payments');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.payments && data.payments.length > 0) {
+            setInvoice(data.payments[0]);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load payments");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPayments();
+  }, []);
 
   const handleDownloadInvoice = () => {
-    const content = `MAIDES KERALA MEDICAL TOURISM - OFFICIAL INVOICE
-Invoice No: ${invoice.invoiceNo}
-Treatment: ${invoice.treatment}
-Hospital: ${invoice.hospital}
-
-Itemized Breakdown:
-- Surgical Procedure & Surgeon Fee: $3,400
-- FDA Approved Titanium Knee Implant: $1,200
-- 5 Days Private Room Hospital Stay: $800
-- Post-Op Physiotherapy & Airport Transfers: $500
-- Platform Escrow Guarantee Fee: $300
-
-Total Package Cost: $6,200 (Approx ₹5,14,600)
-Escrow Status: Secure Deposit Paid ($1,500). Remaining ($4,700).`;
+    if (!invoice) return;
+    const content = `MAIDES KERALA MEDICAL TOURISM - OFFICIAL INVOICE\nInvoice No: ${invoice.invoiceNo}\nTreatment: ${invoice.treatment}\nHospital: ${invoice.hospital}\n\nTotal Package Cost: ${invoice.totalUSD}\nEscrow Status: Secure Deposit Paid (${invoice.depositPaid}). Remaining (${invoice.balanceDue}).`;
     
     const blob = new Blob([content], { type: "text/plain" });
     const url = window.URL.createObjectURL(blob);
@@ -69,15 +61,35 @@ Escrow Status: Secure Deposit Paid ($1,500). Remaining ($4,700).`;
     setTimeout(() => {
       setIsProcessing(false);
       setIsPaid(true);
-      setInvoice(prev => ({
-        ...prev,
-        status: "FULLY_PAID_ESCROW",
-        depositPaid: "$6,200",
-        balanceDue: "$0.00",
-      }));
+      if (invoice) {
+        setInvoice((prev: any) => ({
+          ...prev,
+          status: "FULLY_PAID_ESCROW",
+          depositPaid: prev.totalUSD,
+          balanceDue: "$0.00",
+        }));
+      }
       setTimeout(() => setShowCheckoutModal(false), 1500);
     }, 1200);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0E82FD]"></div>
+      </div>
+    );
+  }
+
+  if (!invoice) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-500">
+        <Receipt className="w-12 h-12 text-slate-300 mb-4" />
+        <h2 className="text-lg font-bold text-slate-700">No active invoices</h2>
+        <p className="text-sm">You do not have any pending payments or escrow requests.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -116,7 +128,7 @@ Escrow Status: Secure Deposit Paid ($1,500). Remaining ($4,700).`;
           </div>
 
           <div className="divide-y divide-slate-100 text-xs">
-            {invoice.breakdown.map((b, idx) => (
+            {invoice.breakdown.map((b: any, idx: number) => (
               <div key={idx} className="py-2.5 flex items-center justify-between">
                 <span className="text-slate-600">{b.item}</span>
                 <span className="font-semibold text-slate-800">{b.amount}</span>

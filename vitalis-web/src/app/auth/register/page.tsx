@@ -168,12 +168,10 @@ export default function RegisterPage() {
       }
 
       if (typeof window !== "undefined") {
-        // Save temporary unauthenticated data for the OTP screen
         localStorage.setItem("maides_pending_email", email);
         localStorage.setItem("maides_pending_name", `${firstName} ${lastName}`);
         localStorage.setItem("maides_pending_phone", phone);
         localStorage.setItem("maides_pending_country", formData.country || "United Arab Emirates");
-        localStorage.setItem("maides_pending_pass", password); // Temporary for demo auto-login after OTP
       }
 
       router.push("/auth/verify-otp");

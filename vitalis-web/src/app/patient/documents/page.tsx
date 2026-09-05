@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   FileText, 
   UploadCloud, 
@@ -19,62 +19,86 @@ export default function PatientDocumentsPage() {
   const [viewingDoc, setViewingDoc] = useState<any | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
-  const [documents, setDocuments] = useState([
-    {
-      id: "DOC-001",
-      name: "MRI Knee Scan & Radiology Report.pdf",
-      type: "Radiology / Imaging",
-      size: "14.2 MB",
-      uploadedAt: "Aug 20, 2026",
-      verified: true,
-      content: "Patient MRI shows high-grade cartilage defect at medial femoral condyle. Recommended for Total Knee Arthroplasty under Dr. Vijay Anand."
-    },
-    {
-      id: "DOC-002",
-      name: "Pre-Operative Blood Profile & ECG.pdf",
-      type: "Pathology",
-      size: "2.8 MB",
-      uploadedAt: "Aug 22, 2026",
-      verified: true,
-      content: "Hemoglobin: 13.8 g/dL, Fasting Glucose: 92 mg/dL. ECG indicates normal sinus rhythm. Cleared for surgery."
-    },
-    {
-      id: "DOC-003",
-      name: "Indian Medical Visa Invitation Letter.pdf",
-      type: "Travel / Visa",
-      size: "840 KB",
-      uploadedAt: "Sep 02, 2026",
-      verified: true,
-      content: "Government of India approved medical visa invitation from Aster Medcity, Kochi."
-    },
-  ]);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const res = await fetch('/api/documents');
+        if (res.ok) {
+          const data = await res.json();
+          setDocuments(data.documents || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch documents", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchDocuments();
+  }, []);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files[0]) {
-      const newDoc = {
-        id: `DOC-00${documents.length + 1}`,
-        name: files[0].name,
-        type: "Clinical Upload",
-        size: `${(files[0].size / (1024 * 1024)).toFixed(1)} MB`,
-        uploadedAt: "Just Now",
-        verified: true,
-        content: `Uploaded file content for ${files[0].name}. Verified by automated DICOM/PDF parser.`
-      };
-      setDocuments(prev => [newDoc, ...prev]);
-      setToast(`Document "${files[0].name}" uploaded to encrypted locker!`);
-      setTimeout(() => setToast(null), 3000);
+      const file = files[0];
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      try {
+        setToast("Uploading document to secure vault...");
+        const res = await fetch('/api/documents', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+          setDocuments(prev => [data.document, ...prev]);
+          setToast(`Document "${data.document.name}" uploaded successfully!`);
+        } else {
+          setToast(`Upload failed: ${data.error}`);
+        }
+      } catch (err) {
+        setToast("Upload failed due to network error.");
+      }
+      setTimeout(() => setToast(null), 4000);
     }
   };
 
-  const handleDownload = (doc: any) => {
-    const blob = new Blob([doc.content || `MAIDES Medical Record Document: ${doc.name}`], { type: "text/plain" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = doc.name.replace(".pdf", ".txt");
-    a.click();
+  const handleDownload = async (doc: any) => {
+    try {
+      setToast("Requesting secure download URL...");
+      // Phase 4: Fetch through the secure API to verify IDOR protection
+      const res = await fetch(`/api/documents/${doc.id}`);
+      if (!res.ok) {
+        setToast("Error: Access Denied to this document.");
+        return;
+      }
+      
+      // Fallback for mock environment (generates local blob)
+      const blob = new Blob([doc.content || `MAIDES Medical Record Document: ${doc.name}`], { type: "text/plain" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = doc.name.replace(".pdf", ".txt");
+      a.click();
+      setToast("Download complete.");
+    } catch (e) {
+      setToast("Download failed.");
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
