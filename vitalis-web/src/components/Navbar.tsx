@@ -37,11 +37,13 @@ export function Navbar({ onOpenIntake, onOpenConcierge, onOpenSearch, style = "t
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Requested navbar menu: Hospitals, Doctors, Specialities, Contact Us
+  // Navbar menu items: Home, Hospitals, Doctors, Specialities, About Us, Contact Us
   const navItems = [
+    { name: "Home", href: "/" },
     { name: "Hospitals", href: "/hospitals" },
     { name: "Doctors", href: "/doctors" },
     { name: "Specialities", href: "/treatments" },
+    { name: "About Us", href: "/about" },
     { name: "Contact Us", href: "/contact" },
   ];
 
