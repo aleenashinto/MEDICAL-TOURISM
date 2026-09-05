@@ -14,15 +14,15 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setError("");
 
-    const trimmedEmail = email.trim();
+    const trimmedEmail = email.trim().toLowerCase();
     if (!trimmedEmail) {
       setError("Please enter a valid email address.");
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(trimmedEmail)) {
-      setError("Please enter a valid email format.");
+      setError("Please enter a valid email format (e.g. name@example.com).");
       return;
     }
 
@@ -118,7 +118,7 @@ export default function ForgotPasswordPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    placeholder="sarah.jenkins@example.com"
+                    placeholder="name@example.com"
                     className="block w-full pl-10 pr-3 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:border-transparent transition-all"
                   />
                 </div>
