@@ -245,179 +245,235 @@ export function LandingPage({ onOpenIntake, onOpenConcierge, onOpenSearch }: Lan
   return (
     <div className="space-y-24 pb-0 bg-[#F8FAFC]">
       
-      {/* 1. CINEMATIC 3D HERO OPENING (APPLE & LUXURY HEALTHCARE MOTION) */}
-      <section className="relative min-h-[720px] lg:min-h-[880px] bg-gradient-to-br from-[#071120] via-[#0D2140] to-[#050D18] overflow-hidden pt-28 sm:pt-32 pb-16 sm:pb-24 flex items-center">
+      {/* 1. CINEMATIC 3D ULTRA-PREMIUM HERO (APPLE & LUXURY HEALTHCARE MOTION) */}
+      <section className="relative min-h-[780px] lg:min-h-[920px] bg-[#060D1A] overflow-hidden pt-28 sm:pt-36 pb-20 sm:pb-28 flex items-center">
         
         {/* Interactive 360-Degree Ambient Particle Web */}
         <ParticleBackground360 />
 
-        {/* Ambient Atmospheric Lighting & Volumetric Glows with Mouse Parallax */}
+        {/* Ambient Atmospheric Cinematic Lighting & Gradient Meshes */}
         <div 
-          className="absolute inset-0 pointer-events-none overflow-hidden transition-transform duration-700 ease-out"
-          style={{ transform: `translate3d(${mousePos.x * 0.5}px, ${mousePos.y * 0.5}px, 0)` }}
+          className="absolute inset-0 pointer-events-none overflow-hidden transition-transform duration-1000 ease-out"
+          style={{ transform: `translate3d(${mousePos.x * 0.4}px, ${mousePos.y * 0.4}px, 0)` }}
         >
-          <div className="absolute -top-40 -left-40 w-96 sm:w-[600px] h-96 sm:h-[600px] rounded-full bg-[#0E82FD]/20 blur-[140px]" />
-          <div className="absolute top-1/3 -right-20 w-96 sm:w-[650px] h-96 sm:h-[650px] rounded-full bg-[#38BDF8]/15 blur-[150px]" />
-          <div className="absolute bottom-0 left-1/3 w-80 sm:w-[500px] h-80 sm:h-[500px] rounded-full bg-[#10B981]/15 blur-[120px]" />
+          {/* Main Hero Spotlight Glows */}
+          <div className="absolute -top-32 -left-32 w-[550px] lg:w-[750px] h-[550px] lg:h-[750px] rounded-full bg-gradient-to-br from-[#0E82FD]/25 to-[#38BDF8]/10 blur-[150px]" />
+          <div className="absolute top-1/4 right-0 w-[500px] lg:w-[700px] h-[500px] lg:h-[700px] rounded-full bg-gradient-to-bl from-[#0284C7]/20 via-[#0E82FD]/15 to-transparent blur-[160px]" />
+          <div className="absolute -bottom-20 left-1/3 w-[450px] lg:w-[600px] h-[450px] lg:h-[600px] rounded-full bg-[#10B981]/15 blur-[140px]" />
           
-          {/* Subtle Kerala Backwater Mist Geometry */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
+          {/* Subtle Technical Grid Overlay with radial vignette */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_75%_65%_at_50%_45%,#000_70%,transparent_100%)]" />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center">
             
-            {/* Left Column: Hero Narrative, Badges & CTAs */}
-            <div className="lg:col-span-6 space-y-6 sm:space-y-7 text-white text-left z-20">
+            {/* Left Column: Hero Narrative, Badges, Metrics & CTAs */}
+            <div className="lg:col-span-6 space-y-7 sm:space-y-8 text-white text-left z-20">
               
-              {/* Eyebrow Pill with Live Telemetry Pulse */}
-              <div className="inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md shadow-inner">
-                <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#38BDF8]"></span>
+              {/* Luxury Telemetry Eyebrow Pill */}
+              <div className="inline-flex items-center space-x-2.5 px-4 sm:px-5 py-2 rounded-full bg-gradient-to-r from-white/10 to-white/5 border border-white/20 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+                <span className="flex h-2.5 w-2.5 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-80"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#38BDF8]"></span>
                 </span>
-                <span className="text-[10px] sm:text-[11px] font-black tracking-widest text-cyan-200 uppercase">
-                  Kerala Quaternary Network • JCI & NABH Certified
+                <span className="text-[10px] sm:text-xs font-black tracking-widest text-cyan-200 uppercase">
+                  Kerala Quaternary Network • JCI & NABH Accredited
                 </span>
               </div>
 
-              {/* Main Headline */}
-              <div className="space-y-3.5">
-                <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[66px] font-black text-white tracking-tight leading-[1.08] sm:leading-[1.04]">
+              {/* Main Cinematic Headline with Dual Gradient Typography */}
+              <div className="space-y-4">
+                <h1 className="text-3xl sm:text-5xl lg:text-[58px] xl:text-[64px] font-black text-white tracking-tight leading-[1.06] sm:leading-[1.04]">
                   World-Class Healthcare. <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-sky-200 to-emerald-300">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-sky-200 to-emerald-300 drop-shadow-[0_4px_25px_rgba(56,189,248,0.25)]">
                     A Journey Designed
                   </span> <br />
                   Around You.
                 </h1>
-                <p className="text-xs sm:text-base text-blue-100/90 font-normal max-w-lg leading-relaxed">
-                  Seamless medical travel coordination connecting international patients with accredited surgical directors, quaternary hospital suites, and serene backwater recovery sanatoriums in Kerala.
+                <p className="text-sm sm:text-base text-slate-300 font-normal max-w-xl leading-relaxed">
+                  Experience frictionless medical travel in Kerala, India. Connecting international patients with top surgical chairmen, zero-wait quaternary suites, and holistic backwater Ayurvedic recovery.
                 </p>
               </div>
 
-              {/* Magnetic Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
+              {/* Primary & Secondary Luxury CTAs with Global Search Trigger */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-1">
                 <button
                   onClick={onOpenIntake}
-                  className="px-7 sm:px-9 py-4 rounded-full bg-gradient-to-r from-[#0E82FD] via-blue-500 to-[#38BDF8] hover:from-blue-600 hover:to-cyan-400 text-white font-black text-xs sm:text-sm uppercase tracking-wider text-center shadow-xl shadow-blue-500/35 hover:scale-[1.03] transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer group"
+                  className="px-8 sm:px-9 py-4 rounded-full bg-gradient-to-r from-[#0E82FD] via-[#0284C7] to-[#38BDF8] hover:from-[#0360D9] hover:to-[#0E82FD] text-white font-black text-xs sm:text-sm uppercase tracking-wider text-center shadow-[0_10px_30px_rgba(14,130,253,0.45)] hover:shadow-[0_15px_35px_rgba(14,130,253,0.6)] hover:scale-[1.03] active:scale-98 transition-all duration-300 flex items-center justify-center space-x-2.5 cursor-pointer group"
                 >
                   <span>Start Your Medical Journey</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                    <ArrowRight className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+                  </div>
                 </button>
 
-                <a
-                  href="#care-wizard"
-                  className="px-6 sm:px-7 py-4 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/25 font-bold text-xs sm:text-sm uppercase tracking-wider text-center backdrop-blur-md transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:scale-[1.03]"
+                <button
+                  onClick={onOpenSearch}
+                  className="px-6 sm:px-7 py-4 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/25 font-bold text-xs sm:text-sm uppercase tracking-wider text-center backdrop-blur-xl transition-all duration-300 flex items-center justify-center space-x-2.5 shadow-lg hover:scale-[1.03] active:scale-98 cursor-pointer"
                 >
-                  <span>Explore Care Plan</span>
-                  <ChevronRight className="w-4 h-4 text-cyan-300" />
-                </a>
+                  <svg className="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <span>Search Care Network</span>
+                </button>
               </div>
 
-              {/* 3 Floating Glass Info Badges */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-3">
-                <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-sm flex items-center space-x-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-cyan-300 flex items-center justify-center shrink-0">
+              {/* Animated Cinematic Statistics Ribbon */}
+              <div className="grid grid-cols-3 gap-3 pt-2 border-t border-white/10">
+                <div className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.06] backdrop-blur-md border border-white/10 text-left">
+                  <div className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400">
+                    70%+
+                  </div>
+                  <div className="text-[10px] sm:text-[11px] font-medium text-slate-300 mt-0.5">
+                    Cost Savings vs US/UK
+                  </div>
+                </div>
+
+                <div className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.06] backdrop-blur-md border border-white/10 text-left">
+                  <div className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-teal-400">
+                    99.2%
+                  </div>
+                  <div className="text-[10px] sm:text-[11px] font-medium text-slate-300 mt-0.5">
+                    Clinical Success Rate
+                  </div>
+                </div>
+
+                <div className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.06] backdrop-blur-md border border-white/10 text-left">
+                  <div className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-orange-400">
+                    24h
+                  </div>
+                  <div className="text-[10px] sm:text-[11px] font-medium text-slate-300 mt-0.5">
+                    Express Visa Clearance
+                  </div>
+                </div>
+              </div>
+
+              {/* 3 Luxury Glass Trust Pills */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+                <div className="p-3 rounded-2xl bg-white/[0.07] backdrop-blur-xl border border-white/15 shadow-sm flex items-center space-x-2.5 hover:bg-white/10 transition-colors">
+                  <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-cyan-300 flex items-center justify-center shrink-0 border border-cyan-400/20">
                     <ShieldCheck className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[11px] font-bold text-white truncate">✓ Verified Specialists</div>
+                    <div className="text-[11px] font-bold text-white truncate">Verified Specialists</div>
                     <div className="text-[9px] text-blue-200 truncate">FRCS & American Board</div>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-sm flex items-center space-x-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
+                <div className="p-3 rounded-2xl bg-white/[0.07] backdrop-blur-xl border border-white/15 shadow-sm flex items-center space-x-2.5 hover:bg-white/10 transition-colors">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0 border border-emerald-400/20">
                     <Building2 className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[11px] font-bold text-white truncate">🏥 JCI & NABH</div>
+                    <div className="text-[11px] font-bold text-white truncate">JCI & NABH</div>
                     <div className="text-[9px] text-blue-200 truncate">Accredited Network</div>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-sm flex items-center space-x-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-300 flex items-center justify-center shrink-0">
+                <div className="p-3 rounded-2xl bg-white/[0.07] backdrop-blur-xl border border-white/15 shadow-sm flex items-center space-x-2.5 hover:bg-white/10 transition-colors">
+                  <div className="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-300 flex items-center justify-center shrink-0 border border-sky-400/20">
                     <Globe2 className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[11px] font-bold text-white truncate">🌍 24/7 International</div>
-                    <div className="text-[9px] text-blue-200 truncate">Airport & Visa Desk</div>
+                    <div className="text-[11px] font-bold text-white truncate">24/7 International</div>
+                    <div className="text-[9px] text-blue-200 truncate">VIP Airport & Visa Desk</div>
                   </div>
                 </div>
               </div>
 
             </div>
 
-            {/* Right Column: Layered Depth Composition with Active Camera Parallax */}
+            {/* Right Column: Layered Depth Composition with Active Camera Parallax & Interactive Doctor Carousel */}
             <div 
               className="lg:col-span-6 relative flex justify-center items-center mt-6 lg:mt-0"
-              style={{ transform: `translate3d(${-mousePos.x * 0.4}px, ${-mousePos.y * 0.4}px, 0)` }}
+              style={{ transform: `translate3d(${-mousePos.x * 0.35}px, ${-mousePos.y * 0.35}px, 0)` }}
             >
               
-              {/* Outer Glowing Concentric Rings */}
-              <div className="absolute w-[360px] h-[360px] sm:w-[480px] sm:h-[480px] lg:w-[580px] lg:h-[580px] rounded-full border border-blue-400/20 animate-[spin_45s_linear_infinite]" />
-              <div className="absolute w-[290px] h-[290px] sm:w-[400px] sm:h-[400px] lg:w-[480px] lg:h-[480px] rounded-full border border-sky-300/15 animate-[spin_35s_linear_infinite_reverse]" />
+              {/* Outer Glowing Concentric Rings with Luxury Rotation */}
+              <div className="absolute w-[360px] h-[360px] sm:w-[490px] sm:h-[490px] lg:w-[600px] lg:h-[600px] rounded-full border border-blue-400/20 animate-[spin_55s_linear_infinite]" />
+              <div className="absolute w-[290px] h-[290px] sm:w-[410px] sm:h-[410px] lg:w-[500px] lg:h-[500px] rounded-full border border-cyan-300/15 animate-[spin_40s_linear_infinite_reverse]" />
+              <div className="absolute w-[220px] h-[220px] sm:w-[320px] sm:h-[320px] lg:w-[380px] lg:h-[380px] rounded-full bg-gradient-to-tr from-[#0E82FD]/20 to-transparent blur-2xl" />
 
               {/* Main Cutout Doctor Frame with Subtle Breathing Motion */}
-              <div className="relative z-10 w-full max-w-[320px] sm:max-w-[420px] rounded-t-[160px] sm:rounded-t-[200px] rounded-b-3xl bg-gradient-to-b from-blue-500/25 via-white/5 to-white/10 p-2 sm:p-2.5 backdrop-blur-xl border border-white/25 shadow-2xl overflow-hidden animate-float-slow">
-                <div className="w-full h-[360px] sm:h-[460px] lg:h-[540px] rounded-t-[150px] sm:rounded-t-[190px] rounded-b-2xl overflow-hidden relative">
+              <div className="relative z-10 w-full max-w-[320px] sm:max-w-[430px] rounded-t-[170px] sm:rounded-t-[210px] rounded-b-3xl bg-gradient-to-b from-blue-500/30 via-white/10 to-white/5 p-2 sm:p-3 backdrop-blur-2xl border border-white/30 shadow-[0_25px_60px_rgba(0,0,0,0.6)] overflow-hidden">
+                <div className="w-full h-[370px] sm:h-[480px] lg:h-[560px] rounded-t-[160px] sm:rounded-t-[200px] rounded-b-2xl overflow-hidden relative bg-[#071325]">
                   <img 
-                    src={landingDoctors[0]?.avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=1000&q=80"} 
-                    alt={landingDoctors[0]?.name || "MAIDES Kerala Senior Specialist"} 
+                    src={landingDoctors[activeDoctorIndex % landingDoctors.length]?.avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=1000&q=80"} 
+                    alt={landingDoctors[activeDoctorIndex % landingDoctors.length]?.name || "MAIDES Kerala Senior Specialist"} 
                     className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#071120]/95 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#060D1A]/95 via-transparent to-transparent" />
                   
-                  {/* Overlay Bottom Doctor Card */}
-                  <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 p-3 sm:p-3.5 rounded-2xl bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-between">
-                    <div className="min-w-0 pr-2">
-                      <div className="text-xs font-black truncate">{landingDoctors[0]?.name || "Dr. Muralidharan V. Nair"}</div>
-                      <div className="text-[10px] text-cyan-200 truncate">{landingDoctors[0]?.title || "Chief Specialist"} • {landingDoctors[0]?.hospitalName || "Aster Medcity, Kochi"}</div>
+                  {/* Doctor Selector Quick Controls */}
+                  {landingDoctors.length > 1 && (
+                    <div className="absolute top-4 right-4 flex items-center space-x-1.5 z-30 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
+                      {landingDoctors.slice(0, 4).map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setActiveDoctorIndex(i)}
+                          className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
+                            activeDoctorIndex === i ? "bg-cyan-400 w-5" : "bg-white/40 hover:bg-white/70"
+                          }`}
+                          aria-label={`Select Doctor ${i + 1}`}
+                        />
+                      ))}
                     </div>
-                    <span className="px-2.5 py-1 rounded-full bg-emerald-500 text-[10px] font-bold text-white flex items-center space-x-1 shrink-0 shadow-sm">
+                  )}
+
+                  {/* Overlay Bottom Doctor Card */}
+                  <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 p-3.5 sm:p-4 rounded-2xl bg-[#0B172B]/85 backdrop-blur-xl border border-white/20 text-white flex items-center justify-between shadow-2xl">
+                    <div className="min-w-0 pr-2">
+                      <div className="text-xs sm:text-sm font-black text-white truncate flex items-center space-x-1.5">
+                        <span>{landingDoctors[activeDoctorIndex % landingDoctors.length]?.name || "Dr. Muralidharan V. Nair"}</span>
+                      </div>
+                      <div className="text-[10px] sm:text-[11px] text-cyan-200 truncate mt-0.5">
+                        {landingDoctors[activeDoctorIndex % landingDoctors.length]?.title || "Chief Cardiac Surgeon"} • {landingDoctors[activeDoctorIndex % landingDoctors.length]?.hospitalName || "Aster Medcity, Kochi"}
+                      </div>
+                    </div>
+                    <span className="px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-[10px] font-black text-white flex items-center space-x-1.5 shrink-0 shadow-md">
                       <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                      <span>Available</span>
+                      <span>Accepting Int'l Cases</span>
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Floating Dynamic Badge 1: Verified Experience */}
+              {/* Floating Dynamic Luxury Badge 1: Verified Experience */}
               <div 
-                className="absolute top-2 left-0 sm:-top-4 sm:-left-6 z-20 p-2.5 sm:p-3.5 rounded-2xl bg-white/95 backdrop-blur-xl shadow-2xl border border-slate-100 flex items-center space-x-2.5 sm:space-x-3 transition-transform duration-500"
-                style={{ transform: `translate3d(${mousePos.x * 0.8}px, ${mousePos.y * 0.8}px, 0)` }}
+                className="absolute top-2 left-0 sm:-top-4 sm:-left-6 z-20 p-3 sm:p-4 rounded-2xl bg-white/95 backdrop-blur-2xl shadow-[0_15px_35px_rgba(0,0,0,0.25)] border border-white/80 flex items-center space-x-3 transition-transform duration-500"
+                style={{ transform: `translate3d(${mousePos.x * 0.7}px, ${mousePos.y * 0.7}px, 0)` }}
               >
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#0E82FD] shadow-inner shrink-0">
-                  <Award className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-[#38BDF8] flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+                  <Award className="w-5 h-5 stroke-[2.5]" />
                 </div>
                 <div>
-                  <div className="text-[11px] sm:text-xs font-black text-[#0F2042]">✓ Verified 20+ Years</div>
-                  <div className="text-[9px] sm:text-[10px] font-semibold text-slate-500">Board-Certified Specialists</div>
+                  <div className="text-xs font-black text-[#0F2042]">✓ Verified 20+ Yrs</div>
+                  <div className="text-[10px] font-semibold text-slate-500">Board-Certified Specialists</div>
                 </div>
               </div>
 
-              {/* Floating Dynamic Badge 2: Real Cost Advantage */}
+              {/* Floating Dynamic Luxury Badge 2: Real Cost Advantage */}
               <div 
-                className="absolute bottom-6 left-0 sm:bottom-12 sm:-left-8 z-20 p-2.5 sm:p-3.5 rounded-2xl bg-[#0F2042]/95 backdrop-blur-xl shadow-2xl border border-white/20 text-white flex items-center space-x-2.5 sm:space-x-3 transition-transform duration-500"
-                style={{ transform: `translate3d(${-mousePos.x * 0.8}px, ${-mousePos.y * 0.8}px, 0)` }}
+                className="absolute bottom-6 left-0 sm:bottom-12 sm:-left-8 z-20 p-3 sm:p-4 rounded-2xl bg-[#0A172D]/95 backdrop-blur-2xl shadow-[0_15px_35px_rgba(0,0,0,0.4)] border border-white/20 text-white flex items-center space-x-3 transition-transform duration-500"
+                style={{ transform: `translate3d(${-mousePos.x * 0.7}px, ${-mousePos.y * 0.7}px, 0)` }}
               >
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shrink-0">
-                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shrink-0 shadow-inner">
+                  <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-[11px] sm:text-xs font-black text-white">Up to 70% Savings</div>
-                  <div className="text-[9px] sm:text-[10px] text-blue-200">vs UAE, UK & US Pricing</div>
+                  <div className="text-xs font-black text-white">Up to 70% Savings</div>
+                  <div className="text-[10px] text-cyan-200">vs UAE, UK & US Costs</div>
                 </div>
               </div>
 
-              {/* Floating Dynamic Badge 3: 4.95 Rating */}
+              {/* Floating Dynamic Luxury Badge 3: 4.95 Rating & Clinical Success */}
               <div 
-                className="absolute top-1/2 right-0 sm:-right-8 -translate-y-1/2 z-20 p-3 rounded-2xl bg-white/95 backdrop-blur-xl shadow-2xl border border-slate-100 flex items-center space-x-2.5 hidden sm:flex transition-transform duration-500"
-                style={{ transform: `translate3d(${mousePos.x * 0.6}px, ${mousePos.y * 0.6}px, 0)` }}
+                className="absolute top-1/2 right-0 sm:-right-8 -translate-y-1/2 z-20 p-3 sm:p-3.5 rounded-2xl bg-white/95 backdrop-blur-2xl shadow-[0_15px_35px_rgba(0,0,0,0.25)] border border-white/80 flex items-center space-x-3 hidden sm:flex transition-transform duration-500"
+                style={{ transform: `translate3d(${mousePos.x * 0.5}px, ${mousePos.y * 0.5}px, 0)` }}
               >
-                <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
-                  <Star className="w-4 h-4 fill-amber-400" />
+                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0 border border-amber-200/50">
+                  <Star className="w-5 h-5 fill-amber-400" />
                 </div>
                 <div>
                   <div className="text-xs font-black text-[#0F2042]">⭐ 4.95 Rating</div>
