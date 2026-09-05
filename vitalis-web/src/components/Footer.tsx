@@ -232,15 +232,20 @@ export function Footer() {
 
               {/* Social Pills */}
               <div className="flex items-center flex-wrap justify-center gap-1.5 sm:gap-2">
-                {["Facebook", "Instagram", "(x)Twitter", "LinkedIn"].map((platform) => (
+                {[
+                  { name: "Facebook", href: "https://facebook.com/maideshealthcare" },
+                  { name: "Instagram", href: "https://instagram.com/maideskerala" },
+                  { name: "X (Twitter)", href: "https://x.com/maideskerala" },
+                  { name: "LinkedIn", href: "https://linkedin.com/company/maides-medical" }
+                ].map((item) => (
                   <a
-                    key={platform}
-                    href={`https://${platform.toLowerCase().replace(/[^a-z]/g, '')}.com`}
+                    key={item.name}
+                    href={item.href}
                     target="_blank"
-                    rel="noreferrer"
-                    className="px-3 py-1.5 rounded-full bg-[#0E82FD] hover:bg-blue-600 text-white font-bold text-[10px] sm:text-[11px] transition-colors shadow-xs"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 rounded-full bg-[#0E82FD] hover:bg-blue-600 text-white font-bold text-[10px] sm:text-[11px] transition-colors shadow-xs cursor-pointer"
                   >
-                    {platform}
+                    {item.name}
                   </a>
                 ))}
               </div>
