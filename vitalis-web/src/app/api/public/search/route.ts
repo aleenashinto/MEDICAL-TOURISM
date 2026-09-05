@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const query = searchParams.get('q') || '';
     const type = searchParams.get('type') || 'all'; // hospital, doctor, treatment, all
 
-    let results = {};
+    let results: any = {};
 
     if (type === 'all' || type === 'hospital') {
       results['hospitals'] = await prisma.hospital.findMany({

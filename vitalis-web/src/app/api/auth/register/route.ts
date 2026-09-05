@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     const hashedPassword = await hashPassword(password);
 
     // 6. Database Insertion via Prisma Transaction (User + Patient)
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       const newUser = await tx.user.create({
         data: {
           email: email.toLowerCase().trim(),

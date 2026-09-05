@@ -50,7 +50,7 @@ export async function GET() {
         pendingAppointments,
         totalRevenue: financialStats._sum.amount || 0
       },
-      recentActivity: recentInquiries.map(ticket => ({
+      recentActivity: recentInquiries.map((ticket: any) => ({
         id: ticket.id,
         patientName: ticket.patient.firstName + ' ' + ticket.patient.lastName,
         subject: ticket.subject,
