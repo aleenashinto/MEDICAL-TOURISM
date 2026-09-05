@@ -289,15 +289,14 @@ export default function AppointmentManagementPage() {
 
   // Load and Hydrate Sister Stores
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      // 1. Load Appointments
-      const saved = localStorage.getItem("maides_admin_appointments");
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            // Normalize entries
-            const normalized = parsed.map((a: any) => ({
+    const fetchLiveAppointments = async () => {
+      // 1. Try server API
+      try {
+        const res = await fetch("/api/appointments");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.appointments) && data.appointments.length > 0) {
+            const normalized = data.appointments.map((a: any) => ({
               ...a,
               specialty: a.specialty || "Specialty Consultation",
               service: a.service || a.treatment || "Specialist Clinical Review",
@@ -313,12 +312,66 @@ export default function AppointmentManagementPage() {
               ]
             }));
             setAppointments(normalized);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("maides_admin_appointments", JSON.stringify(normalized));
+            }
+            return;
           }
-        } catch (e) {
-          console.error("Failed to load appointments", e);
+        }
+      } catch (e) {}
+
+      // 2. Fallback to localStorage
+      if (typeof window !== "undefined") {
+        const saved = localStorage.getItem("maides_admin_appointments");
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              const normalized = parsed.map((a: any) => ({
+                ...a,
+                specialty: a.specialty || "Specialty Consultation",
+                service: a.service || a.treatment || "Specialist Clinical Review",
+                patientEmail: a.patientEmail || a.email || "patient@example.com",
+                patientPhone: a.patientPhone || a.phone || "+971 50 123 4567",
+                patientCountry: a.patientCountry || a.country || "International",
+                consultationFeeUsd: a.consultationFeeUsd || 50,
+                consultationFeeInr: a.consultationFeeInr || 4200,
+                createdAt: a.createdAt || "2026-09-04 10:00",
+                updatedAt: a.updatedAt || new Date().toISOString().replace('T', ' ').substring(0, 16),
+                history: Array.isArray(a.history) && a.history.length > 0 ? a.history : [
+                  { status: a.status || "REQUESTED", timestamp: a.createdAt || "2026-09-04 10:00", updatedBy: "System" }
+                ]
+              }));
+              setAppointments(normalized);
+            }
+          } catch (e) {
+            console.error("Failed to load appointments", e);
+          }
         }
       }
+    };
 
+    fetchLiveAppointments();
+
+    const handleStorageUpdate = () => {
+      if (typeof window !== "undefined") {
+        const saved = localStorage.getItem("maides_admin_appointments");
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setAppointments(parsed);
+            }
+          } catch (e) {}
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageUpdate);
+    window.addEventListener("maides_appointments_updated", handleStorageUpdate);
+
+    // Cross-link sister stores
+    if (typeof window !== "undefined") {
       // 2. Cross-link Doctors
       const storedDocs = localStorage.getItem("maides_admin_doctors");
       if (storedDocs) {
@@ -369,6 +422,11 @@ export default function AppointmentManagementPage() {
         } catch (e) {}
       }
     }
+
+    return () => {
+      window.removeEventListener("storage", handleStorageUpdate);
+      window.removeEventListener("maides_appointments_updated", handleStorageUpdate);
+    };
   }, []);
 
   const saveAppointmentsToStorage = (updated: AppointmentItem[]) => {

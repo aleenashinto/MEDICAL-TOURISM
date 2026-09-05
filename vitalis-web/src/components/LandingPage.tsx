@@ -393,12 +393,12 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
     };
   }, []);
 
-  const handleBookAppointment = (e: React.FormEvent) => {
+  const handleBookAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!apptFullName.trim() || !apptEmail.trim()) return;
 
     const assignedHosp = apptHospital || landingHospitals[0]?.name || "Aster Medcity, Kochi";
-    const assignedDoc = apptDoctor || landingDoctors[0]?.name || "Dr. Muralidharan V. Nair";
+    const assignedDoc = apptDoctor || landingDoctors[0]?.name || "Dr. K. S. Muralidharan";
     const selectedSpec = apptSpecialty || "Cardiology & Cardiac Surgery";
     const selectedSrv = apptService || "Specialist Clinical Consultation";
     const appointmentId = "APT-" + Math.floor(1000 + Math.random() * 9000);
@@ -412,6 +412,8 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       phone: apptPhone.trim() || "+971 50 123 4567",
       country: "International Patient",
       treatment: `${selectedSpec} — ${selectedSrv}`,
+      specialty: selectedSpec,
+      district: "Ernakulam / Kochi",
       budget: "$5,000",
       urgency: "HIGH",
       submittedAt: now,
@@ -420,48 +422,67 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       notes: `Direct consultation request submitted from Homepage for ${assignedDoc} on ${apptDate} at ${apptTime}`
     };
 
+    const newAppt = {
+      id: appointmentId,
+      patient: apptFullName.trim(),
+      patientEmail: apptEmail.trim(),
+      patientPhone: apptPhone.trim() || "+971 50 123 4567",
+      patientCountry: "International Patient",
+      caseId: caseId,
+      specialty: selectedSpec,
+      service: selectedSrv,
+      hospital: assignedHosp,
+      doctor: assignedDoc,
+      type: "VIDEO_CONSULTATION",
+      dateTime: `${apptDate} ${apptTime}`,
+      preferredTime: apptTime,
+      status: "REQUESTED",
+      meetLink: `https://meet.google.com/xyz-maides-${Math.floor(100 + Math.random() * 900)}`,
+      notes: `Landing page booking request: ${selectedSpec} / ${selectedSrv} (${apptPhone || "No Phone"})`,
+      createdAt: now,
+      updatedAt: now,
+      consultationFeeUsd: 50,
+      consultationFeeInr: 4200,
+      history: [
+        { status: "REQUESTED", timestamp: now, updatedBy: "Public Visitor", notes: "Submitted via Homepage Consultation Form" }
+      ]
+    };
+
     if (typeof window !== "undefined") {
       // 1. Enquiries Queue
-      const existingEnq = localStorage.getItem("maides_admin_enquiries");
-      let enqList = [];
-      if (existingEnq) {
-        try { enqList = JSON.parse(existingEnq); } catch(err){}
-      }
-      localStorage.setItem("maides_admin_enquiries", JSON.stringify([newEnq, ...enqList]));
+      try {
+        const existingEnq = localStorage.getItem("maides_admin_enquiries");
+        const enqList = existingEnq ? JSON.parse(existingEnq) : [];
+        const updatedEnqs = [newEnq, ...enqList.filter((e: any) => e.id !== newEnq.id)];
+        localStorage.setItem("maides_admin_enquiries", JSON.stringify(updatedEnqs));
+        window.dispatchEvent(new Event("storage"));
+        window.dispatchEvent(new CustomEvent("maides_enquiries_updated", { detail: updatedEnqs }));
+      } catch (err) {}
 
-      // 2. Appointments Queue (Comprehensive Enterprise Model)
-      const existingAppt = localStorage.getItem("maides_admin_appointments");
-      let apptList = [];
-      if (existingAppt) {
-        try { apptList = JSON.parse(existingAppt); } catch(err){}
-      }
-      const newAppt = {
-        id: appointmentId,
-        patient: apptFullName.trim(),
-        patientEmail: apptEmail.trim(),
-        patientPhone: apptPhone.trim() || "+971 50 123 4567",
-        patientCountry: "International Patient",
-        caseId: caseId,
-        specialty: selectedSpec,
-        service: selectedSrv,
-        hospital: assignedHosp,
-        doctor: assignedDoc,
-        type: "VIDEO_CONSULTATION",
-        dateTime: `${apptDate} ${apptTime}`,
-        preferredTime: apptTime,
-        status: "REQUESTED",
-        meetLink: `https://meet.google.com/xyz-maides-${Math.floor(100 + Math.random() * 900)}`,
-        notes: `Landing page booking request: ${selectedSpec} / ${selectedSrv} (${apptPhone || "No Phone"})`,
-        createdAt: now,
-        updatedAt: now,
-        consultationFeeUsd: 50,
-        consultationFeeInr: 4200,
-        history: [
-          { status: "REQUESTED", timestamp: now, updatedBy: "Public Visitor", notes: "Submitted via Homepage Consultation Form" }
-        ]
-      };
-      localStorage.setItem("maides_admin_appointments", JSON.stringify([newAppt, ...apptList]));
+      // 2. Appointments Queue
+      try {
+        const existingAppt = localStorage.getItem("maides_admin_appointments");
+        const apptList = existingAppt ? JSON.parse(existingAppt) : [];
+        const updatedAppts = [newAppt, ...apptList.filter((a: any) => a.id !== newAppt.id)];
+        localStorage.setItem("maides_admin_appointments", JSON.stringify(updatedAppts));
+        window.dispatchEvent(new Event("storage"));
+        window.dispatchEvent(new CustomEvent("maides_appointments_updated", { detail: updatedAppts }));
+      } catch (err) {}
     }
+
+    // Sync to Server APIs
+    try {
+      await fetch("/api/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newEnq)
+      });
+      await fetch("/api/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newAppt)
+      });
+    } catch (e) {}
 
     setApptSuccess(`Thank you ${apptFullName.trim()}! Your consultation request with ${assignedDoc} at ${assignedHosp} on ${apptDate} (${apptTime}) has been scheduled. Your MAIDES Clinical Coordinator will confirm your slot.`);
     setApptFullName("");
