@@ -131,15 +131,16 @@ export function Navbar({ onOpenIntake, onOpenConcierge, onOpenSearch, style = "t
               <span className="hidden xl:inline text-[11px] font-medium opacity-80">Search...</span>
             </button>
 
-            <button
-              onClick={onOpenIntake}
+            {/* Sign In Button */}
+            <Link
+              href="/auth/login"
               className="flex items-center pl-4 sm:pl-5 pr-1.5 py-1.5 rounded-full bg-gradient-to-r from-[#0E82FD] to-[#0284C7] hover:from-[#0360D9] hover:to-[#0E82FD] text-white text-xs font-black shadow-[0_8px_20px_rgba(14,130,253,0.35)] hover:shadow-[0_10px_25px_rgba(14,130,253,0.5)] hover:scale-[1.02] transition-all duration-300 group cursor-pointer"
             >
-              <span className="mr-2.5 sm:mr-3">Get Assistance</span>
+              <span className="mr-2.5 sm:mr-3">Sign In</span>
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white text-[#0E82FD] flex items-center justify-center transition-transform duration-300 group-hover:rotate-45 shadow-sm">
                 <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
               </div>
-            </button>
+            </Link>
           </div>
 
           {/* Mobile Hamburger & Search */}
@@ -201,16 +202,14 @@ export function Navbar({ onOpenIntake, onOpenConcierge, onOpenSearch, style = "t
               </div>
 
               <div className="pt-3 border-t border-white/10 flex flex-col space-y-2.5">
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    if (onOpenIntake) onOpenIntake();
-                  }}
+                <Link
+                  href="/auth/login"
+                  onClick={() => setMobileMenuOpen(false)}
                   className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#0E82FD] to-[#38BDF8] text-white text-xs font-black text-center shadow-lg shadow-blue-500/40 active:scale-98 transition-all flex items-center justify-center space-x-2 cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4" />
-                  <span>Get Medical Assistance</span>
-                </button>
+                  <span>Sign In</span>
+                </Link>
 
                 <div className="grid grid-cols-2 gap-2 text-center text-xs">
                   <a
