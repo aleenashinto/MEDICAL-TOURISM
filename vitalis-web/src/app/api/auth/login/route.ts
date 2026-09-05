@@ -3,6 +3,14 @@ import { signToken } from '@/lib/session';
 import { cookies } from 'next/headers';
 import { db } from '@/lib/db';
 
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -17,7 +25,7 @@ export async function POST(request: Request) {
 
     // Simple demo validation logic
     if (role === 'ADMIN') {
-      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase() && password === ADMIN_PASSWORD) {
         userName = "System Administrator";
       } else {
         return NextResponse.json({ success: false, error: "Invalid administrator credentials." }, { status: 401 });
@@ -30,7 +38,9 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: "Account not found. Please register first." }, { status: 404 });
       }
 
-      if (user.password !== password) {
+      const inputHash = await hashPassword(password);
+      // Fallback logic for the pre-seeded sarah.jenkins account which has a plaintext password in db.ts
+      if (user.password !== inputHash && user.password !== password) {
         return NextResponse.json({ success: false, error: "Invalid credentials." }, { status: 401 });
       }
 
