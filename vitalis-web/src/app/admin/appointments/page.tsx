@@ -296,7 +296,7 @@ export default function AppointmentManagementPage() {
 
       // 1. Fetch from server API
       try {
-        const res = await fetch("/api/appointments");
+        const res = await fetch("/api/appointments", { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           if (data.success && Array.isArray(data.appointments)) {
@@ -318,16 +318,14 @@ export default function AppointmentManagementPage() {
         }
       }
 
-      // 3. Deduplicate and merge (prefer local/latest updates, keep all unique IDs)
-      const combined = [...localAppts];
-      remoteAppts.forEach((ra) => {
-        if (!combined.some(ca => ca.id === ra.id)) {
-          combined.push(ra);
-        }
-      });
+      // 3. Deduplicate and merge
+      const map = new Map<string, any>();
+      INITIAL_APPOINTMENTS.forEach(a => map.set(a.id, a));
+      localAppts.forEach(a => map.set(a.id, a));
+      remoteAppts.forEach(a => map.set(a.id, { ...(map.get(a.id) || {}), ...a }));
 
-      const sourceList = combined.length > 0 ? combined : INITIAL_APPOINTMENTS;
-      const normalized = sourceList.map((a: any) => ({
+      const combined = Array.from(map.values());
+      const normalized = combined.map((a: any) => ({
         ...a,
         specialty: a.specialty || "Specialty Consultation",
         service: a.service || a.treatment || "Specialist Clinical Review",
@@ -357,6 +355,9 @@ export default function AppointmentManagementPage() {
 
     window.addEventListener("storage", handleStorageUpdate);
     window.addEventListener("maides_appointments_updated", handleStorageUpdate);
+    
+    // Auto-poll every 5 seconds for new server submissions
+    const pollInterval = setInterval(fetchLiveAppointments, 5000);
 
     // Cross-link sister stores
     if (typeof window !== "undefined") {
@@ -412,6 +413,7 @@ export default function AppointmentManagementPage() {
     }
 
     return () => {
+      clearInterval(pollInterval);
       window.removeEventListener("storage", handleStorageUpdate);
       window.removeEventListener("maides_appointments_updated", handleStorageUpdate);
     };
