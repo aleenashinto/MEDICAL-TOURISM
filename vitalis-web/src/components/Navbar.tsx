@@ -13,7 +13,8 @@ import {
   Phone,
   ShieldCheck,
   Globe2,
-  Stethoscope
+  Stethoscope,
+  MessageSquare
 } from "lucide-react";
 
 interface NavbarProps {
@@ -41,6 +42,7 @@ export function Navbar({ onOpenIntake, onOpenConcierge, style = "transparent" }:
 
   const navItems = [
     { name: "Home", href: "/" },
+    { name: "360° Virtual Tour", href: "#virtual-tour-360", badge: "Live 360°" },
     { name: "About Us", href: "/about" },
     { name: "Our Hospitals", href: "/hospitals" },
     { name: "Services", href: "/treatments" },
@@ -61,25 +63,25 @@ export function Navbar({ onOpenIntake, onOpenConcierge, style = "transparent" }:
         <div className="flex items-center justify-between">
           
           {/* Logo Brand */}
-          <Link href="/" className="flex items-center space-x-3 group">
+          <Link href="/" className="flex items-center space-x-2.5 sm:space-x-3 group shrink-0">
             <div className="relative flex items-center justify-center">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#0E82FD] to-[#38BDF8] flex items-center justify-center text-white shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-all duration-300">
-                <HeartPulse className="w-5 h-5 animate-pulse text-white" />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-[#0E82FD] to-[#38BDF8] flex items-center justify-center text-white shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-all duration-300">
+                <HeartPulse className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse text-white" />
               </div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center">
-                <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center">
+                <span className="w-1 h-1 rounded-full bg-white animate-ping" />
               </div>
             </div>
             
             <div className="flex flex-col">
-              <div className="flex items-center space-x-2">
-                <span className={`text-2xl font-black tracking-tight transition-colors ${
+              <div className="flex items-center space-x-1.5">
+                <span className={`text-xl sm:text-2xl font-black tracking-tight transition-colors ${
                   isWhite ? "text-[#0F2042]" : "text-white"
                 }`}>
                   MAIDES
                 </span>
               </div>
-              <span className={`text-[9px] font-semibold tracking-wider uppercase ${
+              <span className={`text-[8px] sm:text-[9px] font-semibold tracking-wider uppercase ${
                 isWhite ? "text-slate-500" : "text-blue-100/80"
               }`}>
                 Medical Travel Assistance
@@ -128,10 +130,10 @@ export function Navbar({ onOpenIntake, onOpenConcierge, style = "transparent" }:
           </div>
 
           {/* Mobile Actions & Hamburger */}
-          <div className="flex xl:hidden items-center space-x-2">
+          <div className="flex xl:hidden items-center space-x-2 shrink-0">
             <Link
               href="/auth/login"
-              className="px-3.5 py-2 rounded-full bg-[#0E82FD] text-white text-[11px] font-bold shadow-md shadow-blue-500/30"
+              className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full bg-[#0E82FD] text-white text-[11px] font-bold shadow-md shadow-blue-500/30 active:scale-95 transition-all"
             >
               Sign In
             </Link>
@@ -150,41 +152,67 @@ export function Navbar({ onOpenIntake, onOpenConcierge, style = "transparent" }:
 
         </div>
 
-        {/* Mobile Dropdown Menu */}
+        {/* Mobile Dropdown Menu with Backdrop */}
         {mobileMenuOpen && (
-          <div className="xl:hidden mt-3 p-5 rounded-3xl bg-[#0F2042]/98 backdrop-blur-2xl border border-white/15 shadow-2xl text-white space-y-3 animate-in fade-in slide-in-from-top-4 duration-300">
-            <div className="grid grid-cols-2 gap-2">
-              {navItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`block px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                      isActive 
-                        ? "bg-[#0E82FD] text-white shadow-md shadow-blue-500/30" 
-                        : "text-slate-200 hover:bg-white/10 hover:text-white"
-                    }`}
-                  >
-                    {item.name}
-                  </Link>
-                );
-              })}
-            </div>
+          <>
+            <div 
+              className="fixed inset-0 bg-black/50 backdrop-blur-xs z-30 xl:hidden top-[60px]"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <div className="xl:hidden relative z-40 mt-3 p-4 sm:p-5 rounded-3xl bg-[#0F2042]/98 backdrop-blur-2xl border border-white/15 shadow-2xl text-white space-y-3 animate-in fade-in slide-in-from-top-4 duration-300">
+              <div className="grid grid-cols-2 gap-2">
+                {navItems.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`block px-3.5 py-3 rounded-xl text-xs font-bold transition-all ${
+                        isActive 
+                          ? "bg-[#0E82FD] text-white shadow-md shadow-blue-500/30" 
+                          : "text-slate-200 hover:bg-white/10 hover:text-white"
+                      }`}
+                    >
+                      {item.name}
+                    </Link>
+                  );
+                })}
+              </div>
 
-            <div className="pt-3 border-t border-white/10 flex flex-col space-y-2">
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  if (onOpenIntake) onOpenIntake();
-                }}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-[#0E82FD] to-[#38BDF8] text-white text-xs font-black text-center shadow-lg shadow-blue-500/40"
-              >
-                Get Medical Assistance
-              </button>
+              <div className="pt-3 border-t border-white/10 flex flex-col space-y-2.5">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    if (onOpenIntake) onOpenIntake();
+                  }}
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#0E82FD] to-[#38BDF8] text-white text-xs font-black text-center shadow-lg shadow-blue-500/40 active:scale-98 transition-all flex items-center justify-center space-x-2 cursor-pointer"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>Get Medical Assistance</span>
+                </button>
+
+                <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                  <a
+                    href="https://wa.me"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="py-2.5 rounded-xl bg-emerald-600/90 text-white font-bold flex items-center justify-center space-x-1.5"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>WhatsApp</span>
+                  </a>
+                  <a
+                    href="tel:+914842908482"
+                    className="py-2.5 rounded-xl bg-white/10 text-white font-bold flex items-center justify-center space-x-1.5"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>Call 24/7 Desk</span>
+                  </a>
+                </div>
+              </div>
             </div>
-          </div>
+          </>
         )}
 
       </div>

@@ -163,7 +163,7 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-3 sm:bottom-6 right-3 sm:right-6 z-50">
       {/* Floating Trigger Button */}
       {!isOpen && (
         <button
@@ -172,17 +172,17 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
             setIsMinimized(false);
             setUnreadCount(0);
           }}
-          className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-[#0E82FD] via-blue-600 to-[#0F2042] hover:from-blue-600 hover:to-blue-800 text-white font-bold text-xs rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all group border border-white/20 backdrop-blur-md"
+          className="flex items-center gap-2 sm:gap-3 px-3.5 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-[#0E82FD] via-blue-600 to-[#0F2042] hover:from-blue-600 hover:to-blue-800 text-white font-bold text-xs rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all group border border-white/20 backdrop-blur-md cursor-pointer"
         >
           <div className="relative">
-            <Headphones className="w-5 h-5 text-white animate-bounce" />
+            <Headphones className="w-4 h-4 sm:w-5 sm:h-5 text-white animate-bounce" />
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute -top-0.5 -right-0.5 ring-2 ring-[#0E82FD]" />
           </div>
           <div className="text-left">
-            <div className="leading-tight flex items-center gap-1.5 font-extrabold">
+            <div className="leading-tight flex items-center gap-1.5 font-extrabold text-[11px] sm:text-xs">
               {userRole === "admin" ? "Live Patient Chat Desk" : "24/7 Live Care Assistant"}
             </div>
-            <div className="text-[10px] text-blue-100 font-normal">
+            <div className="text-[9px] sm:text-[10px] text-blue-100 font-normal hidden sm:block">
               {userRole === "admin" ? "Direct Patient Channel" : "Instant Kerala Coordinator Chat"}
             </div>
           </div>
@@ -199,8 +199,8 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
         <div 
           className={`bg-slate-950 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col transition-all duration-300 ${
             isMinimized 
-              ? "w-80 h-16" 
-              : "w-[360px] sm:w-[420px] h-[540px]"
+              ? "w-72 sm:w-80 h-14 sm:h-16" 
+              : "w-[calc(100vw-24px)] sm:w-[420px] max-w-[420px] h-[480px] sm:h-[540px] max-h-[84vh]"
           }`}
         >
           {/* Header */}

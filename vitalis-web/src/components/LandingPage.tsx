@@ -53,6 +53,10 @@ import {
   KERALA_DISTRICTS 
 } from "@/lib/mockData";
 import { formatCurrency } from "@/lib/utils";
+import { ParticleBackground360 } from "@/components/ParticleBackground360";
+import { VirtualTour360Viewer } from "@/components/VirtualTour360Viewer";
+import { Kerala3DCorridorMap } from "@/components/Kerala3DCorridorMap";
+import { CostCalculator360 } from "@/components/CostCalculator360";
 
 interface LandingPageProps {
   onOpenIntake: () => void;
@@ -486,67 +490,71 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
     <div className="space-y-24 pb-0 bg-[#F8FAFC]">
       
       {/* 1. HERO SECTION (HIGH-END MODERN HEALTHCARE REDESIGN) */}
-      <section className="relative min-h-[720px] lg:min-h-[820px] bg-gradient-to-br from-[#0F2042] via-[#163974] to-[#0A1628] overflow-hidden pt-32 pb-20 flex items-center">
+      <section className="relative min-h-[640px] lg:min-h-[820px] bg-gradient-to-br from-[#0F2042] via-[#163974] to-[#0A1628] overflow-hidden pt-28 sm:pt-32 pb-16 sm:pb-20 flex items-center">
         
+        {/* Interactive 360-Degree Particle Canvas */}
+        <ParticleBackground360 />
+
         {/* Background Radial Glows & Grid Mesh */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#0E82FD]/20 blur-[120px]" />
-          <div className="absolute top-1/3 -right-20 w-[500px] h-[500px] rounded-full bg-[#38BDF8]/15 blur-[140px]" />
-          <div className="absolute bottom-0 left-1/3 w-[450px] h-[450px] rounded-full bg-[#0E82FD]/10 blur-[100px]" />
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-32 -left-32 w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-[#0E82FD]/20 blur-[100px] sm:blur-[120px]" />
+          <div className="absolute top-1/3 -right-20 w-80 sm:w-[500px] h-80 sm:h-[500px] rounded-full bg-[#38BDF8]/15 blur-[100px] sm:blur-[140px]" />
+          <div className="absolute bottom-0 left-1/3 w-72 sm:w-[450px] h-72 sm:h-[450px] rounded-full bg-[#0E82FD]/10 blur-[80px] sm:blur-[100px]" />
           
           {/* Subtle Grid Accent */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:3rem_3rem] sm:bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
             
             {/* Left Column: Eyebrow, Main Headline, Subtext, Doctor Social Proof, Quick Search */}
-            <div className="lg:col-span-6 space-y-7 text-white text-left z-20">
+            <div className="lg:col-span-6 space-y-6 sm:space-y-7 text-white text-left z-20">
               
-              {/* Eyebrow Pill */}
-              <div className="inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full bg-white/10 border border-white/15 backdrop-blur-md shadow-inner">
+              {/* Eyebrow Pill with 360 Pulse */}
+              <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 backdrop-blur-md shadow-inner">
                 <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#38BDF8]"></span>
                 </span>
-                <span className="text-[11px] font-black tracking-widest text-blue-100 uppercase">
-                  Kerala's Quaternary Healthcare Gateway
+                <span className="text-[10px] sm:text-[11px] font-black tracking-widest text-cyan-200 uppercase">
+                  360° Kerala Quaternary Healthcare Gateway
                 </span>
               </div>
 
               {/* Main Headline */}
-              <div className="space-y-3">
-                <h1 className="text-4xl sm:text-6xl xl:text-[68px] font-black text-white tracking-tight leading-[1.05]">
+              <div className="space-y-2.5 sm:space-y-3">
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[68px] font-black text-white tracking-tight leading-[1.08] sm:leading-[1.05]">
                   Your Health <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-sky-200 to-emerald-300">
                     Deserves the Right
                   </span> <br />
                   Journey.
                 </h1>
-                <p className="text-sm sm:text-base text-blue-100/90 font-normal max-w-lg leading-relaxed pt-1">
+                <p className="text-xs sm:text-base text-blue-100/90 font-normal max-w-lg leading-relaxed pt-1">
                   Seamless medical travel coordination connecting international patients with JCI-accredited hospitals, leading surgical directors, and authentic Ayurveda in Kerala, India.
                 </p>
               </div>
 
-              {/* Action Buttons Group */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
+              {/* Action Buttons Group with 360 Virtual Tour CTA */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
                 <Link
                   href="/auth/login"
-                  className="flex items-center justify-between pl-6 pr-2 py-2 rounded-full bg-gradient-to-r from-[#0E82FD] to-[#38BDF8] hover:from-[#0360D9] hover:to-[#0E82FD] text-white font-black text-xs uppercase tracking-wider transition-all duration-300 shadow-[0_10px_30px_rgba(14,130,253,0.45)] hover:shadow-[0_15px_35px_rgba(14,130,253,0.6)] hover:scale-[1.02] group cursor-pointer"
+                  className="flex items-center justify-between pl-5 sm:pl-6 pr-2 py-2 rounded-full bg-gradient-to-r from-[#0E82FD] to-[#38BDF8] hover:from-[#0360D9] hover:to-[#0E82FD] text-white font-black text-xs uppercase tracking-wider transition-all duration-300 shadow-[0_10px_30px_rgba(14,130,253,0.45)] hover:shadow-[0_15px_35px_rgba(14,130,253,0.6)] hover:scale-[1.02] group cursor-pointer"
                 >
-                  <span className="pr-4 font-bold text-[13px]">Get Medical Assistance</span>
-                  <div className="w-10 h-10 rounded-full bg-white text-[#0E82FD] flex items-center justify-center transition-all duration-300 group-hover:rotate-45 shadow-sm">
-                    <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />
+                  <span className="pr-3 sm:pr-4 font-bold text-xs sm:text-[13px]">Get Medical Assistance</span>
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white text-[#0E82FD] flex items-center justify-center transition-all duration-300 group-hover:rotate-45 shadow-sm">
+                    <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
                   </div>
                 </Link>
 
-                <Link
-                  href="/treatments"
-                  className="px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider text-center border border-white/20 backdrop-blur-md transition-all duration-300 flex items-center justify-center space-x-2"
+                <a
+                  href="#virtual-tour-360"
+                  className="px-5 sm:px-6 py-3.5 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-400/40 font-bold text-xs uppercase tracking-wider text-center backdrop-blur-md transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-cyan-900/20"
                 >
-                  <span>Explore Treatments</span>
-                </Link>
+                  <Sparkles className="w-4 h-4 text-cyan-300" />
+                  <span>360° Virtual Tour</span>
+                </a>
 
                 <a
                   href="https://wa.me"
@@ -555,25 +563,25 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                   className="px-4 py-3.5 rounded-full bg-emerald-600/90 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider text-center transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-emerald-900/30"
                 >
                   <MessageSquare className="w-4 h-4" />
-                  <span className="hidden sm:inline">WhatsApp</span>
+                  <span>WhatsApp</span>
                 </a>
               </div>
 
               {/* Patient Trust Stats & Avatars */}
-              <div className="pt-4 border-t border-white/15 flex flex-wrap items-center gap-6">
-                <div className="flex items-center -space-x-3">
-                  <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=120&q=80" alt="Doctor 1" className="w-12 h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
-                  <img src="https://images.unsplash.com/photo-1622902046580-2b47f47f5471?auto=format&fit=crop&w=120&q=80" alt="Doctor 2" className="w-12 h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
-                  <img src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=120&q=80" alt="Doctor 3" className="w-12 h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
-                  <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=120&q=80" alt="Doctor 4" className="w-12 h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#0E82FD] to-[#38BDF8] border-2 border-[#0F2042] flex items-center justify-center text-white text-xs font-black ring-2 ring-blue-400/30">
+              <div className="pt-4 border-t border-white/15 flex flex-wrap items-center gap-4 sm:gap-6">
+                <div className="flex items-center -space-x-2.5 sm:-space-x-3">
+                  <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=120&q=80" alt="Doctor 1" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
+                  <img src="https://images.unsplash.com/photo-1622902046580-2b47f47f5471?auto=format&fit=crop&w=120&q=80" alt="Doctor 2" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
+                  <img src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=120&q=80" alt="Doctor 3" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
+                  <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=120&q=80" alt="Doctor 4" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-[#0F2042] object-cover ring-2 ring-blue-400/30" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-[#0E82FD] to-[#38BDF8] border-2 border-[#0F2042] flex items-center justify-center text-white text-[11px] sm:text-xs font-black ring-2 ring-blue-400/30">
                     +500
                   </div>
                 </div>
 
                 <div>
                   <div className="flex items-center space-x-1.5">
-                    <span className="text-2xl font-black text-white">220,000+</span>
+                    <span className="text-xl sm:text-2xl font-black text-white">220,000+</span>
                     <div className="flex text-amber-400">
                       <Star className="w-3.5 h-3.5 fill-amber-400" />
                       <Star className="w-3.5 h-3.5 fill-amber-400" />
@@ -582,7 +590,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                       <Star className="w-3.5 h-3.5 fill-amber-400" />
                     </div>
                   </div>
-                  <p className="text-xs text-blue-200/90 font-medium">
+                  <p className="text-[11px] sm:text-xs text-blue-200/90 font-medium">
                     Patients assisted across 14 Kerala healthcare districts.
                   </p>
                 </div>
@@ -591,15 +599,15 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
             </div>
 
             {/* Right Column: Dynamic Visual Centerpiece with Floating Badges */}
-            <div className="lg:col-span-6 relative flex justify-center items-center">
+            <div className="lg:col-span-6 relative flex justify-center items-center mt-6 lg:mt-0">
               
               {/* Outer Glowing Rings */}
-              <div className="absolute w-[440px] h-[440px] sm:w-[540px] sm:h-[540px] rounded-full border border-blue-400/20 animate-[spin_40s_linear_infinite]" />
-              <div className="absolute w-[360px] h-[360px] sm:w-[440px] sm:h-[440px] rounded-full border border-sky-300/15" />
+              <div className="absolute w-[320px] h-[320px] sm:w-[440px] sm:h-[440px] lg:w-[540px] lg:h-[540px] rounded-full border border-blue-400/20 animate-[spin_40s_linear_infinite]" />
+              <div className="absolute w-[260px] h-[260px] sm:w-[360px] sm:h-[360px] lg:w-[440px] lg:h-[440px] rounded-full border border-sky-300/15" />
 
               {/* Main Cutout Doctor Arch Frame */}
-              <div className="relative z-10 w-full max-w-[420px] rounded-t-[200px] rounded-b-3xl bg-gradient-to-b from-blue-500/20 via-white/5 to-white/10 p-2.5 backdrop-blur-xl border border-white/25 shadow-2xl overflow-hidden">
-                <div className="w-full h-[460px] sm:h-[540px] rounded-t-[190px] rounded-b-2xl overflow-hidden relative">
+              <div className="relative z-10 w-full max-w-[320px] sm:max-w-[420px] rounded-t-[160px] sm:rounded-t-[200px] rounded-b-3xl bg-gradient-to-b from-blue-500/20 via-white/5 to-white/10 p-2 sm:p-2.5 backdrop-blur-xl border border-white/25 shadow-2xl overflow-hidden">
+                <div className="w-full h-[360px] sm:h-[460px] lg:h-[540px] rounded-t-[150px] sm:rounded-t-[190px] rounded-b-2xl overflow-hidden relative">
                   <img 
                     src={landingDoctors[0]?.avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=1000&q=80"} 
                     alt={landingDoctors[0]?.name || "MAIDES Kerala Specialist Doctor"} 
@@ -608,12 +616,12 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0F2042]/90 via-transparent to-transparent" />
                   
                   {/* Overlay Bottom Doctor Label */}
-                  <div className="absolute bottom-4 left-4 right-4 p-3.5 rounded-2xl bg-black/40 backdrop-blur-md border border-white/15 text-white flex items-center justify-between">
-                    <div>
-                      <div className="text-xs font-black">{landingDoctors[0]?.name || "Dr. Muralidharan V. Nair"}</div>
-                      <div className="text-[10px] text-blue-200">{landingDoctors[0]?.title || landingDoctors[0]?.specialty || "Senior Specialist Doctor"}</div>
+                  <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 p-3 sm:p-3.5 rounded-2xl bg-black/40 backdrop-blur-md border border-white/15 text-white flex items-center justify-between">
+                    <div className="min-w-0 pr-2">
+                      <div className="text-xs font-black truncate">{landingDoctors[0]?.name || "Dr. Muralidharan V. Nair"}</div>
+                      <div className="text-[10px] text-blue-200 truncate">{landingDoctors[0]?.title || landingDoctors[0]?.specialty || "Senior Specialist Doctor"}</div>
                     </div>
-                    <span className="px-2.5 py-1 rounded-full bg-emerald-500/90 text-[10px] font-bold text-white flex items-center space-x-1">
+                    <span className="px-2.5 py-1 rounded-full bg-emerald-500/90 text-[10px] font-bold text-white flex items-center space-x-1 shrink-0">
                       <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                       <span>Online</span>
                     </span>
@@ -622,30 +630,30 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               </div>
 
               {/* Floating Badge 1: 4-Hour Visa Guarantee */}
-              <div className="absolute -top-4 -left-2 sm:-left-6 z-20 p-3.5 rounded-2xl bg-white/95 backdrop-blur-xl shadow-xl border border-slate-100 flex items-center space-x-3 animate-bounce [animation-duration:5s]">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#0E82FD] shadow-inner">
-                  <ShieldCheck className="w-6 h-6 stroke-[2.5]" />
+              <div className="absolute top-2 left-0 sm:-top-4 sm:-left-6 z-20 p-2.5 sm:p-3.5 rounded-2xl bg-white/95 backdrop-blur-xl shadow-xl border border-slate-100 flex items-center space-x-2.5 sm:space-x-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#0E82FD] shadow-inner shrink-0">
+                  <ShieldCheck className="w-4 h-4 sm:w-6 sm:h-6 stroke-[2.5]" />
                 </div>
                 <div>
-                  <div className="text-xs font-black text-[#0F2042]">JCI & NABH</div>
-                  <div className="text-[10px] font-semibold text-slate-500">Accredited Network</div>
+                  <div className="text-[11px] sm:text-xs font-black text-[#0F2042]">JCI & NABH</div>
+                  <div className="text-[9px] sm:text-[10px] font-semibold text-slate-500">Accredited Network</div>
                 </div>
               </div>
 
               {/* Floating Badge 2: Cost Savings */}
-              <div className="absolute bottom-12 -left-4 sm:-left-8 z-20 p-3.5 rounded-2xl bg-[#0F2042]/90 backdrop-blur-xl shadow-2xl border border-white/20 text-white flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
-                  <Sparkles className="w-5 h-5" />
+              <div className="absolute bottom-6 left-0 sm:bottom-12 sm:-left-8 z-20 p-2.5 sm:p-3.5 rounded-2xl bg-[#0F2042]/90 backdrop-blur-xl shadow-2xl border border-white/20 text-white flex items-center space-x-2.5 sm:space-x-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shrink-0">
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                  <div className="text-xs font-black text-white">70% Cost Advantage</div>
-                  <div className="text-[10px] text-blue-200">vs US, UK & GCC Care</div>
+                  <div className="text-[11px] sm:text-xs font-black text-white">70% Cost Advantage</div>
+                  <div className="text-[9px] sm:text-[10px] text-blue-200">vs US, UK & GCC Care</div>
                 </div>
               </div>
 
               {/* Floating Badge 3: 14 Kerala Hubs */}
-              <div className="absolute top-1/2 -right-4 sm:-right-8 -translate-y-1/2 z-20 p-3.5 rounded-2xl bg-white/95 backdrop-blur-xl shadow-xl border border-slate-100 flex items-center space-x-3 hidden sm:flex">
-                <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#0E82FD] flex items-center justify-center">
+              <div className="absolute top-1/2 right-0 sm:-right-8 -translate-y-1/2 z-20 p-3.5 rounded-2xl bg-white/95 backdrop-blur-xl shadow-xl border border-slate-100 flex items-center space-x-3 hidden sm:flex">
+                <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#0E82FD] flex items-center justify-center shrink-0">
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
@@ -661,43 +669,43 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       </section>
 
       {/* 2. INTRODUCTION TO MAIDES / ABOUT US (SECTION 10 & 4) */}
-      <section id="about" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <section id="about" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-4 sm:pt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center">
           
-          <div className="lg:col-span-6 space-y-6">
+          <div className="lg:col-span-6 space-y-5 sm:space-y-6">
             <div className="inline-flex items-center space-x-2">
               <span className="w-2.5 h-1.5 rounded-full bg-[#0E82FD]" />
               <span className="text-xs font-bold uppercase tracking-wider text-[#0E82FD]">ABOUT MAIDES</span>
             </div>
 
-            <h2 className="text-3xl sm:text-5xl font-black text-[#0F2042] tracking-tight leading-[1.15]">
-              Restoring Life Healing <br />
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#0F2042] tracking-tight leading-[1.18] sm:leading-[1.15]">
+              Restoring Life Healing <br className="hidden sm:inline" />
               Care Hope in Kerala
             </h2>
 
-            <p className="text-sm text-slate-600 leading-relaxed font-normal">
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
               MAIDES simplifies the medical travel journey by bringing healthcare discovery, hospital coordination, and travel support together in one unified platform. We prioritize your comfort and safety at every stage.
             </p>
 
-            <div className="space-y-6 pt-2">
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-full bg-[#0E82FD] text-white flex items-center justify-center shadow-md shadow-blue-500/25 shrink-0">
-                  <Award className="w-6 h-6" />
+            <div className="space-y-4 sm:space-y-6 pt-1">
+              <div className="flex items-start space-x-3.5 sm:space-x-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#0E82FD] text-white flex items-center justify-center shadow-md shadow-blue-500/25 shrink-0">
+                  <Award className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-base font-bold text-[#0F2042]">Professional & Trustworthy</h3>
+                <div className="space-y-0.5 sm:space-y-1">
+                  <h3 className="text-sm sm:text-base font-bold text-[#0F2042]">Professional & Trustworthy</h3>
                   <p className="text-xs text-slate-600 leading-relaxed">
                     Verified hospital partnerships across all 14 Kerala districts adhering to strict clinical ethics and transparent pricing.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-full bg-[#0E82FD] text-white flex items-center justify-center shadow-md shadow-blue-500/25 shrink-0">
-                  <Heart className="w-6 h-6" />
+              <div className="flex items-start space-x-3.5 sm:space-x-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#0E82FD] text-white flex items-center justify-center shadow-md shadow-blue-500/25 shrink-0">
+                  <Heart className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-base font-bold text-[#0F2042]">Personally Managed Support</h3>
+                <div className="space-y-0.5 sm:space-y-1">
+                  <h3 className="text-sm sm:text-base font-bold text-[#0F2042]">Personally Managed Support</h3>
                   <p className="text-xs text-slate-600 leading-relaxed">
                     Dedicated 24/7 care coordinators handling airport reception, language translation, hospital admissions, and family accommodation.
                   </p>
@@ -705,9 +713,9 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               </div>
             </div>
 
-            <div className="pt-4 flex items-center space-x-2">
-              <button onClick={onOpenIntake} className="flex items-center space-x-2 group">
-                <div className="px-7 py-3 rounded-full bg-[#0E82FD] hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-blue-500/25">
+            <div className="pt-2 sm:pt-4 flex items-center space-x-2">
+              <button onClick={onOpenIntake} className="flex items-center space-x-2 group cursor-pointer">
+                <div className="px-6 sm:px-7 py-3 rounded-full bg-[#0E82FD] hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-blue-500/25">
                   About More
                 </div>
                 <div className="w-10 h-10 rounded-full bg-[#0E82FD] group-hover:bg-blue-600 text-white flex items-center justify-center transition-all shadow-lg shadow-blue-500/25 group-hover:rotate-45">
@@ -717,24 +725,26 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
             </div>
           </div>
 
-          <div className="lg:col-span-6 relative">
+          <div className="lg:col-span-6 relative mt-4 sm:mt-0">
             <div className="relative">
-              <div className="rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
-                <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80" alt="Medical Team" className="w-full h-[440px] object-cover" />
+              <div className="rounded-3xl overflow-hidden shadow-xl border-4 border-white">
+                <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80" alt="Medical Team" className="w-full h-72 sm:h-[440px] object-cover" />
               </div>
 
-              <div className="absolute -top-6 -right-4 sm:-right-6 w-64 sm:w-80 rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-white">
-                <div className="relative h-44 sm:h-48">
+              {/* Doctor Consultation Video Floating Preview */}
+              <div className="absolute -top-4 -right-2 sm:-top-6 sm:-right-6 w-48 sm:w-80 rounded-2xl overflow-hidden shadow-xl border-2 sm:border-4 border-white bg-white">
+                <div className="relative h-28 sm:h-48">
                   <img src="https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80" alt="Doctor Consultation Video" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                    <div className="w-12 h-12 rounded-full bg-[#0E82FD] text-white flex items-center justify-center shadow-lg shadow-blue-500/40 hover:scale-110 transition-transform cursor-pointer">
-                      <Play className="w-5 h-5 fill-white ml-0.5" />
+                    <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-[#0E82FD] text-white flex items-center justify-center shadow-lg shadow-blue-500/40 hover:scale-110 transition-transform cursor-pointer">
+                      <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-white ml-0.5" />
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="absolute -bottom-6 right-0 sm:right-4 p-5 rounded-2xl bg-white shadow-2xl border border-slate-100 space-y-2 text-left">
+              {/* Bottom Doctor Badge */}
+              <div className="relative sm:absolute sm:-bottom-6 sm:right-4 mt-3 sm:mt-0 p-3.5 sm:p-5 rounded-2xl bg-white shadow-xl border border-slate-100 space-y-1.5 sm:space-y-2 text-left">
                 <div className="flex items-center space-x-1 text-[#0E82FD]">
                   <Star className="w-3.5 h-3.5 fill-[#0E82FD]" />
                   <Star className="w-3.5 h-3.5 fill-[#0E82FD]" />
@@ -744,11 +754,11 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                 </div>
 
                 <div>
-                  <h4 className="text-base font-black text-[#0F2042]">{landingDoctors[0]?.name || "Dr. Muralidharan V. Nair"}</h4>
-                  <p className="text-[11px] text-slate-500 font-medium">{landingDoctors[0]?.title || landingDoctors[0]?.specialty || "Chief Cardiac Surgeon"} • {landingDoctors[0]?.hospitalName || "Aster Medcity, Kochi"}</p>
+                  <h4 className="text-sm sm:text-base font-black text-[#0F2042]">{landingDoctors[0]?.name || "Dr. Muralidharan V. Nair"}</h4>
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium">{landingDoctors[0]?.title || landingDoctors[0]?.specialty || "Chief Cardiac Surgeon"} • {landingDoctors[0]?.hospitalName || "Aster Medcity, Kochi"}</p>
                 </div>
 
-                <div className="pt-1 flex items-center space-x-2 text-xs font-bold text-[#0E82FD]">
+                <div className="pt-1 flex items-center space-x-2 text-[11px] sm:text-xs font-bold text-[#0E82FD]">
                   <Phone className="w-3.5 h-3.5 fill-[#0E82FD]" />
                   <span>+91 (484) 290-8482</span>
                 </div>
@@ -760,26 +770,26 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       </section>
 
       {/* 3. QUALITY MEDICAL SERVICES SECTION */}
-      <section className="relative overflow-hidden pt-10 pb-6">
-        <div className="relative rounded-3xl bg-gradient-to-b from-[#D4E8FC] via-[#E2F0FE] to-[#EFF7FF] p-8 sm:p-14 max-w-7xl mx-auto shadow-sm">
+      <section className="relative overflow-hidden pt-6 sm:pt-10 pb-4 sm:pb-6">
+        <div className="relative rounded-3xl bg-gradient-to-b from-[#D4E8FC] via-[#E2F0FE] to-[#EFF7FF] p-5 sm:p-14 max-w-7xl mx-auto shadow-xs">
           
-          <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
+          <div className="text-center max-w-3xl mx-auto space-y-2.5 sm:space-y-3 mb-8 sm:mb-12">
             <div className="inline-flex items-center space-x-2">
               <span className="w-2.5 h-1.5 rounded-full bg-[#0E82FD]" />
               <span className="text-xs font-bold uppercase tracking-wider text-[#0E82FD]">OUR QUALITY SERVICE</span>
               <span className="w-2.5 h-1.5 rounded-full bg-[#0E82FD]" />
             </div>
 
-            <h2 className="text-3xl sm:text-5xl font-black text-[#0F2042] tracking-tight">
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#0F2042] tracking-tight">
               Quality Medical Services <br />
               Delivered With Compassion.
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
             
             {/* Left Column: 4 Pill Selection Buttons */}
-            <div className="lg:col-span-4 space-y-3.5">
+            <div className="lg:col-span-4 grid grid-cols-2 lg:grid-cols-1 gap-2.5 sm:gap-3.5">
               {qualityServices.map((srv, idx) => {
                 const Icon = srv.icon;
                 const isSelected = activeQualityTab === idx;
@@ -787,18 +797,18 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                   <button
                     key={srv.id}
                     onClick={() => setActiveQualityTab(idx)}
-                    className={`w-full p-4 rounded-2xl flex items-center space-x-4 transition-all text-left shadow-sm ${
+                    className={`w-full p-3 sm:p-4 rounded-2xl flex items-center space-x-3 sm:space-x-4 transition-all text-left shadow-xs cursor-pointer ${
                       isSelected
                         ? "bg-white border-2 border-[#0E82FD] shadow-md ring-2 ring-blue-100"
                         : "bg-white/90 hover:bg-white border border-slate-200/80 hover:border-blue-200"
                     }`}
                   >
-                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+                    <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 ${
                       isSelected ? "bg-blue-50 text-[#0E82FD]" : "bg-slate-100 text-slate-600"
                     }`}>
-                      <Icon className="w-5 h-5 text-[#0E82FD]" />
+                      <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-[#0E82FD]" />
                     </div>
-                    <span className="text-base font-bold text-[#0F2042]">
+                    <span className="text-xs sm:text-base font-bold text-[#0F2042] line-clamp-1 sm:line-clamp-none">
                       {srv.tabName}
                     </span>
                   </button>
@@ -808,21 +818,21 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
 
             {/* Right Column: Solid Royal Blue Feature Banner */}
             <div className="lg:col-span-8">
-              <div className="rounded-3xl overflow-hidden shadow-2xl bg-[#0E82FD] grid grid-cols-1 md:grid-cols-12 min-h-[380px]">
+              <div className="rounded-3xl overflow-hidden shadow-xl bg-[#0E82FD] grid grid-cols-1 md:grid-cols-12 min-h-[340px] sm:min-h-[380px]">
                 
-                <div className="md:col-span-6 p-8 sm:p-10 text-white flex flex-col justify-between space-y-6">
+                <div className="md:col-span-6 p-6 sm:p-10 text-white flex flex-col justify-between space-y-5 sm:space-y-6">
                   
                   <div className="flex items-center justify-between">
-                    <div className="w-14 h-14 rounded-full bg-white text-[#0E82FD] flex items-center justify-center shadow-lg">
-                      {React.createElement(qualityServices[activeQualityTab].icon, { className: "w-7 h-7 text-[#0E82FD]" })}
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white text-[#0E82FD] flex items-center justify-center shadow-lg">
+                      {React.createElement(qualityServices[activeQualityTab].icon, { className: "w-6 h-6 sm:w-7 sm:h-7 text-[#0E82FD]" })}
                     </div>
-                    <span className="text-4xl sm:text-5xl font-black text-white/90">
+                    <span className="text-3xl sm:text-5xl font-black text-white/90">
                       {qualityServices[activeQualityTab].id}
                     </span>
                   </div>
 
-                  <div className="space-y-3">
-                    <h3 className="text-2xl sm:text-3xl font-black text-white leading-snug">
+                  <div className="space-y-2 sm:space-y-3">
+                    <h3 className="text-xl sm:text-3xl font-black text-white leading-snug">
                       {qualityServices[activeQualityTab].title}
                     </h3>
                     <p className="text-xs sm:text-sm text-blue-100 leading-relaxed font-normal">
@@ -833,7 +843,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                   <div className="pt-2">
                     <button
                       onClick={onOpenIntake}
-                      className="inline-flex items-center space-x-2 text-white hover:text-blue-100 font-bold text-xs tracking-wider transition-all group"
+                      className="inline-flex items-center space-x-2 text-white hover:text-blue-100 font-bold text-xs tracking-wider transition-all group cursor-pointer"
                     >
                       <div className="w-8 h-8 rounded-full border-2 border-dashed border-white flex items-center justify-center group-hover:rotate-90 transition-transform">
                         <ArrowRight className="w-4 h-4 text-white" />
@@ -844,7 +854,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
 
                 </div>
 
-                <div className="md:col-span-6 relative h-64 md:h-auto overflow-hidden">
+                <div className="md:col-span-6 relative h-48 sm:h-64 md:h-auto overflow-hidden">
                   <img 
                     src={qualityServices[activeQualityTab].image} 
                     alt={qualityServices[activeQualityTab].title}
@@ -860,30 +870,41 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
         </div>
       </section>
 
+      {/* 3.5 360° INTERACTIVE VIRTUAL REALITY TOUR & HOSPITAL IMMERSION */}
+      <section id="virtual-tour-360" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-6 sm:pt-10">
+        <VirtualTour360Viewer onBookConsultation={onOpenIntake} />
+      </section>
+
+      {/* 3.6 3D FLIGHT CORRIDOR TELEMETRY & 360° GLOBAL BENCHMARK CALCULATOR */}
+      <section id="corridor-telemetry" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-8 sm:pt-12 space-y-12">
+        <Kerala3DCorridorMap onOpenIntake={onOpenIntake} />
+        <CostCalculator360 onOpenIntake={onOpenIntake} />
+      </section>
+
       {/* 4. THE 10-STEP KERALA PATIENT JOURNEY (SECTION 19 & 2) */}
       <section id="journey" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-4">
-        <div className="rounded-3xl bg-white border border-slate-200 shadow-sm p-8 sm:p-12 space-y-10">
+        <div className="rounded-3xl bg-white border border-slate-200 shadow-sm p-5 sm:p-12 space-y-6 sm:space-y-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-[#0E82FD]">Seamless Coordination</span>
-              <h2 className="text-3xl font-black text-[#0F2042] mt-1">How Your MAIDES Journey Works</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-[#0F2042] mt-1">How Your MAIDES Journey Works</h2>
               <p className="text-xs sm:text-sm text-slate-600 mt-1">From initial enquiry to return home, every step is coordinated by our dedicated healthcare desk.</p>
             </div>
-            <button onClick={onOpenIntake} className="px-5 py-2.5 rounded-xl bg-[#0E82FD] hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all shrink-0">
+            <button onClick={onOpenIntake} className="px-5 py-3 rounded-xl bg-[#0E82FD] hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all shrink-0 cursor-pointer text-center">
               Start Step 01 Now
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             {journeySteps.map((s, idx) => (
-              <div key={idx} className="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:bg-blue-50/60 hover:border-[#0E82FD] transition-all flex flex-col justify-between group">
+              <div key={idx} className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:bg-blue-50/60 hover:border-[#0E82FD] transition-all flex flex-col justify-between group">
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-2xl font-black text-[#0E82FD]">{s.num}</span>
+                  <div className="flex items-center justify-between mb-2 sm:mb-3">
+                    <span className="text-xl sm:text-2xl font-black text-[#0E82FD]">{s.num}</span>
                     <div className="w-2.5 h-2.5 rounded-full bg-slate-300 group-hover:bg-[#0E82FD] transition-colors" />
                   </div>
-                  <h3 className="text-sm font-bold text-[#0F2042] group-hover:text-[#0E82FD] transition-colors mb-1.5">{s.title}</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">{s.desc}</p>
+                  <h3 className="text-xs sm:text-sm font-bold text-[#0F2042] group-hover:text-[#0E82FD] transition-colors mb-1 sm:mb-1.5">{s.title}</h3>
+                  <p className="text-[11px] sm:text-xs text-slate-600 leading-relaxed">{s.desc}</p>
                 </div>
               </div>
             ))}
@@ -892,46 +913,46 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       </section>
 
       {/* RECOVERY JOURNEY STEP BY GUIDE CONTAINER */}
-      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-12">
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-8 sm:py-12">
+        <div className="text-center max-w-3xl mx-auto space-y-2.5 sm:space-y-3 mb-10 sm:mb-14">
           <div className="inline-flex items-center space-x-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#0E82FD]"></span>
             <span className="text-xs font-black uppercase tracking-widest text-[#0E82FD]">
-              HOW IT WORK
+              HOW IT WORKS
             </span>
             <span className="w-2.5 h-2.5 rounded-full bg-[#0E82FD]"></span>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-black text-[#0F2042] tracking-tight">
-            Your Recovery<br />Journey Step By Guide
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#0F2042] tracking-tight">
+            Your Recovery<br />Journey Step By Step Guide
           </h2>
         </div>
 
-        <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6 items-start">
+        <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-6 items-start">
           {[
             {
               title: "Begin Treatment",
-              desc: "We offer a full range of medical kinds services including diagnos",
+              desc: "We offer a full range of medical services tailored to your health requirements",
               image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=600&q=80"
             },
             {
               title: "Clinical Assessment",
-              desc: "We offer a full range of medical kinds services including diagnos",
+              desc: "Complete pre-travel evaluation with chief surgical directors and doctors",
               image: "https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=600&q=80"
             },
             {
               title: "Medication & Recovery",
-              desc: "We offer a full range of medical kinds services including diagnos",
+              desc: "Quaternary surgery, post-operative care, and authentic herbal convalescence",
               image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80"
             },
             {
               title: "Patient Care",
-              desc: "We offer a full range of medical kinds services including diagnos",
+              desc: "24/7 dedicated Kerala Care Concierge desk assisting with all travel & health needs",
               image: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=600&q=80"
             }
           ].map((step, idx) => (
             <div key={idx} className="relative flex flex-col items-center text-center group">
-              {/* Organic 4-Petal / Cloud Masked Image Frame */}
-              <div className="relative w-44 h-44 sm:w-48 sm:h-48 mb-6 flex items-center justify-center">
+              {/* Organic Masked Image Frame */}
+              <div className="relative w-36 h-36 sm:w-44 sm:h-44 mb-4 sm:mb-6 flex items-center justify-center">
                 <div 
                   className="w-full h-full overflow-hidden shadow-lg group-hover:shadow-2xl group-hover:scale-105 transition-all duration-300 bg-blue-50"
                   style={{
@@ -957,10 +978,10 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               )}
 
               {/* Text Info */}
-              <h3 className="text-lg font-black text-[#0F2042] mb-2 group-hover:text-[#0E82FD] transition-colors">
+              <h3 className="text-base sm:text-lg font-black text-[#0F2042] mb-1.5 sm:mb-2 group-hover:text-[#0E82FD] transition-colors">
                 {step.title}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-500 max-w-[220px] leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-500 max-w-[240px] leading-relaxed">
                 {step.desc}
               </p>
             </div>
@@ -969,35 +990,35 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       </section>
 
       {/* 5. 12 MEDICAL SPECIALTIES (SECTION 11) */}
-      <section id="treatments" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-6">
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
+      <section id="treatments" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-4 sm:pt-6">
+        <div className="text-center max-w-3xl mx-auto space-y-2.5 sm:space-y-3 mb-8 sm:mb-12">
           <span className="text-xs font-bold uppercase tracking-wider text-[#0E82FD] bg-blue-50 px-3.5 py-1.5 rounded-full border border-blue-100">
             Clinical Disciplines
           </span>
-          <h2 className="text-3xl sm:text-4xl font-black text-[#0F2042]">
+          <h2 className="text-2xl sm:text-4xl font-black text-[#0F2042]">
             Comprehensive Medical Specialties in Kerala
           </h2>
-          <p className="text-sm text-slate-600">
+          <p className="text-xs sm:text-sm text-slate-600">
             Explore advanced surgical disciplines and holistic healing options coordinated across our verified network.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {landingSpecialties.map((dept, idx) => {
             const Icon = getSpecialtyIcon(dept.iconName);
             return (
-              <div key={dept.id || idx} className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-xl hover:border-[#0E82FD] transition-all group flex flex-col justify-between">
+              <div key={dept.id || idx} className="p-5 sm:p-6 rounded-3xl bg-white border border-slate-200 shadow-xs hover:shadow-xl hover:border-[#0E82FD] transition-all group flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0E82FD] group-hover:bg-[#0E82FD] group-hover:text-white transition-all flex items-center justify-center">
-                      <Icon className="w-6 h-6" />
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-50 text-[#0E82FD] group-hover:bg-[#0E82FD] group-hover:text-white transition-all flex items-center justify-center">
+                      <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
-                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+                    <span className="text-[11px] sm:text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
                       {dept.count}
                     </span>
                   </div>
 
-                  <h3 className="text-lg font-bold text-[#0F2042] group-hover:text-[#0E82FD] transition-colors mb-2">
+                  <h3 className="text-base sm:text-lg font-bold text-[#0F2042] group-hover:text-[#0E82FD] transition-colors mb-1.5 sm:mb-2">
                     {dept.title || dept.name}
                   </h3>
                   <p className="text-xs text-slate-600 leading-relaxed">
@@ -1005,12 +1026,12 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                   </p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-                  <button onClick={onOpenIntake} className="text-xs font-bold text-[#0E82FD] group-hover:text-blue-700 flex items-center space-x-1">
-                    <span>Consult Specialty Specialist</span>
+                <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <button onClick={onOpenIntake} className="text-xs font-bold text-[#0E82FD] group-hover:text-blue-700 flex items-center space-x-1 cursor-pointer">
+                    <span>Consult Specialist</span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
-                  <span className="text-[11px] text-slate-400">JCI / NABH Accredited</span>
+                  <span className="text-[10px] sm:text-[11px] text-slate-400">JCI / NABH Accredited</span>
                 </div>
               </div>
             );
@@ -1019,20 +1040,20 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       </section>
 
       {/* 6. 14 KERALA DISTRICTS DIRECTORY (SECTION 15) */}
-      <section id="destinations" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+      <section id="destinations" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-4 sm:pt-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 sm:mb-8 gap-4">
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-[#0E82FD]">14-District Network</span>
-            <h2 className="text-3xl font-black text-[#0F2042] mt-1">Medical Destinations Across Kerala</h2>
-            <p className="text-sm text-slate-600 mt-1">Covering quaternary institutions across South, Central, and North Kerala.</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-[#0F2042] mt-1">Medical Destinations Across Kerala</h2>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">Covering quaternary institutions across South, Central, and North Kerala.</p>
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {(['All', 'South Kerala', 'Central Kerala', 'North Kerala'] as const).map((r) => (
               <button
                 key={r}
                 onClick={() => setSelectedRegion(r)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                className={`px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                   selectedRegion === r ? "bg-[#0E82FD] text-white shadow-md shadow-blue-500/20" : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
                 }`}
               >
@@ -1042,27 +1063,27 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
           {filteredDistricts.slice(0, 6).map((d) => (
-            <div key={d.id} className="rounded-3xl bg-white border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:border-blue-300 transition-all flex flex-col justify-between group">
+            <div key={d.id} className="rounded-3xl bg-white border border-slate-200 overflow-hidden shadow-xs hover:shadow-xl hover:border-blue-300 transition-all flex flex-col justify-between group">
               <div>
-                <div className="relative h-44 overflow-hidden">
+                <div className="relative h-40 sm:h-44 overflow-hidden">
                   <img src={d.image} alt={d.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-[10px] font-bold text-[#0E82FD]">{d.region}</div>
                   <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-slate-900/80 text-white text-[10px] font-bold">{d.hospitalsCount} Hospitals</div>
                 </div>
 
-                <div className="p-5">
+                <div className="p-4 sm:p-5">
                   <h3 className="text-base font-bold text-[#0F2042] group-hover:text-[#0E82FD] transition-colors">{d.name}</h3>
                   <p className="text-xs text-slate-600 mt-1.5 line-clamp-2 leading-relaxed">{d.tagline}</p>
-                  <div className="mt-4 pt-3 border-t border-slate-100 text-xs space-y-1">
+                  <div className="mt-3 sm:mt-4 pt-3 border-t border-slate-100 text-xs space-y-1">
                     <span className="text-slate-500 block font-semibold">Specialties:</span>
-                    <span className="text-slate-800 font-medium">{d.topSpecialties.slice(0, 2).join(" • ")}</span>
+                    <span className="text-slate-800 font-medium line-clamp-1">{d.topSpecialties.slice(0, 2).join(" • ")}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="p-5 pt-0">
+              <div className="p-4 sm:p-5 pt-0">
                 <Link href="/destinations" className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-[#0E82FD] hover:text-white text-xs font-bold text-slate-800 flex items-center justify-center space-x-1.5 transition-all">
                   <span>Explore {d.name}</span>
                   <ChevronRight className="w-4 h-4" />
@@ -1074,49 +1095,49 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       </section>
 
       {/* 7. AYURVEDA & PANCHAKARMA REJUVENATION (SECTION 62) */}
-      <section id="ayurveda" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-6">
-        <div className="rounded-3xl bg-gradient-to-br from-[#0F2042] via-[#17468A] to-[#0E82FD] text-white p-8 sm:p-12 shadow-2xl relative overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      <section id="ayurveda" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-4 sm:pt-6">
+        <div className="rounded-3xl bg-gradient-to-br from-[#0F2042] via-[#17468A] to-[#0E82FD] text-white p-5 sm:p-12 shadow-2xl relative overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
             
-            <div className="lg:col-span-7 space-y-5">
+            <div className="lg:col-span-7 space-y-4 sm:space-y-5">
               <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/10 text-blue-200 border border-white/20 text-xs font-bold">
                 <Leaf className="w-3.5 h-3.5 text-blue-300" />
                 <span>Authentic Ashtavaidya Healing • Kottakkal Lineage</span>
               </div>
 
-              <h2 className="text-3xl sm:text-4xl font-black leading-tight">
+              <h2 className="text-2xl sm:text-4xl font-black leading-tight">
                 Classical Panchakarma & Post-Surgical Convalescence
               </h2>
 
-              <p className="text-sm text-blue-100 leading-relaxed font-normal">
+              <p className="text-xs sm:text-sm text-blue-100 leading-relaxed font-normal">
                 Kerala is the historic birthplace of classical Ayurveda. MAIDES coordinates genuine Panchakarma programs at prestigious institutions like Arya Vaidya Sala Kottakkal, paired with serene backwater recovery along the Vembanad and Ashtamudi lakes.
               </p>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 text-xs">
-                <div className="p-3.5 rounded-xl bg-white/10 border border-white/10">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-2 text-xs">
+                <div className="p-3 sm:p-3.5 rounded-xl bg-white/10 border border-white/10">
                   <strong className="block text-white mb-0.5 font-bold">Panchakarma Detox</strong>
                   <span className="text-blue-100 text-[11px]">14 to 21-day systemic rejuvenation</span>
                 </div>
-                <div className="p-3.5 rounded-xl bg-white/10 border border-white/10">
+                <div className="p-3 sm:p-3.5 rounded-xl bg-white/10 border border-white/10">
                   <strong className="block text-white mb-0.5 font-bold">Joint & Spine Care</strong>
                   <span className="text-blue-100 text-[11px]">Pizhichil, Njavarakizhi, Kizhi</span>
                 </div>
-                <div className="p-3.5 rounded-xl bg-white/10 border border-white/10">
+                <div className="p-3 sm:p-3.5 rounded-xl bg-white/10 border border-white/10">
                   <strong className="block text-white mb-0.5 font-bold">Kumarakom Suites</strong>
                   <span className="text-blue-100 text-[11px]">Bedside nurse & organic diet</span>
                 </div>
               </div>
 
               <div className="pt-2">
-                <button onClick={onOpenIntake} className="px-6 py-3.5 rounded-xl bg-white hover:bg-blue-50 text-[#0F2042] font-bold text-xs uppercase tracking-wider shadow-lg transition-all">
+                <button onClick={onOpenIntake} className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white hover:bg-blue-50 text-[#0F2042] font-bold text-xs uppercase tracking-wider shadow-lg transition-all cursor-pointer text-center">
                   Explore Kerala Ayurveda Packages
                 </button>
               </div>
             </div>
 
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-5 mt-4 lg:mt-0">
               <div className="rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl">
-                <img src="https://media.istockphoto.com/id/468945616/photo/woman-having-massage-with-pouch.jpg?s=612x612&w=0&k=20&c=_jL4fYTtDMnJ4_lqhL9m154AdeTSOfQ_aU3GYvuJpF4=" alt="Ayurveda Herbal Therapy" className="w-full h-80 object-cover" />
+                <img src="https://media.istockphoto.com/id/468945616/photo/woman-having-massage-with-pouch.jpg?s=612x612&w=0&k=20&c=_jL4fYTtDMnJ4_lqhL9m154AdeTSOfQ_aU3GYvuJpF4=" alt="Ayurveda Herbal Therapy" className="w-full h-56 sm:h-80 object-cover" />
               </div>
             </div>
 
@@ -1125,20 +1146,20 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       </section>
 
       {/* 8. KERALA ACCREDITED HOSPITALS (SECTION 13) */}
-      <section id="hospitals" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+      <section id="hospitals" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-4 sm:pt-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 sm:mb-8 gap-4">
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-[#0E82FD]">Verified Network</span>
-            <h2 className="text-3xl font-black text-[#0F2042] mt-1">Kerala Accredited Hospitals</h2>
-            <p className="text-sm text-slate-600 mt-1">Explore quaternary hospital campuses in Kochi, Trivandrum, Kottayam, Kozhikode, and Malappuram.</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-[#0F2042] mt-1">Kerala Accredited Hospitals</h2>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">Explore quaternary hospital campuses in Kochi, Trivandrum, Kottayam, Kozhikode, and Malappuram.</p>
           </div>
           
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {availableDistricts.map((dist) => (
               <button
                 key={dist}
                 onClick={() => setSelectedDistrict(dist)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                className={`px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                   selectedDistrict === dist ? "bg-[#0E82FD] text-white shadow-md shadow-blue-500/20" : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
                 }`}
               >
@@ -1148,26 +1169,26 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredHospitals.map((h) => (
-            <div key={h.id} className="rounded-3xl bg-white border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:border-blue-300 transition-all flex flex-col justify-between group">
+            <div key={h.id} className="card-3d-tilt rounded-3xl bg-white border border-slate-200 overflow-hidden shadow-xs hover:shadow-2xl hover:border-blue-300 transition-all flex flex-col justify-between group">
               <div>
-                <div className="relative h-48 overflow-hidden">
+                <div className="relative h-44 sm:h-48 overflow-hidden">
                   <img src={h.image} alt={h.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-xs text-slate-800 font-bold flex items-center space-x-1 shadow-md">
+                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md text-xs text-slate-800 font-bold flex items-center space-x-1 shadow-md">
                     <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                     <span>{h.rating} ({h.reviewCount})</span>
                   </div>
                   <div className="absolute bottom-3 left-3 flex gap-1.5 flex-wrap">
                     {h.accreditations.map((acc: string, i: number) => (
-                      <span key={i} className="px-2.5 py-0.5 rounded-full bg-[#0E82FD] text-white text-[10px] font-bold shadow-sm">
+                      <span key={i} className="px-2.5 py-0.5 rounded-full bg-[#0E82FD] text-white text-[10px] font-bold shadow-xs">
                         {acc}
                       </span>
                     ))}
                   </div>
                 </div>
 
-                <div className="p-5 space-y-3">
+                <div className="p-4 sm:p-5 space-y-2.5 sm:space-y-3">
                   <div className="flex items-center space-x-1.5 text-xs text-slate-500 font-semibold">
                     <MapPin className="w-3.5 h-3.5 text-[#0E82FD]" />
                     <span>{h.city}, {h.district}</span>
@@ -1183,8 +1204,8 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                 </div>
               </div>
 
-              <div className="p-5 pt-0">
-                <button onClick={onOpenIntake} className="w-full py-2.5 rounded-xl bg-blue-50 hover:bg-[#0E82FD] hover:text-white text-xs font-bold text-[#0E82FD] transition-all flex items-center justify-center space-x-2 shadow-sm">
+              <div className="p-4 sm:p-5 pt-0">
+                <button onClick={onOpenIntake} className="w-full py-2.5 rounded-xl bg-blue-50 hover:bg-[#0E82FD] hover:text-white text-xs font-bold text-[#0E82FD] transition-all flex items-center justify-center space-x-2 shadow-xs cursor-pointer">
                   <span>Select Hospital for Case Review</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -1193,10 +1214,10 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
           ))}
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="mt-6 sm:mt-8 text-center">
           <Link
             href="/hospitals"
-            className="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-white hover:bg-blue-50 text-[#0E82FD] font-bold text-sm border border-blue-200 shadow-sm hover:shadow transition-all group"
+            className="inline-flex items-center space-x-2 px-5 sm:px-6 py-3 rounded-xl bg-white hover:bg-blue-50 text-[#0E82FD] font-bold text-xs sm:text-sm border border-blue-200 shadow-xs hover:shadow transition-all group"
           >
             <span>Explore Complete Kerala Hospital Network & Quaternary Centers</span>
             <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -1205,26 +1226,26 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       </section>
 
       {/* 9. DOCTOR SPECIALIST ROSTER (SECTION 14) */}
-      <section id="doctors" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-6">
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
+      <section id="doctors" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-4 sm:pt-6">
+        <div className="text-center max-w-3xl mx-auto space-y-2.5 sm:space-y-3 mb-8 sm:mb-12">
           <span className="text-xs font-bold uppercase tracking-wider text-[#0E82FD] bg-blue-50 px-3.5 py-1.5 rounded-full border border-blue-100">
             Medical Specialists
           </span>
-          <h2 className="text-3xl sm:text-4xl font-black text-[#0F2042]">
+          <h2 className="text-2xl sm:text-4xl font-black text-[#0F2042]">
             Verified Senior Clinicians in Kerala
           </h2>
-          <p className="text-sm text-slate-600">
+          <p className="text-xs sm:text-sm text-slate-600">
             Chief surgeons and senior physicians with international qualifications (FRCS, American Board, AIIMS, Ashtavaidya).
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {landingDoctors.map((doc) => (
-            <div key={doc.id} className="rounded-3xl bg-white border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#0E82FD] transition-all p-5 flex flex-col justify-between space-y-4">
+            <div key={doc.id} className="card-3d-tilt rounded-3xl bg-white border border-slate-200 overflow-hidden shadow-xs hover:shadow-2xl hover:border-[#0E82FD] transition-all p-4 sm:p-5 flex flex-col justify-between space-y-3 sm:space-y-4">
               <div className="space-y-3">
-                <div className="relative rounded-2xl overflow-hidden h-44 bg-slate-100">
+                <div className="relative rounded-2xl overflow-hidden h-40 sm:h-44 bg-slate-100">
                   <img src={doc.avatar} alt={doc.name} className="w-full h-full object-cover" />
-                  <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-white/95 backdrop-blur-md text-[10px] font-bold text-slate-800 flex items-center space-x-1 shadow-sm">
+                  <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-white/95 backdrop-blur-md text-[10px] font-bold text-slate-800 flex items-center space-x-1 shadow-xs">
                     <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
                     <span>{doc.rating}</span>
                   </div>
@@ -1233,7 +1254,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                 <div>
                   <h3 className="text-sm font-bold text-[#0F2042]">{doc.name}</h3>
                   <p className="text-[11px] text-[#0E82FD] font-semibold">{doc.title || doc.specialty}</p>
-                  <p className="text-[10px] text-slate-500 mt-1">{doc.hospitalName} • {doc.district || "Kerala"}</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">{doc.hospitalName} • {doc.district || "Kerala"}</p>
                 </div>
 
                 <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-600 space-y-1">
@@ -1255,7 +1276,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
           ))}
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="mt-6 sm:mt-8 text-center">
           <Link
             href="/doctors"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-slate-900 hover:bg-[#0E82FD] text-white text-xs font-bold transition-all shadow-md hover:shadow-blue-500/20"
@@ -1267,15 +1288,15 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       </section>
 
       {/* 9.5 FEATURED ALL-INCLUSIVE KERALA TREATMENT PACKAGES */}
-      <section id="packages" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+      <section id="packages" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-4 sm:pt-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 sm:mb-8 gap-4">
           <div>
             <div className="inline-flex items-center space-x-2">
               <span className="w-2.5 h-1.5 rounded-full bg-[#0E82FD]" />
               <span className="text-xs font-bold uppercase tracking-wider text-[#0E82FD]">ALL-INCLUSIVE PACKAGES</span>
             </div>
-            <h2 className="text-3xl font-black text-[#0F2042] mt-1">Featured Kerala Treatment Packages</h2>
-            <p className="text-sm text-slate-600 mt-1">Hospital stay, surgery, VIP airport transfers, recovery lodging & dedicated interpreter.</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-[#0F2042] mt-1">Featured Kerala Treatment Packages</h2>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">Hospital stay, surgery, VIP airport transfers, recovery lodging & dedicated interpreter.</p>
           </div>
           
           <Link
@@ -1287,7 +1308,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {landingPackages.slice(0, 6).map((pkg) => {
             const tierStyle = pkg.tier === "Platinum VIP" 
               ? "bg-amber-500 text-white" 
@@ -1298,9 +1319,9 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                   : "bg-[#0E82FD] text-white";
 
             return (
-              <div key={pkg.id} className="rounded-3xl bg-white border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:border-blue-300 transition-all flex flex-col justify-between group">
+              <div key={pkg.id} className="card-3d-tilt rounded-3xl bg-white border border-slate-200 overflow-hidden shadow-xs hover:shadow-2xl hover:border-blue-300 transition-all flex flex-col justify-between group">
                 <div>
-                  <div className="relative h-48 overflow-hidden">
+                  <div className="relative h-44 sm:h-48 overflow-hidden">
                     <img 
                       src={pkg.image || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1200&q=80"} 
                       alt={pkg.title} 
@@ -1308,17 +1329,17 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                     <div className="absolute top-3 left-3">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold shadow-md ${tierStyle}`}>
+                      <span className={`px-2.5 sm:px-3 py-1 rounded-full text-[10px] font-bold shadow-md ${tierStyle}`}>
                         {pkg.tier || "Premium Care"}
                       </span>
                     </div>
                     <div className="absolute bottom-3 left-3 right-3 text-white">
-                      <div className="text-lg font-black leading-tight">{formatCurrency(pkg.priceUsd || 5000, "USD")}</div>
-                      <div className="text-[11px] text-blue-100 font-medium">₹{(pkg.priceInr || 437500).toLocaleString('en-IN')} • {pkg.durationDays || 7} Days Inpatient & Stay</div>
+                      <div className="text-base sm:text-lg font-black leading-tight">{formatCurrency(pkg.priceUsd || 5000, "USD")}</div>
+                      <div className="text-[10px] sm:text-[11px] text-blue-100 font-medium">₹{(pkg.priceInr || 437500).toLocaleString('en-IN')} • {pkg.durationDays || 7} Days Inpatient & Stay</div>
                     </div>
                   </div>
 
-                  <div className="p-5 space-y-3">
+                  <div className="p-4 sm:p-5 space-y-2.5 sm:space-y-3">
                     <h3 className="text-base font-bold text-[#0F2042] group-hover:text-[#0E82FD] transition-colors line-clamp-1">{pkg.title}</h3>
                     
                     <div className="space-y-1 text-xs text-slate-600">
@@ -1345,7 +1366,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                   </div>
                 </div>
 
-                <div className="p-5 pt-0">
+                <div className="p-4 sm:p-5 pt-0">
                   <button 
                     onClick={() => {
                       setApptHospital(pkg.hospitalName || "");
@@ -1358,7 +1379,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                         onOpenIntake();
                       }
                     }} 
-                    className="w-full py-2.5 rounded-xl bg-blue-50 hover:bg-[#0E82FD] hover:text-white text-xs font-bold text-[#0E82FD] transition-all flex items-center justify-center space-x-1.5 shadow-sm cursor-pointer"
+                    className="w-full py-2.5 rounded-xl bg-blue-50 hover:bg-[#0E82FD] hover:text-white text-xs font-bold text-[#0E82FD] transition-all flex items-center justify-center space-x-1.5 shadow-xs cursor-pointer"
                   >
                     <span>Book Package Consultation</span>
                     <ChevronRight className="w-4 h-4" />
@@ -1369,10 +1390,10 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
           })}
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="mt-6 sm:mt-8 text-center">
           <Link
             href="/packages"
-            className="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-white hover:bg-blue-50 text-[#0E82FD] font-bold text-sm border border-blue-200 shadow-sm hover:shadow transition-all group"
+            className="inline-flex items-center space-x-2 px-5 sm:px-6 py-3 rounded-xl bg-white hover:bg-blue-50 text-[#0E82FD] font-bold text-xs sm:text-sm border border-blue-200 shadow-xs hover:shadow transition-all group"
           >
             <span>Explore All Kerala All-Inclusive Packages</span>
             <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -1381,32 +1402,32 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       </section>
 
       {/* 10. FREQUENTLY ASKED QUESTIONS (SECTION 36) */}
-      <section id="faq" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <section id="faq" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-4 sm:pt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 items-start">
           
           {/* Left Card */}
-          <div className="lg:col-span-4 rounded-3xl bg-white border border-slate-200 p-6 shadow-xl space-y-6">
+          <div className="lg:col-span-4 rounded-3xl bg-white border border-slate-200 p-5 sm:p-6 shadow-xl space-y-4 sm:space-y-6">
             <div className="rounded-2xl overflow-hidden shadow-md">
               <img 
                 src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=600&q=80" 
                 alt="Doctor on phone consultation" 
-                className="w-full h-56 object-cover"
+                className="w-full h-44 sm:h-56 object-cover"
               />
             </div>
 
-            <div className="space-y-2">
-              <h3 className="text-lg font-black text-[#0F2042]">Have More Questions?</h3>
+            <div className="space-y-1.5 sm:space-y-2">
+              <h3 className="text-base sm:text-lg font-black text-[#0F2042]">Have More Questions?</h3>
               <p className="text-xs text-slate-600 leading-relaxed font-medium">
                 MAIDES coordinators provide personalized guidance on hospital selection, surgical estimates, medical visas, and accommodation in Kerala.
               </p>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-1 sm:pt-2">
               <button
                 onClick={onOpenIntake}
-                className="flex items-center space-x-2 group"
+                className="flex items-center space-x-2 group cursor-pointer"
               >
-                <div className="px-6 py-3 rounded-full bg-[#0E82FD] hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-blue-500/25">
+                <div className="px-5 sm:px-6 py-3 rounded-full bg-[#0E82FD] hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-blue-500/25">
                   Get Medical Assistance
                 </div>
                 <div className="w-10 h-10 rounded-full bg-[#0E82FD] group-hover:bg-blue-600 text-white flex items-center justify-center transition-all shadow-md shadow-blue-500/25 group-hover:rotate-45">
@@ -1417,42 +1438,42 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
           </div>
 
           {/* Right Accordion Column */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className="lg:col-span-8 space-y-4 sm:space-y-6">
             <div>
               <div className="inline-flex items-center space-x-2">
                 <span className="w-2.5 h-1.5 rounded-full bg-[#0E82FD]" />
                 <span className="text-xs font-bold uppercase tracking-wider text-[#0E82FD]">COMMON QUESTIONS</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl font-black text-[#0F2042] tracking-tight mt-1">
+              <h2 className="text-2xl sm:text-4xl font-black text-[#0F2042] tracking-tight mt-1">
                 Frequently Asked Questions <br />
                 About Our Services
               </h2>
             </div>
 
-            <div className="space-y-3 pt-2">
+            <div className="space-y-2.5 sm:space-y-3 pt-2">
               {screenshotFaqs.map((faq, idx) => (
                 <div 
                   key={idx}
                   className={`rounded-2xl transition-all border ${
                     activeFaq === idx 
-                      ? "bg-blue-50/70 border-blue-200 shadow-sm" 
+                      ? "bg-blue-50/70 border-blue-200 shadow-xs" 
                       : "bg-white border-slate-200 hover:border-blue-200"
                   }`}
                 >
                   <button
                     onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
-                    className="w-full p-5 text-left flex items-center justify-between font-bold text-sm text-[#0F2042] hover:text-[#0E82FD] transition-colors"
+                    className="w-full p-4 sm:p-5 text-left flex items-center justify-between font-bold text-xs sm:text-sm text-[#0F2042] hover:text-[#0E82FD] transition-colors cursor-pointer"
                   >
-                    <span className={activeFaq === idx ? "text-[#0E82FD]" : "text-[#0F2042]"}>
+                    <span className={`pr-3 ${activeFaq === idx ? "text-[#0E82FD]" : "text-[#0F2042]"}`}>
                       {faq.q}
                     </span>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-transform ${activeFaq === idx ? "bg-[#0E82FD] text-white" : "bg-slate-100 text-slate-500"}`}>
+                    <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-transform shrink-0 ${activeFaq === idx ? "bg-[#0E82FD] text-white" : "bg-slate-100 text-slate-500"}`}>
                       {activeFaq === idx ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </div>
                   </button>
 
                   {activeFaq === idx && (
-                    <div className="px-5 pb-5 pt-0 text-xs text-slate-600 leading-relaxed font-normal">
+                    <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-0 text-xs text-slate-600 leading-relaxed font-normal">
                       {faq.a}
                     </div>
                   )}
@@ -1465,11 +1486,11 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
       </section>
 
       {/* 10.5 BOOK AN APPOINTMENT & EMERGENCY MEDICAL SERVICE CONTAINER */}
-      <section id="booking-form" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-8">
+      <section id="booking-form" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-6 sm:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
           
           {/* Left Card: Get Emergency Medical Service */}
-          <div className="lg:col-span-4 relative rounded-3xl overflow-hidden min-h-[380px] shadow-xl flex flex-col justify-end p-8 text-white group">
+          <div className="lg:col-span-4 relative rounded-3xl overflow-hidden min-h-[260px] sm:min-h-[380px] shadow-xl flex flex-col justify-end p-6 sm:p-8 text-white group">
             {/* Background Image with Deep Blue Overlay */}
             <img 
               src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80" 
@@ -1478,8 +1499,8 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#081B38]/95 via-[#0E4B94]/60 to-transparent" />
 
-            <div className="relative z-10 space-y-3">
-              <h3 className="text-2xl sm:text-3xl font-black text-white leading-tight">
+            <div className="relative z-10 space-y-2 sm:space-y-3">
+              <h3 className="text-xl sm:text-3xl font-black text-white leading-tight">
                 Get Emergency<br />Medical Service
               </h3>
               <p className="text-xs sm:text-sm text-blue-100/90 leading-relaxed max-w-xs">
@@ -1489,24 +1510,14 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
           </div>
 
           {/* Right Card: Book An Appointment Form Banner */}
-          <div className="lg:col-span-8 relative rounded-3xl bg-gradient-to-br from-[#12396B] via-[#0F2D54] to-[#0A1D36] p-8 sm:p-10 shadow-xl overflow-hidden flex flex-col justify-between text-white">
+          <div className="lg:col-span-8 relative rounded-3xl bg-gradient-to-br from-[#12396B] via-[#0F2D54] to-[#0A1D36] p-5 sm:p-10 shadow-xl overflow-hidden flex flex-col justify-between text-white">
             
-            {/* Ambient Background Glow / Medical Motif */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 right-4 w-44 sm:w-56 opacity-25 pointer-events-none hidden md:block">
-              {/* Stethoscope silhouette / SVG watermark */}
-              <svg viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full stroke-blue-300 stroke-2">
-                <path d="M100 20 V80 C100 130 160 130 160 80 V20" strokeLinecap="round" />
-                <path d="M100 80 C100 170 60 190 60 210" strokeLinecap="round" />
-                <circle cx="60" cy="220" r="12" fill="currentColor" fillOpacity="0.2" />
-                <circle cx="100" cy="18" r="6" fill="currentColor" />
-                <circle cx="160" cy="18" r="6" fill="currentColor" />
-              </svg>
-            </div>
+            {/* Ambient Background Glow */}
+            <div className="absolute top-0 right-0 w-80 sm:w-96 h-80 sm:h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
             {/* Header Row */}
-            <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-8 relative z-10">
-              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1.5 sm:gap-2 mb-6 sm:mb-8 relative z-10">
+              <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight">
                 Book An Appointment
               </h2>
               <p className="text-xs sm:text-sm text-blue-200/90 font-medium">
@@ -1521,41 +1532,41 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               </div>
             )}
 
-            {/* 2-Column Responsive Appointment Input Form with Relational Selects */}
-            <form onSubmit={handleBookAppointment} className="space-y-4 relative z-10">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            {/* 2-Column Responsive Appointment Input Form */}
+            <form onSubmit={handleBookAppointment} className="space-y-3.5 sm:space-y-4 relative z-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5">
                 <div>
-                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Full Name *</label>
+                  <label className="block text-[10px] sm:text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Full Name *</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Sarah Jenkins"
                     value={apptFullName}
                     onChange={(e) => setApptFullName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
+                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Email Address *</label>
+                  <label className="block text-[10px] sm:text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Email Address *</label>
                   <input
                     type="email"
                     required
                     placeholder="sarah@example.com"
                     value={apptEmail}
                     onChange={(e) => setApptEmail(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
+                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:bg-white/15 transition-all"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-3.5">
                 <div>
-                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Medical Specialty</label>
+                  <label className="block text-[10px] sm:text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Medical Specialty</label>
                   <select
                     value={apptSpecialty}
                     onChange={(e) => setApptSpecialty(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-[#163863] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all"
+                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-[#163863] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all"
                   >
                     {landingSpecialties.map((spec) => (
                       <option key={spec.id || spec.name} value={spec.name || spec.title} className="bg-[#0F2D54] text-white">
@@ -1566,13 +1577,13 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Partner Hospital</label>
+                  <label className="block text-[10px] sm:text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Partner Hospital</label>
                   <select
                     value={apptHospital}
                     onChange={(e) => setApptHospital(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-[#163863] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all"
+                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-[#163863] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all"
                   >
-                    <option value="">First Available Accredited Hospital</option>
+                    <option value="">First Available Hospital</option>
                     {landingHospitals.map((hosp) => (
                       <option key={hosp.id || hosp.name} value={hosp.name} className="bg-[#0F2D54] text-white">
                         {hosp.name}
@@ -1582,13 +1593,13 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Preferred Doctor</label>
+                  <label className="block text-[10px] sm:text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Preferred Doctor</label>
                   <select
                     value={apptDoctor}
                     onChange={(e) => setApptDoctor(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-[#163863] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all"
+                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-[#163863] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all"
                   >
-                    <option value="">Department Chief / Senior Specialist</option>
+                    <option value="">Department Chief</option>
                     {landingDoctors.map((doc) => (
                       <option key={doc.id || doc.name} value={doc.name} className="bg-[#0F2D54] text-white">
                         {doc.name} ({doc.specialty})
@@ -1598,24 +1609,24 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-3.5">
                 <div>
-                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Preferred Date *</label>
+                  <label className="block text-[10px] sm:text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Preferred Date *</label>
                   <input
                     type="date"
                     required
                     value={apptDate}
                     onChange={(e) => setApptDate(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all [color-scheme:dark]"
+                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-white/10 border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all [color-scheme:dark]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Preferred Time *</label>
+                  <label className="block text-[10px] sm:text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Preferred Time *</label>
                   <select
                     value={apptTime}
                     onChange={(e) => setApptTime(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-[#163863] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all"
+                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-[#163863] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all"
                   >
                     <option value="10:00 IST" className="bg-[#0F2D54] text-white">10:00 AM IST (Morning Slot)</option>
                     <option value="11:30 IST" className="bg-[#0F2D54] text-white">11:30 AM IST (Late Morning)</option>
@@ -1625,13 +1636,13 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Phone / WhatsApp</label>
+                  <label className="block text-[10px] sm:text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">Phone / WhatsApp</label>
                   <input
                     type="tel"
                     placeholder="+971 50 123 4567"
                     value={apptPhone}
                     onChange={(e) => setApptPhone(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all"
+                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-white/10 border border-white/15 text-white placeholder-blue-200/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E82FD] transition-all"
                   />
                 </div>
               </div>
@@ -1639,7 +1650,7 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
               <div>
                 <button
                   type="submit"
-                  className="w-full py-4 px-6 rounded-xl bg-[#0E82FD] hover:bg-blue-500 text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-xl shadow-blue-500/30 flex items-center justify-center space-x-2 cursor-pointer active:scale-95"
+                  className="w-full py-3.5 sm:py-4 px-6 rounded-xl bg-[#0E82FD] hover:bg-blue-500 text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-xl shadow-blue-500/30 flex items-center justify-center space-x-2 cursor-pointer active:scale-95"
                 >
                   <span>Request Specialist Appointment</span>
                 </button>

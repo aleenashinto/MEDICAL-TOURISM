@@ -168,39 +168,39 @@ export function Footer() {
 
           </div>
 
-          {/* Contact Details Strip (3 Columns with dividers) */}
-          <div className="pt-10 border-t border-white/20 grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Contact Details Strip (3 Columns with responsive dividers) */}
+          <div className="pt-10 border-t border-white/20 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             
             {/* Office Address */}
-            <div className="flex items-center space-x-4 md:border-r border-white/20 pr-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white shrink-0">
-                <MapPin className="w-6 h-6" />
+            <div className="flex items-start sm:items-center space-x-3.5 sm:space-x-4 md:border-r border-white/20 pb-4 md:pb-0 border-b md:border-b-0 pr-0 md:pr-4">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white shrink-0">
+                <MapPin className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <div className="space-y-0.5">
-                <span className="text-[11px] uppercase tracking-wider text-blue-200 font-bold block">Office Address</span>
-                <p className="text-sm font-bold text-white">Infopark Phase II, Kochi, Kerala, India</p>
+              <div className="space-y-0.5 min-w-0">
+                <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-blue-200 font-bold block">Office Address</span>
+                <p className="text-xs sm:text-sm font-bold text-white break-words">Infopark Phase II, Kochi, Kerala, India</p>
               </div>
             </div>
 
             {/* Email Address */}
-            <div className="flex items-center space-x-4 md:border-r border-white/20 pr-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white shrink-0">
-                <Mail className="w-6 h-6" />
+            <div className="flex items-start sm:items-center space-x-3.5 sm:space-x-4 md:border-r border-white/20 pb-4 md:pb-0 border-b md:border-b-0 pr-0 md:pr-4">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white shrink-0">
+                <Mail className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <div className="space-y-0.5">
-                <span className="text-[11px] uppercase tracking-wider text-blue-200 font-bold block">Email Address</span>
-                <p className="text-sm font-bold text-white">care@maides.com</p>
+              <div className="space-y-0.5 min-w-0">
+                <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-blue-200 font-bold block">Email Address</span>
+                <p className="text-xs sm:text-sm font-bold text-white break-words">care@maides.com</p>
               </div>
             </div>
 
             {/* For Support */}
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white shrink-0">
-                <Headphones className="w-6 h-6" />
+            <div className="flex items-start sm:items-center space-x-3.5 sm:space-x-4">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white shrink-0">
+                <Headphones className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <div className="space-y-0.5">
-                <span className="text-[11px] uppercase tracking-wider text-blue-200 font-bold block">24/7 International Desk</span>
-                <p className="text-sm font-bold text-white">+91 (484) 290-8482 / WhatsApp</p>
+              <div className="space-y-0.5 min-w-0">
+                <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-blue-200 font-bold block">24/7 International Desk</span>
+                <p className="text-xs sm:text-sm font-bold text-white break-words">+91 (484) 290-8482 / WhatsApp</p>
               </div>
             </div>
 
@@ -216,29 +216,29 @@ export function Footer() {
       </div>
 
       {/* 2. FLOATING BOTTOM WHITE CARD */}
-      <div className="bg-[#0E82FD] px-4 sm:px-6 lg:px-8 pb-10 pt-2">
+      <div className="bg-[#0E82FD] px-3 sm:px-6 lg:px-8 pb-8 sm:pb-10 pt-2">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="bg-white rounded-3xl p-5 sm:p-8 shadow-2xl border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
             
             {/* Left: MAIDES Brand + Social Buttons */}
-            <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-8">
+            <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-6 w-full md:w-auto justify-center md:justify-start">
               {/* MAIDES Wordmark */}
-              <Link href="/" className="flex items-center space-x-2">
+              <Link href="/" className="flex items-center space-x-2 shrink-0">
                 <div className="w-7 h-7 rounded-lg bg-[#0E82FD] flex items-center justify-center text-white font-black text-sm shadow-md">
                   +
                 </div>
-                <span className="text-2xl font-black text-[#0F2042] tracking-tight">MAIDES</span>
+                <span className="text-xl sm:text-2xl font-black text-[#0F2042] tracking-tight">MAIDES</span>
               </Link>
 
               {/* Social Pills */}
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center flex-wrap justify-center gap-1.5 sm:gap-2">
                 {["Facebook", "Instagram", "(x)Twitter", "LinkedIn"].map((platform) => (
                   <a
                     key={platform}
                     href={`https://${platform.toLowerCase().replace(/[^a-z]/g, '')}.com`}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3.5 py-1.5 rounded-full bg-[#0E82FD] hover:bg-blue-600 text-white font-bold text-[11px] transition-colors shadow-sm"
+                    className="px-3 py-1.5 rounded-full bg-[#0E82FD] hover:bg-blue-600 text-white font-bold text-[10px] sm:text-[11px] transition-colors shadow-xs"
                   >
                     {platform}
                   </a>
@@ -247,10 +247,10 @@ export function Footer() {
             </div>
 
             {/* Right: Copyright, Legal Links, Scroll to Top */}
-            <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 text-xs text-slate-500 font-medium">
-              <div className="text-center sm:text-right space-y-1">
+            <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-6 text-xs text-slate-500 font-medium w-full md:w-auto justify-center md:justify-end">
+              <div className="text-center md:text-right space-y-1">
                 <p className="text-slate-700 font-bold">© 2026 MAIDES. All Rights Reserved.</p>
-                <div className="space-x-2 text-[11px] text-slate-500">
+                <div className="flex flex-wrap justify-center md:justify-end gap-x-2 gap-y-1 text-[11px] text-slate-500">
                   <Link href="/privacy-policy" className="hover:text-[#0E82FD]">Privacy Policy</Link>
                   <span>/</span>
                   <Link href="/medical-disclaimer" className="hover:text-[#0E82FD]">Medical Disclaimer</Link>
@@ -265,9 +265,9 @@ export function Footer() {
               <button
                 onClick={scrollToTop}
                 aria-label="Scroll to top"
-                className="w-12 h-12 rounded-full bg-[#0F2042] hover:bg-slate-900 text-white flex items-center justify-center transition-transform hover:-translate-y-1 shadow-lg shrink-0"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#0F2042] hover:bg-slate-900 text-white flex items-center justify-center transition-transform hover:-translate-y-1 shadow-lg shrink-0 cursor-pointer active:scale-95"
               >
-                <ArrowUp className="w-5 h-5 text-white" />
+                <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </button>
             </div>
 
