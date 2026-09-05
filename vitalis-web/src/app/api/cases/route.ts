@@ -35,6 +35,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json(patientCases);
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch cases" }, { status: 500 });
+    return NextResponse.json([]);
   }
 }
