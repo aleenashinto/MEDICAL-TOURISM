@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
@@ -99,12 +99,15 @@ function ResetPasswordForm() {
       )}
 
       <div>
-        <label className="block text-xs font-medium text-slate-300">New Password</label>
+        <label htmlFor="reset-new-password" className="block text-xs font-medium text-slate-300">New Password</label>
         <div className="mt-1 relative rounded-xl shadow-sm">
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
             <Lock className="h-4 w-4" />
           </div>
           <input
+            id="reset-new-password"
+            name="new-password"
+            autoComplete="new-password"
             type="password"
             required
             placeholder="At least 8 characters"
@@ -116,12 +119,15 @@ function ResetPasswordForm() {
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-slate-300">Confirm New Password</label>
+        <label htmlFor="reset-confirm-password" className="block text-xs font-medium text-slate-300">Confirm New Password</label>
         <div className="mt-1 relative rounded-xl shadow-sm">
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
             <Lock className="h-4 w-4" />
           </div>
           <input
+            id="reset-confirm-password"
+            name="confirm-password"
+            autoComplete="new-password"
             type="password"
             required
             placeholder="Re-enter password"
@@ -136,7 +142,7 @@ function ResetPasswordForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-semibold text-white bg-[#0E82FD] hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0E82FD] transition-all disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-semibold text-white bg-[#0E82FD] hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0E82FD] transition-all disabled:opacity-50 cursor-pointer"
         >
           {isLoading ? "Updating Password..." : "Set New Password"}
           <ArrowRight className="w-4 h-4" />

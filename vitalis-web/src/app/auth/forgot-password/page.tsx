@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -103,7 +103,7 @@ export default function ForgotPasswordPage() {
               )}
 
               <div>
-                <label className="block text-xs font-medium text-slate-300">
+                <label htmlFor="forgot-email" className="block text-xs font-medium text-slate-300">
                   Registered Email Address
                 </label>
                 <div className="mt-1 relative rounded-xl shadow-sm">
@@ -111,6 +111,9 @@ export default function ForgotPasswordPage() {
                     <Mail className="h-4 w-4" />
                   </div>
                   <input
+                    id="forgot-email"
+                    name="email"
+                    autoComplete="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -124,7 +127,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-semibold text-white bg-[#0E82FD] hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0E82FD] transition-all disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-semibold text-white bg-[#0E82FD] hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0E82FD] transition-all disabled:opacity-50 cursor-pointer"
               >
                 {isLoading ? "Dispatching Reset Link..." : "Send Reset Link"}
                 <ArrowRight className="w-4 h-4" />
