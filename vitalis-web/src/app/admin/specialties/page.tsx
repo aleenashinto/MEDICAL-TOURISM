@@ -34,7 +34,8 @@ import {
   Palmtree,
   Microscope,
   Bone,
-  EyeOff
+  EyeOff,
+  RotateCcw
 } from "lucide-react";
 import Link from "next/link";
 
@@ -291,19 +292,50 @@ export default function SpecialtiesAdminPage() {
     seoDescription: ""
   });
 
-  // Load from localStorage on mount
+  // Load from Server API and localStorage on mount
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("maides_admin_specialties");
-      if (saved) {
-        setSpecialties(JSON.parse(saved));
-      } else {
+    const fetchServerSpecialties = async () => {
+      try {
+        const res = await fetch("/api/specialties");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.specialties) && data.specialties.length > 0) {
+            setSpecialties(data.specialties);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("maides_admin_specialties", JSON.stringify(data.specialties));
+            }
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to fetch specialties from server API, using localStorage cache:", err);
+      }
+
+      if (typeof window !== "undefined") {
+        const saved = localStorage.getItem("maides_admin_specialties");
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            // Check if user has old legacy data (e.g. > 5 items or old names)
+            const hasLegacyNames = parsed.some((s: any) => 
+              s.name === "Cardiology & Bypass" || 
+              s.name === "Robotic Orthopaedics" || 
+              s.name === "Comprehensive Oncology" || 
+              s.name === "Neurology & Neurosurgery" || 
+              s.name === "Classical Ayurveda"
+            );
+            if (Array.isArray(parsed) && parsed.length > 0 && !hasLegacyNames && parsed.length <= 5) {
+              setSpecialties(parsed);
+              return;
+            }
+          } catch (e) {}
+        }
         setSpecialties(INITIAL_SPECIALTIES);
         localStorage.setItem("maides_admin_specialties", JSON.stringify(INITIAL_SPECIALTIES));
       }
-    } catch {
-      setSpecialties(INITIAL_SPECIALTIES);
-    }
+    };
+
+    fetchServerSpecialties();
 
     // Load available hospitals
     try {
@@ -329,6 +361,13 @@ export default function SpecialtiesAdminPage() {
       }
     } catch {}
   }, []);
+
+  const handleResetToDefault = () => {
+    if (confirm("Reset specialties catalog to the 5 standard Centers of Excellence? Any unsaved custom entries will be reverted.")) {
+      saveToStorage(INITIAL_SPECIALTIES);
+      showToast("Specialties successfully restored to standard 5 Centers of Excellence.");
+    }
+  };
 
   const saveToStorage = (updated: SpecialtyItem[]) => {
     setSpecialties(updated);
@@ -662,6 +701,14 @@ export default function SpecialtiesAdminPage() {
           </p>
         </div>
         <div className="flex items-center gap-2.5">
+          <button
+            onClick={handleResetToDefault}
+            className="flex items-center gap-1.5 px-3.5 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 hover:border-amber-500/40 text-xs font-semibold rounded-xl transition-all"
+            title="Reset to 5 Standard Centers of Excellence"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+            <span>Reset Defaults</span>
+          </button>
           <Link
             href="/#treatments"
             target="_blank"

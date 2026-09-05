@@ -298,22 +298,31 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
           const storedSpecs = localStorage.getItem("maides_admin_specialties");
           if (storedSpecs) {
             const parsed = JSON.parse(storedSpecs);
-            const activeAdminSpecs = parsed
-              .filter((s: any) => s.status === "ACTIVE" && (s.published === "PUBLISHED" || !s.published))
-              .map((s: any) => ({
-                id: s.id,
-                name: s.name,
-                title: s.name,
-                desc: s.shortDescription || s.fullDescription || `${s.name} center of excellence in Kerala.`,
-                iconName: s.iconName || "HeartPulse",
-                count: `${s.proceduresCount || s.keyProcedures?.length || 10}+ Procedures`,
-                displayOrder: Number(s.displayOrder) || 99
-              }));
+            const hasLegacyNames = Array.isArray(parsed) && parsed.some((s: any) => 
+              s.name === "Cardiology & Bypass" || 
+              s.name === "Robotic Orthopaedics" || 
+              s.name === "Comprehensive Oncology" || 
+              s.name === "Neurology & Neurosurgery" || 
+              s.name === "Classical Ayurveda"
+            );
+            if (Array.isArray(parsed) && !hasLegacyNames && parsed.length <= 5) {
+              const activeAdminSpecs = parsed
+                .filter((s: any) => s.status === "ACTIVE" && (s.published === "PUBLISHED" || !s.published))
+                .map((s: any) => ({
+                  id: s.id,
+                  name: s.name,
+                  title: s.name,
+                  desc: s.shortDescription || s.fullDescription || `${s.name} center of excellence in Kerala.`,
+                  iconName: s.iconName || "HeartPulse",
+                  count: `${s.proceduresCount || s.keyProcedures?.length || 10}+ Procedures`,
+                  displayOrder: Number(s.displayOrder) || 99
+                }));
 
-            if (activeAdminSpecs.length > 0) {
-              activeAdminSpecs.sort((a: any, b: any) => (a.displayOrder || 99) - (b.displayOrder || 99));
-              setLandingSpecialties(activeAdminSpecs);
-              return;
+              if (activeAdminSpecs.length > 0) {
+                activeAdminSpecs.sort((a: any, b: any) => (a.displayOrder || 99) - (b.displayOrder || 99));
+                setLandingSpecialties(activeAdminSpecs);
+                return;
+              }
             }
           }
         } catch (e) {}
