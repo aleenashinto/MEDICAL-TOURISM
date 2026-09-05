@@ -258,6 +258,28 @@ export default function EnquiriesPage() {
         </div>
         <div className="flex items-center gap-2">
           <button 
+            onClick={async () => {
+              try {
+                const res = await fetch("/api/enquiries");
+                if (res.ok) {
+                  const data = await res.json();
+                  if (data.success && Array.isArray(data.enquiries)) {
+                    setEnquiries(data.enquiries);
+                    if (typeof window !== "undefined") {
+                      localStorage.setItem("maides_admin_enquiries", JSON.stringify(data.enquiries));
+                    }
+                    setSuccessToast("Enquiries updated with live submissions.");
+                    setTimeout(() => setSuccessToast(null), 3000);
+                  }
+                }
+              } catch (e) {}
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-all cursor-pointer"
+          >
+            <Clock className="w-3.5 h-3.5 text-[#0E82FD]" />
+            Refresh Leads
+          </button>
+          <button 
             onClick={handleExportCSV}
             className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-all cursor-pointer"
           >
