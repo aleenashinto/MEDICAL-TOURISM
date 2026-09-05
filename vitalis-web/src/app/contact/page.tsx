@@ -39,19 +39,19 @@ export default function ContactPage() {
                   {
                     icon: <Phone className="w-5 h-5" />,
                     title: "24/7 International Desk",
-                    lines: ["+91-XXX-XXX-XXXX (India)", "+971-XX-XXX-XXXX (UAE)", "WhatsApp available"],
+                    lines: ["+91 (484) 290-8482 (India)", "+971 (4) 389-7200 (UAE Desk)", "WhatsApp: +91 484 290 8482"],
                     color: "text-[#0E82FD]"
                   },
                   {
                     icon: <Mail className="w-5 h-5" />,
                     title: "Email",
-                    lines: ["international@maides.in", "ayurveda@maides.in", "media@maides.in"],
+                    lines: ["international@maides.in", "ayurveda@maides.in", "care@maides.in"],
                     color: "text-emerald-600"
                   },
                   {
                     icon: <MapPin className="w-5 h-5" />,
                     title: "Registered Office",
-                    lines: ["MAIDES Platform Pvt. Ltd.", "Infopark, Kakkanad", "Kochi, Kerala — 682 030, India"],
+                    lines: ["MAIDES Platform Pvt. Ltd.", "Infopark Phase II, Kakkanad", "Kochi, Kerala — 682 030, India"],
                     color: "text-amber-600"
                   },
                   {
@@ -65,7 +65,17 @@ export default function ContactPage() {
                     <div className={`w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center flex-shrink-0 ${c.color}`}>{c.icon}</div>
                     <div className="space-y-0.5">
                       <div className="text-xs font-bold text-[#0F2042]">{c.title}</div>
-                      {c.lines.map((l) => <div key={l} className="text-xs text-slate-500">{l}</div>)}
+                      {c.lines.map((l) => (
+                        <div key={l} className="text-xs text-slate-500">
+                          {l.includes("+91") ? (
+                            <a href="tel:+914842908482" className="hover:text-[#0E82FD] transition-colors">{l}</a>
+                          ) : l.includes("@") ? (
+                            <a href={`mailto:${l}`} className="hover:text-[#0E82FD] transition-colors">{l}</a>
+                          ) : (
+                            l
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 ))}
