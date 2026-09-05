@@ -3,7 +3,7 @@
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowRight, Lock, CheckCircle2, ShieldAlert, KeyRound, ArrowLeft } from "lucide-react";
+import { ArrowRight, Lock, CheckCircle2, ShieldAlert, KeyRound, ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -12,9 +12,23 @@ function ResetPasswordForm() {
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
+
+  const calculatePasswordStrength = (pass: string) => {
+    let score = 0;
+    if (pass.length >= 8) score++;
+    if (/[A-Z]/.test(pass)) score++;
+    if (/[a-z]/.test(pass)) score++;
+    if (/[0-9]/.test(pass)) score++;
+    if (/[^A-Za-z0-9]/.test(pass)) score++;
+    return score;
+  };
+
+  const passStrength = calculatePasswordStrength(password);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,14 +122,35 @@ function ResetPasswordForm() {
             id="reset-new-password"
             name="new-password"
             autoComplete="new-password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             required
             placeholder="At least 8 characters"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="block w-full pl-10 pr-3 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:border-transparent transition-all"
+            className="block w-full pl-10 pr-10 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:border-transparent transition-all"
           />
+          <button
+            type="button"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 cursor-pointer"
+          >
+            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
         </div>
+        {/* Password Strength Meter */}
+        {password && (
+          <div className="mt-1.5 flex items-center gap-1.5">
+            <div className="flex-1 h-1 bg-slate-700 rounded-full overflow-hidden flex gap-1">
+              <div className={`h-full flex-1 rounded-full ${passStrength >= 1 ? "bg-red-500" : "bg-transparent"}`} />
+              <div className={`h-full flex-1 rounded-full ${passStrength >= 3 ? "bg-amber-400" : "bg-transparent"}`} />
+              <div className={`h-full flex-1 rounded-full ${passStrength >= 4 ? "bg-emerald-400" : "bg-transparent"}`} />
+            </div>
+            <span className="text-[10px] text-slate-400">
+              {passStrength < 2 ? "Weak" : passStrength < 4 ? "Medium" : "Strong"}
+            </span>
+          </div>
+        )}
       </div>
 
       <div>
@@ -128,13 +163,21 @@ function ResetPasswordForm() {
             id="reset-confirm-password"
             name="confirm-password"
             autoComplete="new-password"
-            type="password"
+            type={showConfirmPassword ? "text" : "password"}
             required
             placeholder="Re-enter password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="block w-full pl-10 pr-3 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:border-transparent transition-all"
+            className="block w-full pl-10 pr-10 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:border-transparent transition-all"
           />
+          <button
+            type="button"
+            aria-label={showConfirmPassword ? "Hide password confirmation" : "Show password confirmation"}
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 cursor-pointer"
+          >
+            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
         </div>
       </div>
 
