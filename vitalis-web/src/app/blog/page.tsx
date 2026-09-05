@@ -302,9 +302,9 @@ export default function BlogPage() {
                           <span className="truncate max-w-[140px]">By {post.author}</span>
                           <Link 
                             href={`/blog/${post.slug}`}
-                            className="text-blue-600 font-bold hover:underline flex items-center gap-0.5"
+                            className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl transition"
                           >
-                            Read Article <ChevronRight className="w-3.5 h-3.5" />
+                            Read Full Article <ChevronRight className="w-3.5 h-3.5" />
                           </Link>
                         </div>
                       </div>
