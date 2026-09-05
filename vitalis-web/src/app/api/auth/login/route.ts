@@ -20,8 +20,8 @@ export async function POST(request: Request) {
     let userName = "";
 
     // Admin credentials could also be fetched from the DB, but ENV is common
-    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@vitalis.health";
-    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "secure_admin_placeholder_change_in_prod";
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@gmail.com";
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin1234";
 
     if (role === 'ADMIN') {
       if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase() && password === ADMIN_PASSWORD) {
