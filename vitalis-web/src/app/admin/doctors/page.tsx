@@ -301,10 +301,17 @@ export default function DoctorManagementPage() {
               avatar: d.avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80"
             }));
             setDoctors(normalized);
+          } else {
+            setDoctors(INITIAL_DOCTORS);
+            localStorage.setItem("maides_admin_doctors", JSON.stringify(INITIAL_DOCTORS));
           }
         } catch (e) {
           console.error("Failed to parse doctors", e);
+          setDoctors(INITIAL_DOCTORS);
         }
+      } else {
+        setDoctors(INITIAL_DOCTORS);
+        localStorage.setItem("maides_admin_doctors", JSON.stringify(INITIAL_DOCTORS));
       }
 
       // 2. Cross-link Medical Specialties
@@ -341,6 +348,8 @@ export default function DoctorManagementPage() {
     setDoctors(updated);
     if (typeof window !== "undefined") {
       localStorage.setItem("maides_admin_doctors", JSON.stringify(updated));
+      window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new CustomEvent("maides_doctors_updated", { detail: updated }));
     }
   };
 

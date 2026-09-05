@@ -119,37 +119,41 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
   // Load and hydrate Admin-uploaded doctors, hospitals, specialties & packages in real-time
   useEffect(() => {
     const loadDynamicData = () => {
-      // 1. Load Admin Doctors
+      // 1. Load Admin Doctors (Active & Published)
       try {
-        const stored = localStorage.getItem("maides_admin_doctors");
+        const stored = typeof window !== "undefined" ? localStorage.getItem("maides_admin_doctors") : null;
         if (stored) {
           const parsed = JSON.parse(stored);
-          const activeAdminDocs = parsed
-            .filter((d: any) => d.status === "ACTIVE" && (d.published === "PUBLISHED" || !d.published))
-            .sort((a: any, b: any) => (a.displayOrder || 99) - (b.displayOrder || 99))
-            .map((d: any) => ({
-              id: d.id,
-              name: d.name,
-              title: d.title || "Senior Specialist Doctor",
-              qualifications: d.education || d.qualifications || "MBBS, MS, Board Certified",
-              hospitalName: d.hospital || d.hospitalName || "Aster Medcity, Kochi",
-              district: d.district || (d.hospital?.includes("Kovalam") || d.hospital?.includes("Trivandrum") ? "Thiruvananthapuram" : d.hospital?.includes("Calicut") ? "Kozhikode" : "Ernakulam"),
-              experienceYears: typeof d.experienceYears === "number" ? d.experienceYears : (parseInt(d.experience) || 15),
-              rating: d.rating || "4.95",
-              avatar: d.avatar || d.image || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400",
-              specialty: d.specialty || "Specialty",
-              displayOrder: Number(d.displayOrder) || 99
-            }));
-          
-          // Merge admin doctors first, then existing
-          const merged = [...activeAdminDocs];
-          KERALA_DOCTORS.forEach(kd => {
-            if (!merged.some(m => m.name.toLowerCase() === kd.name.toLowerCase() || m.id === kd.id)) {
-              merged.push({ ...kd, displayOrder: 99 });
-            }
-          });
-          merged.sort((a, b) => (a.displayOrder || 99) - (b.displayOrder || 99));
-          setLandingDoctors(merged);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const activeAdminDocs = parsed
+              .filter((d: any) => d.status === "ACTIVE" && (d.published === "PUBLISHED" || !d.published))
+              .sort((a: any, b: any) => (Number(a.displayOrder) || 99) - (Number(b.displayOrder) || 99))
+              .map((d: any) => ({
+                id: d.id,
+                name: d.name,
+                title: d.title || "Senior Specialist Doctor",
+                qualifications: d.education || d.qualifications || d.certifications || "MBBS, MS, Board Certified",
+                hospitalName: d.hospital || d.hospitalName || "Aster Medcity, Kochi",
+                district: d.district || (d.hospital?.includes("Kovalam") || d.hospital?.includes("Trivandrum") ? "Thiruvananthapuram" : d.hospital?.includes("Calicut") ? "Kozhikode" : "Ernakulam"),
+                experienceYears: typeof d.experienceYears === "number" ? d.experienceYears : (parseInt(d.experience) || 15),
+                rating: d.rating || "4.95",
+                avatar: d.avatar || d.image || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400",
+                specialty: d.specialty || "Specialty",
+                displayOrder: Number(d.displayOrder) || 99
+              }));
+            
+            // Merge admin doctors first, ensuring newly added admin doctors take highest priority
+            const merged = [...activeAdminDocs];
+            KERALA_DOCTORS.forEach(kd => {
+              if (!merged.some(m => m.name.toLowerCase().trim() === kd.name.toLowerCase().trim() || m.id === kd.id)) {
+                merged.push({ ...kd, displayOrder: 99 });
+              }
+            });
+            merged.sort((a, b) => (Number(a.displayOrder) || 99) - (Number(b.displayOrder) || 99));
+            setLandingDoctors(merged);
+          } else {
+            setLandingDoctors(KERALA_DOCTORS);
+          }
         } else {
           setLandingDoctors(KERALA_DOCTORS);
         }
@@ -281,7 +285,15 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
 
     loadDynamicData();
     window.addEventListener("storage", loadDynamicData);
-    return () => window.removeEventListener("storage", loadDynamicData);
+    window.addEventListener("maides_doctors_updated", loadDynamicData);
+    window.addEventListener("maides_hospitals_updated", loadDynamicData);
+    window.addEventListener("maides_packages_updated", loadDynamicData);
+    return () => {
+      window.removeEventListener("storage", loadDynamicData);
+      window.removeEventListener("maides_doctors_updated", loadDynamicData);
+      window.removeEventListener("maides_hospitals_updated", loadDynamicData);
+      window.removeEventListener("maides_packages_updated", loadDynamicData);
+    };
   }, []);
 
   const handleBookAppointment = (e: React.FormEvent) => {
