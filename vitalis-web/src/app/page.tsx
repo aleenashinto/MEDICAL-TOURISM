@@ -6,6 +6,7 @@ import { LandingPage } from "@/components/LandingPage";
 import { Footer } from "@/components/Footer";
 import { AIIntakeModal } from "@/components/AIIntakeModal";
 import { CareConciergeDrawer } from "@/components/CareConciergeDrawer";
+import { FloatingConciergeWidget } from "@/components/FloatingConciergeWidget";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
@@ -45,6 +46,11 @@ export default function Home() {
           setConciergeOpen(false);
           setIntakeOpen(true);
         }}
+      />
+
+      <FloatingConciergeWidget 
+        onOpenIntake={() => setIntakeOpen(true)}
+        onOpenConcierge={() => setConciergeOpen(true)}
       />
     </main>
   );
