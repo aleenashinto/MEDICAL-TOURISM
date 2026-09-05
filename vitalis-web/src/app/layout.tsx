@@ -60,6 +60,7 @@ export const metadata: Metadata = {
   },
 };
 
+import { ThemeProvider } from '@/components/ThemeProvider';
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -99,7 +100,8 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className={{...} dark:bg-slate-900 dark:text-white} className="min-h-full flex flex-col"><ThemeProvider>{children}</ThemeProvider></body>
     </html>
   );
 }
+

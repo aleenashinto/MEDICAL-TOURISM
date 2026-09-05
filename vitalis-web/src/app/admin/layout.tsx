@@ -414,6 +414,7 @@ export default function AdminLayout({
             </div>
           </div>
 
+          <ThemeToggle />
           {/* Visible Sign Out Button Only */}
           <div className="flex items-center ml-4">
             <Link
@@ -440,3 +441,4 @@ export default function AdminLayout({
     </div>
   );
 }
+
