@@ -380,31 +380,43 @@ export function VirtualTour360Viewer({ onBookConsultation }: VirtualTour360Viewe
             </p>
           </div>
 
-          {/* Scene Nav Switchers */}
-          <div className="flex items-center space-x-2 self-end shrink-0">
-            <button
-              onClick={() => {
-                setCurrentSceneIndex((prev) => (prev === 0 ? TOUR_SCENES.length - 1 : prev - 1));
-                setActiveHotspot(null);
-              }}
-              className="p-2.5 rounded-xl bg-slate-800 hover:bg-[#0E82FD] text-white border border-white/10 transition-all cursor-pointer"
-              title="Previous Facility"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <span className="font-mono text-xs text-slate-400 px-2">
-              {currentSceneIndex + 1} / {TOUR_SCENES.length}
-            </span>
-            <button
-              onClick={() => {
-                setCurrentSceneIndex((prev) => (prev === TOUR_SCENES.length - 1 ? 0 : prev + 1));
-                setActiveHotspot(null);
-              }}
-              className="p-2.5 rounded-xl bg-slate-800 hover:bg-[#0E82FD] text-white border border-white/10 transition-all cursor-pointer"
-              title="Next Facility"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+          {/* Scene Nav Switchers & Action Button */}
+          <div className="flex flex-wrap items-center gap-2 self-end shrink-0">
+            {onBookConsultation && (
+              <button
+                onClick={onBookConsultation}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#0E82FD] to-[#38BDF8] hover:from-blue-600 hover:to-cyan-400 text-white font-bold text-xs shadow-lg shadow-blue-500/30 transition-all flex items-center space-x-1.5 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Book This Facility</span>
+              </button>
+            )}
+
+            <div className="flex items-center space-x-1 bg-slate-800/80 p-1 rounded-xl border border-white/10">
+              <button
+                onClick={() => {
+                  setCurrentSceneIndex((prev) => (prev === 0 ? TOUR_SCENES.length - 1 : prev - 1));
+                  setActiveHotspot(null);
+                }}
+                className="p-1.5 rounded-lg hover:bg-[#0E82FD] text-white transition-all cursor-pointer"
+                title="Previous Facility"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="font-mono text-xs text-slate-400 px-1.5">
+                {currentSceneIndex + 1} / {TOUR_SCENES.length}
+              </span>
+              <button
+                onClick={() => {
+                  setCurrentSceneIndex((prev) => (prev === TOUR_SCENES.length - 1 ? 0 : prev + 1));
+                  setActiveHotspot(null);
+                }}
+                className="p-1.5 rounded-lg hover:bg-[#0E82FD] text-white transition-all cursor-pointer"
+                title="Next Facility"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
