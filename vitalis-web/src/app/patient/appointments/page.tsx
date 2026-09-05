@@ -125,6 +125,54 @@ export default function PatientAppointmentsPage() {
 
     const updatedList = [newApt, ...appointments];
     saveAppointments(updatedList);
+
+    const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
+    const adminApt = {
+      id: newApt.id,
+      patient: "Patient (Portal Request)",
+      patientEmail: "patient@medical.travel",
+      patientPhone: "+971 50 123 4567",
+      patientCountry: "International Patient",
+      caseId: `CAS-2026-0${Math.floor(80 + Math.random() * 20)}`,
+      specialty: newApt.specialty,
+      service: "Specialist Clinical Video Consultation",
+      hospital: newApt.hospital,
+      doctor: newApt.doctor,
+      type: "VIDEO_CONSULTATION",
+      dateTime: newApt.dateTime,
+      status: "REQUESTED",
+      meetLink: newApt.meetLink,
+      notes: newApt.notes,
+      createdAt: now,
+      updatedAt: now,
+      consultationFeeUsd: 60,
+      consultationFeeInr: 5000,
+      history: [
+        { status: "REQUESTED", timestamp: now, updatedBy: "Patient Portal" }
+      ]
+    };
+
+    if (typeof window !== "undefined") {
+      const existingAdminAppts = localStorage.getItem("maides_admin_appointments");
+      let adminApptList = [];
+      if (existingAdminAppts) {
+        try { adminApptList = JSON.parse(existingAdminAppts); } catch(e){}
+      }
+      localStorage.setItem("maides_admin_appointments", JSON.stringify([adminApt, ...adminApptList]));
+
+      window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new CustomEvent("maides_appointments_updated"));
+      window.dispatchEvent(new CustomEvent("maides_enquiries_updated"));
+    }
+
+    try {
+      fetch("/api/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(adminApt)
+      }).catch(() => {});
+    } catch(e) {}
+
     setToast("Consultation request submitted! Your clinical coordinator will review and confirm.");
     setShowModal(false);
     setPatientNotes("");

@@ -203,7 +203,27 @@ export default function DoctorsPage() {
         try { enqArr = JSON.parse(existingEnqs); } catch (err) {}
       }
       localStorage.setItem("maides_admin_enquiries", JSON.stringify([newEnquiry, ...enqArr]));
+
+      // 3. Dispatch global live events
+      window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new CustomEvent("maides_appointments_updated"));
+      window.dispatchEvent(new CustomEvent("maides_enquiries_updated"));
     }
+
+    // 4. Server API POST sync
+    try {
+      fetch("/api/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newAppt)
+      }).catch(() => {});
+      
+      fetch("/api/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newEnquiry)
+      }).catch(() => {});
+    } catch (e) {}
 
     setIsSubmitting(false);
     setSelectedDoctorForBooking(null);

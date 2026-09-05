@@ -286,85 +286,73 @@ export default function AppointmentManagementPage() {
   });
 
   const [cancelReason, setCancelReason] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Load and Hydrate Sister Stores
   useEffect(() => {
     const fetchLiveAppointments = async () => {
-      // 1. Try server API
+      let remoteAppts: any[] = [];
+      let localAppts: any[] = [];
+
+      // 1. Fetch from server API
       try {
         const res = await fetch("/api/appointments");
         if (res.ok) {
           const data = await res.json();
-          if (data.success && Array.isArray(data.appointments) && data.appointments.length > 0) {
-            const normalized = data.appointments.map((a: any) => ({
-              ...a,
-              specialty: a.specialty || "Specialty Consultation",
-              service: a.service || a.treatment || "Specialist Clinical Review",
-              patientEmail: a.patientEmail || a.email || "patient@example.com",
-              patientPhone: a.patientPhone || a.phone || "+971 50 123 4567",
-              patientCountry: a.patientCountry || a.country || "International",
-              consultationFeeUsd: a.consultationFeeUsd || 50,
-              consultationFeeInr: a.consultationFeeInr || 4200,
-              createdAt: a.createdAt || "2026-09-04 10:00",
-              updatedAt: a.updatedAt || new Date().toISOString().replace('T', ' ').substring(0, 16),
-              history: Array.isArray(a.history) && a.history.length > 0 ? a.history : [
-                { status: a.status || "REQUESTED", timestamp: a.createdAt || "2026-09-04 10:00", updatedBy: "System" }
-              ]
-            }));
-            setAppointments(normalized);
-            if (typeof window !== "undefined") {
-              localStorage.setItem("maides_admin_appointments", JSON.stringify(normalized));
-            }
-            return;
+          if (data.success && Array.isArray(data.appointments)) {
+            remoteAppts = data.appointments;
           }
         }
       } catch (e) {}
 
-      // 2. Fallback to localStorage
+      // 2. Read from localStorage
       if (typeof window !== "undefined") {
         const saved = localStorage.getItem("maides_admin_appointments");
         if (saved) {
           try {
             const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              const normalized = parsed.map((a: any) => ({
-                ...a,
-                specialty: a.specialty || "Specialty Consultation",
-                service: a.service || a.treatment || "Specialist Clinical Review",
-                patientEmail: a.patientEmail || a.email || "patient@example.com",
-                patientPhone: a.patientPhone || a.phone || "+971 50 123 4567",
-                patientCountry: a.patientCountry || a.country || "International",
-                consultationFeeUsd: a.consultationFeeUsd || 50,
-                consultationFeeInr: a.consultationFeeInr || 4200,
-                createdAt: a.createdAt || "2026-09-04 10:00",
-                updatedAt: a.updatedAt || new Date().toISOString().replace('T', ' ').substring(0, 16),
-                history: Array.isArray(a.history) && a.history.length > 0 ? a.history : [
-                  { status: a.status || "REQUESTED", timestamp: a.createdAt || "2026-09-04 10:00", updatedBy: "System" }
-                ]
-              }));
-              setAppointments(normalized);
+            if (Array.isArray(parsed)) {
+              localAppts = parsed;
             }
-          } catch (e) {
-            console.error("Failed to load appointments", e);
-          }
+          } catch (e) {}
         }
+      }
+
+      // 3. Deduplicate and merge (prefer local/latest updates, keep all unique IDs)
+      const combined = [...localAppts];
+      remoteAppts.forEach((ra) => {
+        if (!combined.some(ca => ca.id === ra.id)) {
+          combined.push(ra);
+        }
+      });
+
+      const sourceList = combined.length > 0 ? combined : INITIAL_APPOINTMENTS;
+      const normalized = sourceList.map((a: any) => ({
+        ...a,
+        specialty: a.specialty || "Specialty Consultation",
+        service: a.service || a.treatment || "Specialist Clinical Review",
+        patientEmail: a.patientEmail || a.email || "patient@example.com",
+        patientPhone: a.patientPhone || a.phone || "+971 50 123 4567",
+        patientCountry: a.patientCountry || a.country || "International",
+        consultationFeeUsd: a.consultationFeeUsd || 50,
+        consultationFeeInr: a.consultationFeeInr || 4200,
+        createdAt: a.createdAt || "2026-09-04 10:00",
+        updatedAt: a.updatedAt || new Date().toISOString().replace('T', ' ').substring(0, 16),
+        history: Array.isArray(a.history) && a.history.length > 0 ? a.history : [
+          { status: a.status || "REQUESTED", timestamp: a.createdAt || "2026-09-04 10:00", updatedBy: "System" }
+        ]
+      }));
+
+      setAppointments(normalized);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("maides_admin_appointments", JSON.stringify(normalized));
       }
     };
 
     fetchLiveAppointments();
 
     const handleStorageUpdate = () => {
-      if (typeof window !== "undefined") {
-        const saved = localStorage.getItem("maides_admin_appointments");
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              setAppointments(parsed);
-            }
-          } catch (e) {}
-        }
-      }
+      fetchLiveAppointments();
     };
 
     window.addEventListener("storage", handleStorageUpdate);
@@ -767,6 +755,58 @@ export default function AppointmentManagementPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={async () => {
+              setIsRefreshing(true);
+              try {
+                const res = await fetch("/api/appointments");
+                if (res.ok) {
+                  const data = await res.json();
+                  if (data.success && Array.isArray(data.appointments)) {
+                    const localSaved = typeof window !== "undefined" ? localStorage.getItem("maides_admin_appointments") : null;
+                    let localList: any[] = [];
+                    if (localSaved) {
+                      try { localList = JSON.parse(localSaved); } catch(e){}
+                    }
+                    const combined = [...localList];
+                    data.appointments.forEach((ra: any) => {
+                      if (!combined.some(ca => ca.id === ra.id)) {
+                        combined.push(ra);
+                      }
+                    });
+                    const sourceList = combined.length > 0 ? combined : INITIAL_APPOINTMENTS;
+                    const normalized = sourceList.map((a: any) => ({
+                      ...a,
+                      specialty: a.specialty || "Specialty Consultation",
+                      service: a.service || a.treatment || "Specialist Clinical Review",
+                      patientEmail: a.patientEmail || a.email || "patient@example.com",
+                      patientPhone: a.patientPhone || a.phone || "+971 50 123 4567",
+                      patientCountry: a.patientCountry || a.country || "International",
+                      consultationFeeUsd: a.consultationFeeUsd || 50,
+                      consultationFeeInr: a.consultationFeeInr || 4200,
+                      createdAt: a.createdAt || "2026-09-04 10:00",
+                      updatedAt: a.updatedAt || new Date().toISOString().replace('T', ' ').substring(0, 16),
+                      history: Array.isArray(a.history) && a.history.length > 0 ? a.history : [
+                        { status: a.status || "REQUESTED", timestamp: a.createdAt || "2026-09-04 10:00", updatedBy: "System" }
+                      ]
+                    }));
+                    setAppointments(normalized);
+                    if (typeof window !== "undefined") {
+                      localStorage.setItem("maides_admin_appointments", JSON.stringify(normalized));
+                    }
+                  }
+                }
+              } catch (e) {}
+              showToast("Appointments synchronized with live patient submissions!");
+              setIsRefreshing(false);
+            }}
+            disabled={isRefreshing}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition active:scale-95 disabled:opacity-50 cursor-pointer"
+            title="Refresh and sync appointments"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 text-blue-400 ${isRefreshing ? "animate-spin" : ""}`} />
+            <span>{isRefreshing ? "Syncing..." : "Sync Live"}</span>
+          </button>
           <Link
             href="/patient/appointments"
             target="_blank"
