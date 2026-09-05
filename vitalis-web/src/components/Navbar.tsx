@@ -42,7 +42,6 @@ export function Navbar({ onOpenIntake, onOpenConcierge, style = "transparent" }:
 
   const navItems = [
     { name: "Home", href: "/" },
-    { name: "360° Virtual Tour", href: "#virtual-tour-360", badge: "Live 360°" },
     { name: "About Us", href: "/about" },
     { name: "Our Hospitals", href: "/hospitals" },
     { name: "Services", href: "/treatments" },
