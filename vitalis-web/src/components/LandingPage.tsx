@@ -270,35 +270,58 @@ export function LandingPage({ onOpenIntake, onOpenConcierge }: LandingPageProps)
 
       fetchLiveHospitals();
 
-      // 3. Load Admin Specialties (Active & Published Only)
-      try {
-        const storedSpecs = localStorage.getItem("maides_admin_specialties");
-        if (storedSpecs) {
-          const parsed = JSON.parse(storedSpecs);
-          const activeAdminSpecs = parsed
-            .filter((s: any) => s.status === "ACTIVE" && (s.published === "PUBLISHED" || !s.published))
-            .map((s: any) => ({
-              id: s.id,
-              name: s.name,
-              title: s.name,
-              desc: s.shortDescription || s.fullDescription || `${s.name} center of excellence in Kerala.`,
-              iconName: s.iconName || "HeartPulse",
-              count: `${s.proceduresCount || s.keyProcedures?.length || 10}+ Procedures`,
-              displayOrder: Number(s.displayOrder) || 99
-            }));
+      // 3. Load Admin Specialties (Active & Published Only from Server API & Storage)
+      const fetchLiveSpecialties = async () => {
+        try {
+          const res = await fetch("/api/specialties?public=true");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && Array.isArray(data.specialties) && data.specialties.length > 0) {
+              const activeSpecs = data.specialties.map((s: any) => ({
+                id: s.id,
+                name: s.name,
+                title: s.name,
+                desc: s.shortDescription || s.fullDescription || `${s.name} center of excellence in Kerala.`,
+                iconName: s.iconName || "HeartPulse",
+                count: `${s.proceduresCount || s.keyProcedures?.length || 10}+ Procedures`,
+                displayOrder: Number(s.displayOrder) || 99
+              }));
 
-          if (activeAdminSpecs.length > 0) {
-            activeAdminSpecs.sort((a: any, b: any) => (a.displayOrder || 99) - (b.displayOrder || 99));
-            setLandingSpecialties(activeAdminSpecs);
-          } else {
-            setLandingSpecialties(DEFAULT_SPECIALTIES.map(s => ({ ...s, title: s.name })));
+              activeSpecs.sort((a: any, b: any) => (a.displayOrder || 99) - (b.displayOrder || 99));
+              setLandingSpecialties(activeSpecs);
+              return;
+            }
           }
-        } else {
-          setLandingSpecialties(DEFAULT_SPECIALTIES.map(s => ({ ...s, title: s.name })));
-        }
-      } catch (e) {
+        } catch (err) {}
+
+        try {
+          const storedSpecs = localStorage.getItem("maides_admin_specialties");
+          if (storedSpecs) {
+            const parsed = JSON.parse(storedSpecs);
+            const activeAdminSpecs = parsed
+              .filter((s: any) => s.status === "ACTIVE" && (s.published === "PUBLISHED" || !s.published))
+              .map((s: any) => ({
+                id: s.id,
+                name: s.name,
+                title: s.name,
+                desc: s.shortDescription || s.fullDescription || `${s.name} center of excellence in Kerala.`,
+                iconName: s.iconName || "HeartPulse",
+                count: `${s.proceduresCount || s.keyProcedures?.length || 10}+ Procedures`,
+                displayOrder: Number(s.displayOrder) || 99
+              }));
+
+            if (activeAdminSpecs.length > 0) {
+              activeAdminSpecs.sort((a: any, b: any) => (a.displayOrder || 99) - (b.displayOrder || 99));
+              setLandingSpecialties(activeAdminSpecs);
+              return;
+            }
+          }
+        } catch (e) {}
+
         setLandingSpecialties(DEFAULT_SPECIALTIES.map(s => ({ ...s, title: s.name })));
-      }
+      };
+
+      fetchLiveSpecialties();
 
       // 4. Load Admin Packages (Active & Published Only)
       try {
