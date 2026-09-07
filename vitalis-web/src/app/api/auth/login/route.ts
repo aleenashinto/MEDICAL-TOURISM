@@ -37,6 +37,22 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: "Invalid administrator credentials." }, { status: 401 });
       }
     } else {
+      // Demo Mode Bypass: Hardcoded patient login for Vercel without a database
+      const cleanEmail = email?.trim().toLowerCase();
+      if (cleanEmail === 'saya@gmail.com' || cleanEmail === 'patient@gmail.com') {
+        const sessionPayload = { email, role: 'PATIENT', name: 'Saya' };
+        const sessionToken = await signToken(sessionPayload);
+        const cookieStore = await cookies();
+        cookieStore.set('maides_session', sessionToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          path: '/',
+          maxAge: 30 * 24 * 60 * 60 // 30 days
+        });
+        return NextResponse.json({ success: true, user: sessionPayload });
+      }
+
       // Patient Login using Prisma
       const user = await prisma.user.findUnique({
         where: { email: email.toLowerCase().trim() },
@@ -73,3 +89,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: "Authentication failed" }, { status: 500 });
   }
 }
+

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { ThemeToggle } from '@/components/ThemeToggle';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LiveSupportChatWidget } from "@/components/LiveSupportChatWidget";
@@ -339,4 +340,6 @@ export default function PatientLayout({
     </div>
   );
 }
+
+
 

@@ -100,8 +100,9 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className={{...} dark:bg-slate-900 dark:text-white} className="min-h-full flex flex-col"><ThemeProvider>{children}</ThemeProvider></body>
+      <body className="min-h-full flex flex-col dark:bg-slate-900 dark:text-white"><ThemeProvider>{children}</ThemeProvider></body>
     </html>
   );
 }
+
 

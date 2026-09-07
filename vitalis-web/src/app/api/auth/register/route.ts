@@ -33,6 +33,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Password must be at least 8 characters" }, { status: 400 });
     }
 
+    // Demo Mode Bypass: If they use 'saya@gmail.com', let them pass immediately for Vercel demo
+    if (email.toLowerCase().trim() === 'saya@gmail.com' || email.toLowerCase().trim() === 'patient@gmail.com') {
+      return NextResponse.json({ success: true, message: "OTP sent" });
+    }
+
     // 4. Database Duplicate Check
     const existingUser = await prisma.user.findUnique({
       where: { email: email.toLowerCase().trim() }
@@ -72,3 +77,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: "Registration failed due to a server error." }, { status: 500 });
   }
 }
+
