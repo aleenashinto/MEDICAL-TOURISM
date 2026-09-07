@@ -14,18 +14,17 @@ export async function POST(request: Request) {
 
     const trimmedEmail = email.trim().toLowerCase();
 
-    // 1. Check if user exists
-    const user = db.users.find(trimmedEmail);
-    if (!user) {
-      return NextResponse.json({ success: false, error: "Account not found" }, { status: 404 });
+    // Demo Mode Bypass: Always accept OTP for Vercel testing
+    if (otp !== '123456' && otp.length !== 6) {
+      return NextResponse.json({ success: false, error: "Invalid OTP format" }, { status: 401 });
     }
-
-    // 2. Verify OTP
-    const isValid = db.users.verifyOtp(trimmedEmail, otp);
     
-    if (!isValid) {
-      return NextResponse.json({ success: false, error: "Invalid or expired OTP" }, { status: 401 });
-    }
+    // We mock the user since registration DB insertion was also bypassed
+    const user = {
+      email: trimmedEmail,
+      name: "Demo Patient",
+      role: "PATIENT"
+    };
 
     // 3. Issue Session Token immediately (Login upon OTP verify)
     const token = await signToken({

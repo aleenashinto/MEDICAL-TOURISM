@@ -168,13 +168,10 @@ export default function RegisterPage() {
       }
 
       if (typeof window !== "undefined") {
-        localStorage.setItem("maides_pending_email", email);
-        localStorage.setItem("maides_pending_name", `${firstName} ${lastName}`);
-        localStorage.setItem("maides_pending_phone", phone);
-        localStorage.setItem("maides_pending_country", formData.country || "United Arab Emirates");
+        // We no longer need pending variables since we skip OTP
       }
 
-      router.push("/auth/verify-otp");
+      router.push("/patient/dashboard");
     } catch (err) {
       setError("An unexpected error occurred during registration.");
       setIsLoading(false);

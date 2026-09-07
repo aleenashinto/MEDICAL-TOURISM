@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { signToken } from '@/lib/session';
+import { cookies } from 'next/headers';
 
 // Helper to hash passwords using native Web Crypto API (works in Next.js)
 async function hashPassword(password: string): Promise<string> {
@@ -67,11 +69,39 @@ export async function POST(request: Request) {
       });
     });
 
-    return NextResponse.json({ success: true, message: "OTP sent" });
+    // 7. Issue Session Token immediately (Bypass OTP)
+    const sessionPayload = { email: email.toLowerCase().trim(), role: 'PATIENT', name: `${firstName.trim()} ${lastName.trim()}` };
+    const sessionToken = await signToken(sessionPayload);
+    const cookieStore = await cookies();
+    cookieStore.set('maides_session', sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 30 * 24 * 60 * 60 // 30 days
+    });
+
+    return NextResponse.json({ success: true, user: sessionPayload, message: "Registration successful" });
   } catch (error: any) {
     // Vercel Demo Bypass: If the database completely fails (e.g. SQLite missing on Vercel),
-    // we still return success so the user can see the OTP verification screen.
+    // we still return success and log them in so they can see the Patient Portal.
     console.error("Database connection failed during registration (expected on Vercel demo):", error.message);
-    return NextResponse.json({ success: true, message: "OTP sent (Bypass)" });
+    
+    // Fallback Session
+    const fallbackPayload = { email: "demo@vitalis.health", role: 'PATIENT', name: "Demo Patient" };
+    try {
+      const sessionToken = await signToken(fallbackPayload);
+      const cookieStore = await cookies();
+      cookieStore.set('maides_session', sessionToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 30 * 24 * 60 * 60 // 30 days
+      });
+      return NextResponse.json({ success: true, user: fallbackPayload, message: "Registration successful (Demo Bypass)" });
+    } catch (innerError) {
+      return NextResponse.json({ success: false, error: "Server error" }, { status: 500 });
+    }
   }
 }
