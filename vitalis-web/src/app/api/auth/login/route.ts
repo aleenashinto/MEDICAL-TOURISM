@@ -12,9 +12,12 @@ async function hashPassword(password: string): Promise<string> {
 }
 
 export async function POST(request: Request) {
+  let email, password, role;
   try {
     const body = await request.json();
-    const { email, password, role } = body;
+    email = body.email;
+    password = body.password;
+    role = body.role;
 
     let userRole = role;
     let userName = "";

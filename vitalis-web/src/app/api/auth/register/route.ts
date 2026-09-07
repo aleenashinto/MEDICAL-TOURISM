@@ -13,11 +13,12 @@ async function hashPassword(password: string): Promise<string> {
 }
 
 export async function POST(request: Request) {
+  let firstName, lastName, email, phone, country, dob, gender, password, agreeTerms;
   try {
     const body = await request.json();
     
     // Explicitly destructure ONLY the fields we allow. This prevents Mass Assignment.
-    const { firstName, lastName, email, phone, country, dob, gender, password, agreeTerms } = body;
+    ({ firstName, lastName, email, phone, country, dob, gender, password, agreeTerms } = body);
 
     // 1. Validate required fields
     if (!firstName || !lastName || !email || !password) {
