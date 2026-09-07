@@ -87,33 +87,26 @@ export default function MedicalEnquiryPage() {
       documents: files.map(f => ({ name: f.name, size: f.size }))
     };
 
-    // Save to localStorage for instant local sync
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem("maides_admin_enquiries");
-        const existing = stored ? JSON.parse(stored) : [];
-        const updated = [payload, ...existing.filter((e: any) => e.id !== payload.id)];
-        localStorage.setItem("maides_admin_enquiries", JSON.stringify(updated));
-        window.dispatchEvent(new Event("storage"));
-        window.dispatchEvent(new CustomEvent("maides_enquiries_updated", { detail: updated }));
-      } catch (e) {
-        console.error("Local storage sync error", e);
-      }
-    }
-
     // Save to Backend API
     try {
-      await fetch("/api/enquiries", {
+      const response = await fetch("/api/enquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-    } catch (e) {
-      console.warn("Could not sync to /api/enquiries, saved to local cache:", e);
+      
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Failed to submit enquiry");
+      }
+      
+      setSubmitting(false);
+      setStep(4);
+    } catch (e: any) {
+      console.error("Could not submit enquiry:", e);
+      alert(e.message || "An error occurred while submitting your enquiry. Please try again.");
+      setSubmitting(false);
     }
-
-    setSubmitting(false);
-    setStep(4);
   };
 
   return (

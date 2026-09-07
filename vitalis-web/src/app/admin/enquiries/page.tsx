@@ -29,8 +29,8 @@ export default function EnquiriesPage() {
   const [enquiries, setEnquiries] = useState([
     {
       id: "MAIDES-MTNYZU7H",
-      name: "ALEENA MATHEW",
-      email: "aleenakochumon2@gmail.com",
+      name: "Jane Doe",
+      email: "jane.doe@example.com",
       phone: "+971 50 821 4590",
       country: "United Arab Emirates",
       treatment: "Cardiology & Cardiac Surgery",

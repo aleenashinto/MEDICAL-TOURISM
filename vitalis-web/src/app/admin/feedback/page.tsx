@@ -141,19 +141,52 @@ export default function FeedbackAdminPage() {
   const [selectedReview, setSelectedReview] = useState<PatientReview | null>(null);
   const [responseText, setResponseText] = useState("");
 
-  // Load from LocalStorage
+  // Load from API & LocalStorage Fallback
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("maides_patient_reviews_v3");
-      if (saved) {
-        setReviews(JSON.parse(saved));
-      } else {
-        setReviews(DEFAULT_REVIEWS);
-        localStorage.setItem("maides_patient_reviews_v3", JSON.stringify(DEFAULT_REVIEWS));
+    const fetchFeedback = async () => {
+      try {
+        const res = await fetch('/api/admin/feedback');
+        const data = await res.json();
+        if (data.success && data.feedbacks && data.feedbacks.length > 0) {
+          const apiReviews: PatientReview[] = data.feedbacks.map((f: any) => ({
+            id: f.id || `REV-${Math.floor(100 + Math.random() * 900)}`,
+            patientId: f.patientId || "pat-101",
+            patientName: f.patientName || f.actorEmail || "Patient",
+            patientEmail: f.actorEmail || "patient@example.com",
+            patientCountry: f.country || "International",
+            category: f.category || "Hospital Care",
+            targetName: f.targetName || "Kerala Partner Hospital",
+            treatment: f.treatment || "Medical Care",
+            rating: f.rating || 5,
+            npsScore: 10,
+            recommend: f.recommend ?? true,
+            comment: f.comment || "Great experience",
+            status: "APPROVED",
+            isPublished: true,
+            submittedAt: f.submittedAt || (f.createdAt ? f.createdAt.split('T')[0] : "2026-09-01")
+          }));
+
+          setReviews(apiReviews);
+          return;
+        }
+      } catch (e) {
+        console.error("Failed to fetch feedback API", e);
       }
-    } catch (e) {
-      setReviews(DEFAULT_REVIEWS);
-    }
+
+      try {
+        const saved = localStorage.getItem("maides_patient_reviews_v3");
+        if (saved) {
+          setReviews(JSON.parse(saved));
+        } else {
+          setReviews(DEFAULT_REVIEWS);
+          localStorage.setItem("maides_patient_reviews_v3", JSON.stringify(DEFAULT_REVIEWS));
+        }
+      } catch (e) {
+        setReviews(DEFAULT_REVIEWS);
+      }
+    };
+
+    fetchFeedback();
   }, []);
 
   const saveReviews = (data: PatientReview[]) => {

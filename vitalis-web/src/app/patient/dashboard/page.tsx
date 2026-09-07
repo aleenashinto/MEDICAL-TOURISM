@@ -81,6 +81,8 @@ export default function PatientDashboardPage() {
 
   const { patient, activeCase, nextAppointment, visa, billing, journey, isDemo } = data;
 
+  const firstName = patient?.name?.trim().split(" ")[0] || "there";
+
   return (
     <div className="space-y-6">
       {/* Top action bar: Refresh & Status */}
@@ -125,7 +127,7 @@ export default function PatientDashboardPage() {
           </div>
 
           <h1 className="text-2xl md:text-3xl font-black tracking-tight">
-            Welcome back, {patient?.firstName || "User"}
+            Welcome back, {firstName}
           </h1>
 
           <div className="flex flex-wrap items-center gap-4 text-xs text-blue-100 pt-1">

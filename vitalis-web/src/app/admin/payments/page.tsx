@@ -414,44 +414,84 @@ export default function InvoicesAndPaymentsPage() {
     notes: ""
   });
 
-  // Initial Load from LocalStorage
+  // Initial Load from API & LocalStorage Fallback
   useEffect(() => {
-    try {
-      const savedInvoices = localStorage.getItem("maides_admin_invoices_v3");
-      const savedPayments = localStorage.getItem("maides_admin_payments_v3");
-      const savedForex = localStorage.getItem("maides_admin_forex_v3");
-      const savedRefunds = localStorage.getItem("maides_admin_refunds_v3");
-
-      if (savedInvoices) setInvoices(JSON.parse(savedInvoices));
-      else {
-        setInvoices(DEFAULT_INVOICES);
-        localStorage.setItem("maides_admin_invoices_v3", JSON.stringify(DEFAULT_INVOICES));
+    const fetchPaymentsData = async () => {
+      try {
+        const res = await fetch('/api/admin/payments');
+        const data = await res.json();
+        if (data.success && data.invoices && data.invoices.length > 0) {
+          const dbInvoices: Invoice[] = data.invoices.map((inv: any) => ({
+            id: inv.id,
+            invoiceNo: `INV-2026-${inv.id.slice(0, 4).toUpperCase()}`,
+            caseId: inv.caseId || "CAS-2026-001",
+            patientId: inv.patientId,
+            patientName: inv.patient ? `${inv.patient.firstName} ${inv.patient.lastName}` : "Patient",
+            patientEmail: inv.patient?.user?.email || "patient@example.com",
+            patientCountry: inv.patient?.country || "United States",
+            hospital: "Aster Medcity, Kochi",
+            treatment: "Medical Treatment Package",
+            currency: inv.currency || "USD",
+            exchangeRateToINR: 83.50,
+            items: [
+              { id: `itm-${inv.id}`, category: "Medical Treatment", description: "Medical Package", amount: inv.amount }
+            ],
+            subtotal: inv.amount,
+            discount: 0,
+            taxRate: 5,
+            taxAmount: Math.round(inv.amount * 0.05),
+            totalAmount: inv.amount,
+            totalAmountINR: Math.round(inv.amount * 83.50),
+            amountPaid: inv.status === "PAID" ? inv.amount : 0,
+            balanceDue: inv.status === "PAID" ? 0 : inv.amount,
+            status: inv.status === "PAID" ? "Paid" : inv.status === "REFUNDED" ? "Refunded" : "Issued",
+            issueDate: inv.createdAt ? inv.createdAt.split('T')[0] : "2026-09-01",
+            dueDate: inv.dueDate ? inv.dueDate.split('T')[0] : "2026-09-30",
+            notes: "Managed via MAIDES Escrow Gateway",
+            escrowStatus: inv.status === "PAID" ? "Held in Escrow" : "Pending Deposit",
+            createdAt: inv.createdAt
+          }));
+          setInvoices(dbInvoices);
+        }
+      } catch (e) {
+        console.error("Failed to fetch payments API", e);
       }
 
-      if (savedPayments) setPayments(JSON.parse(savedPayments));
-      else {
-        setPayments(DEFAULT_PAYMENTS);
-        localStorage.setItem("maides_admin_payments_v3", JSON.stringify(DEFAULT_PAYMENTS));
-      }
+      try {
+        const savedInvoices = localStorage.getItem("maides_admin_invoices_v3");
+        const savedPayments = localStorage.getItem("maides_admin_payments_v3");
+        const savedForex = localStorage.getItem("maides_admin_forex_v3");
+        const savedRefunds = localStorage.getItem("maides_admin_refunds_v3");
 
-      if (savedForex) setForexRates(JSON.parse(savedForex));
-      else {
-        setForexRates(DEFAULT_FOREX_RATES);
-        localStorage.setItem("maides_admin_forex_v3", JSON.stringify(DEFAULT_FOREX_RATES));
-      }
+        if (savedInvoices && invoices.length === 0) setInvoices(JSON.parse(savedInvoices));
+        else if (invoices.length === 0) {
+          setInvoices(DEFAULT_INVOICES);
+          localStorage.setItem("maides_admin_invoices_v3", JSON.stringify(DEFAULT_INVOICES));
+        }
 
-      if (savedRefunds) setRefunds(JSON.parse(savedRefunds));
-      else {
-        setRefunds(DEFAULT_REFUNDS);
-        localStorage.setItem("maides_admin_refunds_v3", JSON.stringify(DEFAULT_REFUNDS));
+        if (savedPayments) setPayments(JSON.parse(savedPayments));
+        else {
+          setPayments(DEFAULT_PAYMENTS);
+          localStorage.setItem("maides_admin_payments_v3", JSON.stringify(DEFAULT_PAYMENTS));
+        }
+
+        if (savedForex) setForexRates(JSON.parse(savedForex));
+        else {
+          setForexRates(DEFAULT_FOREX_RATES);
+          localStorage.setItem("maides_admin_forex_v3", JSON.stringify(DEFAULT_FOREX_RATES));
+        }
+
+        if (savedRefunds) setRefunds(JSON.parse(savedRefunds));
+        else {
+          setRefunds(DEFAULT_REFUNDS);
+          localStorage.setItem("maides_admin_refunds_v3", JSON.stringify(DEFAULT_REFUNDS));
+        }
+      } catch (e) {
+        console.error("Error loading payment local storage", e);
       }
-    } catch (e) {
-      console.error("Failed to load financial state from localStorage", e);
-      setInvoices(DEFAULT_INVOICES);
-      setPayments(DEFAULT_PAYMENTS);
-      setForexRates(DEFAULT_FOREX_RATES);
-      setRefunds(DEFAULT_REFUNDS);
-    }
+    };
+
+    fetchPaymentsData();
   }, []);
 
   const saveInvoices = (data: Invoice[]) => {

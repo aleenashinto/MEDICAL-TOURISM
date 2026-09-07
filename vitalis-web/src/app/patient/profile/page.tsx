@@ -63,30 +63,46 @@ export default function PatientProfilePage() {
   const [initialProfile, setInitialProfile] = useState(profile);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedName = localStorage.getItem("maides_user_name") || "";
-      const storedEmail = localStorage.getItem("maides_user_email") || "";
-      const storedLocation = localStorage.getItem("maides_user_location") || "";
-      const storedPhone = localStorage.getItem("maides_user_phone") || "";
-      const storedPhoto = localStorage.getItem("maides_user_photo");
-
-      if (storedPhoto) setProfilePhoto(storedPhoto);
-
-      const parts = storedName.trim().split(" ");
-      const first = parts[0] || "Patient";
-      const last = parts.slice(1).join(" ") || "";
-
-      const loaded = {
-        ...profile,
-        firstName: first,
-        lastName: last,
-        email: storedEmail,
-        country: storedLocation,
-        phone: storedPhone,
-      };
-      setProfile(loaded);
-      setInitialProfile(loaded);
-    }
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch('/api/patient/profile');
+        const data = await res.json();
+        if (data.success && data.patient) {
+          const p = data.patient;
+          const loaded = {
+            patientId: p.id,
+            firstName: p.firstName || '',
+            lastName: p.lastName || '',
+            email: p.user?.email || '',
+            phone: p.phone || '',
+            altPhone: p.altPhone || '',
+            dob: p.dob || '',
+            gender: p.gender || 'Female',
+            country: p.country || '',
+            state: p.state || '',
+            city: p.city || '',
+            addressLine1: p.addressLine1 || '',
+            addressLine2: p.addressLine2 || '',
+            postalCode: p.postalCode || '',
+            passportNo: p.passportNo || '',
+            passportExpiry: p.passportExpiry || '',
+            nationality: p.nationality || '',
+            emergencyName: p.emergencyName || '',
+            emergencyRelation: p.emergencyRelation || '',
+            emergencyPhone: p.emergencyPhone || '',
+            emergencyEmail: p.emergencyEmail || '',
+            bloodGroup: p.bloodGroup || '',
+            status: 'Active',
+            emailVerified: p.user?.emailVerified ?? false,
+          };
+          setProfile(loaded);
+          setInitialProfile(loaded);
+        }
+      } catch (e) {
+        console.error('Failed to load profile', e);
+      }
+    };
+    fetchProfile();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -118,18 +134,27 @@ export default function PatientProfilePage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (typeof window !== "undefined") {
-      localStorage.setItem("maides_user_name", `${profile.firstName} ${profile.lastName}`.trim());
-      localStorage.setItem("maides_user_email", profile.email);
-      localStorage.setItem("maides_user_location", profile.country);
-      localStorage.setItem("maides_user_phone", profile.phone);
+    try {
+      const res = await fetch('/api/patient/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profile),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setInitialProfile(profile);
+        setIsEditing(false);
+        setIsSaved(true);
+        setTimeout(() => setIsSaved(false), 2500);
+      } else {
+        alert(data.error || 'Failed to save profile');
+      }
+    } catch (e) {
+      console.error('Failed to save profile', e);
+      alert('Failed to save profile. Please try again.');
     }
-    setInitialProfile(profile);
-    setIsEditing(false);
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2500);
   };
 
   const handleCancel = () => {

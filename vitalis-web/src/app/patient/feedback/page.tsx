@@ -93,7 +93,7 @@ export default function PatientFeedbackPage() {
   }, []);
 
   // Submit Feedback
-  const handleSubmitReview = (e: React.FormEvent) => {
+  const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!comment.trim()) {
       alert("Please enter your feedback comments.");
@@ -118,6 +118,17 @@ export default function PatientFeedbackPage() {
       isPublished: false,
       submittedAt: timeStr
     };
+
+    // Post to API
+    try {
+      await fetch('/api/patient/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category, targetName, treatment, rating, comment: comment.trim(), recommend })
+      });
+    } catch (e) {
+      console.error("API feedback submit failed", e);
+    }
 
     // Update patient list
     const updatedPatientList = [newRev, ...reviews];

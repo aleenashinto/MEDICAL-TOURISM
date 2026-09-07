@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import prisma from '@/lib/prisma';
 
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -25,9 +25,14 @@ export async function POST(request: Request) {
     }
 
     // 1. Consume token (single-use, expires in 15 mins)
-    const email = db.resetTokens.consume(token);
+    const user = await prisma.user.findFirst({
+      where: {
+        otp: token,
+        otpExpires: { gt: new Date() }
+      }
+    });
 
-    if (!email) {
+    if (!user) {
        // Token is invalid, expired, or already used
        return NextResponse.json({ success: false, error: "Invalid or expired reset token" }, { status: 400 });
     }
@@ -35,8 +40,15 @@ export async function POST(request: Request) {
     // 2. Hash the new password
     const hashedPassword = await hashPassword(password);
 
-    // 3. Update the user's password in the database
-    db.users.updatePassword(email, hashedPassword);
+    // 3. Update the user's password in the database and invalidate token
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        otp: null,
+        otpExpires: null
+      }
+    });
 
     // 4. Session Invalidation (Phase 10)
     // Since our JWTs are stateless, to truly invalidate old sessions we'd need a token blacklist,

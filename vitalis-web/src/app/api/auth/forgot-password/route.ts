@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import prisma from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
@@ -18,27 +18,34 @@ export async function POST(request: Request) {
     const trimmedEmail = email.trim().toLowerCase();
 
     // 1. Check if user exists
-    const user = db.users.find(trimmedEmail);
+    const user = await prisma.user.findUnique({
+      where: { email: trimmedEmail }
+    });
     
-    let token = null;
-
     if (user) {
       // 2. Generate secure token only if user exists
-      token = db.resetTokens.create(trimmedEmail);
+      const array = new Uint8Array(32);
+      crypto.getRandomValues(array);
+      const token = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+      
+      const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+      
+      await prisma.user.update({
+        where: { email: trimmedEmail },
+        data: {
+          otp: token, // We use otp field for the reset token
+          otpExpires: expires
+        }
+      });
       
       // In a real application, you would send the email here using an SMTP service like Resend or SendGrid.
-      // e.g. await sendEmail(user.email, `https://medical-tourism.com/auth/reset-password?token=${token}`);
-      console.log(`[SECURE LOG] Reset token generated for ${trimmedEmail}: ${token}`);
+      console.log(`[SECURE LOG] Reset link generated for ${trimmedEmail}: https://medical-tourism.com/auth/reset-password?token=${token}`);
     }
 
     // 3. Prevent account enumeration by always returning the exact same generic response
-    // regardless of whether the user exists or not.
-    // For demo purposes ONLY we will return the token in the response so the user can click it in the UI.
-    // IN PRODUCTION: NEVER RETURN THIS TOKEN IN THE API RESPONSE.
     return NextResponse.json({ 
       success: true, 
-      message: "If an account exists, a recovery link has been sent.",
-      demo_token: token // DEMO ONLY - REMOVE IN PROD
+      message: "If an account exists, a recovery link has been sent."
     });
 
   } catch (error: any) {

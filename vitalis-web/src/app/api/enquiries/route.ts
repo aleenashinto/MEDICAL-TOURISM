@@ -1,6 +1,17 @@
 import { NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/session';
+import prisma from '@/lib/prisma';
 import { cookies } from 'next/headers';
+import { enquirySchema, validateBody } from '@/lib/validation/schemas';
+import { verifyToken } from '@/lib/session';
+
+// Helper to hash passwords using native Web Crypto API (works in Next.js)
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 async function verifyAdmin() {
   const cookieStore = await cookies();
@@ -31,113 +42,27 @@ export interface ServerEnquiry {
   documents?: { name: string; size: number }[];
 }
 
-let globalEnquiriesStore: ServerEnquiry[] = [
-  {
-    id: "MAIDES-MTNYZU7H",
-    name: "ALEENA MATHEW",
-    email: "aleenakochumon2@gmail.com",
-    phone: "+971 50 821 4590",
-    country: "United Arab Emirates",
-    language: "English",
-    treatment: "Cardiology & Cardiac Surgery",
-    specialty: "Cardiology & Cardiac Surgery",
-    district: "Ernakulam / Kochi",
-    summary: "Patient submitted medical enquiry for specialized clinical consultation and treatment planning in Kerala.",
-    budget: "USD 5,000 – 10,000",
-    timeline: "ASAP (within 2 weeks)",
-    urgency: "HIGH",
-    submittedAt: "2026-09-05 11:25",
-    status: "NEW",
-    assignedHospital: "Amrita Institute of Medical Sciences",
-    notes: "Clinical records received. Assigned for rapid cardiologist triage and treatment estimation."
-  },
-  {
-    id: "ENQ-2026-004",
-    name: "Sarah Jenkins",
-    email: "sarah.jenkins@example.com",
-    phone: "+44 7911 123456",
-    country: "United Kingdom",
-    language: "English",
-    treatment: "Minimally Invasive Knee Replacement",
-    specialty: "Orthopaedics & Joint Replacement",
-    district: "Ernakulam / Kochi",
-    summary: "Severe osteoarthritis in right knee, difficulty walking stairs, looking for robotic joint replacement.",
-    budget: "$6,500",
-    timeline: "ASAP (within 2 weeks)",
-    urgency: "HIGH",
-    submittedAt: "2026-09-04 09:30",
-    status: "NEW",
-    assignedHospital: "Aster Medcity, Kochi",
-    notes: "Patient has knee cartilage wear and prefers Dr. Vijay Anand."
-  },
-  {
-    id: "ENQ-2026-003",
-    name: "Mohammed Al-Maktoum",
-    email: "m.maktoum@example.ae",
-    phone: "+971 50 987 6543",
-    country: "United Arab Emirates",
-    language: "Arabic",
-    treatment: "Robotic Cardiac Valve Repair",
-    specialty: "Cardiology & Cardiac Surgery",
-    district: "Ernakulam / Kochi",
-    summary: "Severe mitral valve regurgitation diagnosed 2 months ago, requires minimally invasive robotic repair.",
-    budget: "$12,000",
-    timeline: "1–3 months",
-    urgency: "CRITICAL",
-    submittedAt: "2026-09-04 07:15",
-    status: "TRIAGED",
-    assignedHospital: "Amrita Institute of Medical Sciences",
-    notes: "Echo scans received, cardiology board review requested."
-  },
-  {
-    id: "ENQ-2026-002",
-    name: "Elena Rostova",
-    email: "elena.rostova@example.de",
-    phone: "+49 170 555 1234",
-    country: "Germany",
-    language: "English",
-    treatment: "Ayurvedic Panchakarma & Stress Detox",
-    specialty: "Classical Ayurveda & Panchakarma",
-    district: "Thiruvananthapuram",
-    summary: "Chronic neck pain, cervical spondylosis, and severe corporate burnout. Looking for 14-day residential Panchakarma.",
-    budget: "$4,200",
-    timeline: "1–3 months",
-    urgency: "MEDIUM",
-    submittedAt: "2026-09-03 16:45",
-    status: "QUOTED",
-    assignedHospital: "Somatheeram Ayurvedic Village",
-    notes: "14-day rejuvenation package selected."
-  },
-  {
-    id: "ENQ-2026-001",
-    name: "Kwame Mensah",
-    email: "kwame.mensah@example.gh",
-    phone: "+233 24 123 4567",
-    country: "Ghana",
-    language: "English",
-    treatment: "Oncology Second Opinion & PET-CT",
-    specialty: "Oncology & Cancer Care",
-    district: "Ernakulam / Kochi",
-    summary: "Seeking comprehensive oncologist second opinion, PET-CT fusion scan and targeted biological therapy plan.",
-    budget: "$9,500",
-    timeline: "ASAP (within 2 weeks)",
-    urgency: "HIGH",
-    submittedAt: "2026-09-03 11:20",
-    status: "CONVERTED",
-    assignedHospital: "VPS Lakeshore Hospital",
-    notes: "Converted to Case CAS-2026-085."
-  }
-];
+// We use Prisma directly below
 
 export async function GET() {
   if (!(await verifyAdmin())) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
   try {
+    const enquiries = await prisma.enquiry.findMany({
+      include: { hospital: true },
+      orderBy: { submittedAt: 'desc' }
+    });
+    
+    const parsedEnquiries = enquiries.map(e => ({
+      ...e,
+      assignedHospital: e.hospital?.name || "Unassigned"
+    }));
+
     return NextResponse.json({
       success: true,
-      count: globalEnquiriesStore.length,
-      enquiries: globalEnquiriesStore
+      count: parsedEnquiries.length,
+      enquiries: parsedEnquiries
     });
   } catch (error: any) {
     return NextResponse.json(
@@ -148,67 +73,111 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  if (!(await verifyAdmin())) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-  }
   try {
     const body = await request.json();
+    const validation = validateBody(enquirySchema, body);
+    
+    if (!validation.success) {
+      return NextResponse.json({ success: false, error: "Validation failed", errors: validation.errors }, { status: 400 });
+    }
+    
+    const data = validation.data!;
 
-    if (!body.name || !body.name.trim()) {
-      return NextResponse.json({ success: false, error: "Name is required." }, { status: 400 });
+    const email = data.email.trim();
+    const name = data.name.trim();
+
+    let user = await prisma.user.findUnique({ where: { email } });
+    let patientId = null;
+
+    if (!user) {
+      const randomPassword = Math.random().toString(36).slice(-10) + "Aa1@";
+      const hashedPassword = await hashPassword(randomPassword);
+      user = await prisma.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          role: "PATIENT",
+        }
+      });
+      
+      const nameParts = name.split(" ");
+      const firstName = nameParts[0] || "Unknown";
+      const lastName = nameParts.slice(1).join(" ") || "Patient";
+      
+      const newPatient = await prisma.patient.create({
+        data: {
+          userId: user.id,
+          firstName,
+          lastName,
+          phone: data.phone.trim(),
+          country: data.country || null,
+        }
+      });
+      patientId = newPatient.id;
+    } else {
+      const existingPatient = await prisma.patient.findUnique({ where: { userId: user.id } });
+      if (existingPatient) patientId = existingPatient.id;
     }
 
-    const now = new Date();
-    const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const newId = body.id || `ENQ-2026-${String(globalEnquiriesStore.length + 5).padStart(3, '0')}`;
+    const count = await prisma.enquiry.count();
+    const newId = data.id || `ENQ-2026-${String(count + 5).padStart(3, '0')}`;
 
-    let assignedHosp = "Aster Medcity, Kochi";
-    const spec = (body.specialty || body.treatment || "").toLowerCase();
-    if (spec.includes("ayurveda") || (body.district && body.district.includes("Thiruvananthapuram"))) {
-      assignedHosp = "Somatheeram Ayurvedic Village, Kovalam";
-    } else if (spec.includes("cardio") || spec.includes("neuro")) {
-      assignedHosp = "Amrita Institute of Medical Sciences";
-    } else if (spec.includes("onco") || spec.includes("gastro")) {
-      assignedHosp = "VPS Lakeshore Hospital, Kochi";
-    } else if (spec.includes("ortho") || spec.includes("joint")) {
-      assignedHosp = "Aster Medcity, Kochi";
-    } else if (spec.includes("transplant") || spec.includes("uro")) {
-      assignedHosp = "Rajagiri Hospital, Aluva";
+    let assignedHospId = data.assignedHospitalId || null;
+    let assignedHosp = data.assignedHospital || null;
+
+    if (!assignedHospId && !assignedHosp) {
+      const spec = (data.specialty || data.treatment || "").toLowerCase();
+      if (spec.includes("ayurveda") || ((data as any).district && (data as any).district.includes("Thiruvananthapuram"))) {
+        assignedHosp = "Somatheeram Ayurvedic Village, Kovalam";
+      } else if (spec.includes("cardio") || spec.includes("neuro")) {
+        assignedHosp = "Amrita Institute of Medical Sciences";
+      } else if (spec.includes("onco") || spec.includes("gastro")) {
+        assignedHosp = "VPS Lakeshore Hospital, Kochi";
+      } else if (spec.includes("ortho") || spec.includes("joint")) {
+        assignedHosp = "Aster Medcity, Kochi";
+      } else if (spec.includes("transplant") || spec.includes("uro")) {
+        assignedHosp = "Rajagiri Hospital, Aluva";
+      } else {
+        assignedHosp = "Aster Medcity, Kochi";
+      }
     }
 
-    let urgency: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' = "MEDIUM";
-    const timeline = (body.timeline || "").toLowerCase();
-    if (timeline.includes("asap") || timeline.includes("2 weeks") || spec.includes("onco") || spec.includes("cardio")) {
-      urgency = "HIGH";
+    if (assignedHosp && !assignedHospId) {
+      const h = await prisma.hospital.findFirst({ where: { name: { contains: assignedHosp } }});
+      if (h) assignedHospId = h.id;
     }
 
-    const newEnquiry: ServerEnquiry = {
-      id: newId,
-      name: body.name.trim(),
-      email: body.email ? body.email.trim() : "patient@medical.travel",
-      phone: body.phone ? body.phone.trim() : "+971 50 000 0000",
-      country: body.country || "United Arab Emirates",
-      language: body.language || "English",
-      treatment: body.specialty || body.treatment || "Specialist Clinical Consultation",
-      specialty: body.specialty || "General Quaternary Healthcare",
-      district: body.district || "Ernakulam / Kochi",
-      summary: body.summary || "Patient submitted medical enquiry for treatment coordination in Kerala.",
-      budget: body.budget || "USD 5,000 – 10,000",
-      timeline: body.timeline || "Flexible",
-      urgency: body.urgency || urgency,
-      submittedAt: formattedDate,
-      status: body.status || "NEW",
-      assignedHospital: body.assignedHospital || assignedHosp,
-      notes: body.summary ? `Patient Note: ${body.summary}` : "Medical records uploaded. Assigned for lead triage review.",
-      documents: Array.isArray(body.documents) ? body.documents : []
-    };
+    let urgency = data.urgency || "MEDIUM";
+    const timeline = (data.timeline || "").toLowerCase();
+    if (!data.urgency) {
+      const spec = (data.specialty || data.treatment || "").toLowerCase();
+      if (timeline.includes("asap") || timeline.includes("2 weeks") || spec.includes("onco") || spec.includes("cardio")) {
+        urgency = "HIGH";
+      }
+    }
 
-    globalEnquiriesStore = [newEnquiry, ...globalEnquiriesStore.filter(e => e.id !== newEnquiry.id)];
+    const newEnquiry = await prisma.enquiry.create({
+      data: {
+        id: newId,
+        patientId,
+        name,
+        email,
+        phone: data.phone.trim(),
+        country: data.country || "Unknown",
+        treatment: data.treatment,
+        specialty: data.specialty || "General",
+        budget: data.budget || "Not Specified",
+        timeline: data.timeline || "Flexible",
+        urgency: urgency,
+        status: data.status || "NEW",
+        assignedHospitalId: assignedHospId,
+        notes: data.summary ? `Patient Note: ${data.summary}` : (data.notes || "Assigned for lead triage review."),
+      }
+    });
 
     return NextResponse.json({
       success: true,
-      enquiry: newEnquiry,
-      enquiries: globalEnquiriesStore
+      enquiry: newEnquiry
     });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message || "Failed to create enquiry" }, { status: 500 });
@@ -225,17 +194,28 @@ export async function PUT(request: Request) {
       return NextResponse.json({ success: false, error: "Enquiry ID required." }, { status: 400 });
     }
 
-    const index = globalEnquiriesStore.findIndex(e => e.id === body.id);
-    if (index === -1) {
-      globalEnquiriesStore = [body, ...globalEnquiriesStore];
-    } else {
-      globalEnquiriesStore[index] = { ...globalEnquiriesStore[index], ...body };
+    const validation = validateBody(enquirySchema, body);
+    if (!validation.success) {
+      return NextResponse.json({ success: false, error: "Validation failed", errors: validation.errors }, { status: 400 });
     }
+
+    const updateData: any = { ...validation.data };
+    delete updateData.id;
+    
+    if (updateData.assignedHospital) {
+      const h = await prisma.hospital.findFirst({ where: { name: { contains: updateData.assignedHospital } }});
+      if (h) updateData.assignedHospitalId = h.id;
+      delete updateData.assignedHospital;
+    }
+
+    const updated = await prisma.enquiry.update({
+      where: { id: body.id },
+      data: updateData
+    });
 
     return NextResponse.json({
       success: true,
-      enquiry: body,
-      enquiries: globalEnquiriesStore
+      enquiry: updated
     });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message || "Failed to update enquiry" }, { status: 500 });

@@ -60,8 +60,8 @@ export async function GET(request: Request) {
       return NextResponse.json({
         patient: {
           id: "PENDING-ID",
-          name: session.name || "User",
-          firstName: session.firstName || "User",
+          name: session.name || "",
+          firstName: session.firstName || "",
           email: session.email || "",
           verificationStatus: "Pending",
           location: "International",
@@ -129,8 +129,8 @@ export async function GET(request: Request) {
     const payload = {
       patient: {
         id: p.id,
-        name: `${p.firstName || ''} ${p.lastName || ''}`.trim() || session?.name || "User",
-        firstName: p.firstName || session?.firstName || "User",
+        name: `${p.firstName || ''} ${p.lastName || ''}`.trim() || session?.name || "",
+        firstName: p.firstName || session?.firstName || "",
         email: user.email,
         verificationStatus: "Verified", // In a real app, from DB
         location: p.country || "International",
@@ -177,8 +177,8 @@ export async function GET(request: Request) {
     return NextResponse.json({
       patient: {
         id: "PENDING-ID",
-        name: session?.name || "User",
-        firstName: session?.firstName || "User",
+        name: session?.name || "",
+        firstName: session?.firstName || "",
         email: session?.email || "",
         verificationStatus: "Pending",
         location: "International",

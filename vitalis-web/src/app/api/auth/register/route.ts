@@ -1,19 +1,9 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { signToken } from '@/lib/session';
-import { cookies } from 'next/headers';
-
-// Helper to hash passwords using native Web Crypto API (works in Next.js)
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+import { hash } from 'bcryptjs';
 
 export async function POST(request: Request) {
-  let firstName, lastName, email, phone, country, dob, gender, password, agreeTerms;
+  let firstName: string, lastName: string, email: string, phone: string, country: string, dob: string, gender: string, password: string, agreeTerms: boolean;
   try {
     const body = await request.json();
     
@@ -46,15 +36,23 @@ export async function POST(request: Request) {
     }
 
     // 5. Secure Password Hashing
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await hash(password, 10);
+    
+    // 6. Generate and Hash OTP
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedOtp = await hash(otpCode, 10);
+    const otpExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
 
-    // 6. Database Insertion via Prisma Transaction (User + Patient)
+    // 7. Database Insertion via Prisma Transaction (User + Patient)
     await prisma.$transaction(async (tx: any) => {
       const newUser = await tx.user.create({
         data: {
           email: email.toLowerCase().trim(),
           password: hashedPassword,
           role: 'PATIENT',
+          otp: hashedOtp,
+          otpExpires: otpExpiresAt,
+          isVerified: false,
         }
       });
       
@@ -70,51 +68,13 @@ export async function POST(request: Request) {
       });
     });
 
-    // 7. Issue Session Token immediately (Bypass OTP)
-    const sessionPayload = { 
-      email: email.toLowerCase().trim(), 
-      role: 'PATIENT', 
-      name: `${firstName.trim()} ${lastName.trim()}`.trim(),
-      firstName: firstName.trim() || 'User',
-      lastName: lastName.trim() || ''
-    };
-    const sessionToken = await signToken(sessionPayload);
-    const cookieStore = await cookies();
-    cookieStore.set('maides_session', sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 30 * 24 * 60 * 60 // 30 days
-    });
+    // 8. Return success, asking for OTP verification
+    // In production, we would send the OTP via email/SMS here.
+    console.log(`[SECURE LOG] OTP for ${email}: ${otpCode}`);
 
-    return NextResponse.json({ success: true, user: sessionPayload, message: "Registration successful" });
+    return NextResponse.json({ success: true, message: "Registration successful. Please verify your email." });
   } catch (error: any) {
-    // Vercel Demo Bypass: If the database completely fails (e.g. SQLite missing on Vercel),
-    // we still return success and log them in so they can see the Patient Portal.
-    console.error("Database connection failed during registration (expected on Vercel demo):", error.message);
-    
-    // Fallback Session
-    const fallbackPayload = { 
-      email: email?.toLowerCase().trim() || "demo@vitalis.health", 
-      role: 'PATIENT', 
-      name: `${firstName?.trim() || 'User'} ${lastName?.trim() || ''}`.trim(),
-      firstName: firstName?.trim() || 'User',
-      lastName: lastName?.trim() || ''
-    };
-    try {
-      const sessionToken = await signToken(fallbackPayload);
-      const cookieStore = await cookies();
-      cookieStore.set('maides_session', sessionToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 30 * 24 * 60 * 60 // 30 days
-      });
-      return NextResponse.json({ success: true, user: fallbackPayload, message: "Registration successful (Demo Bypass)" });
-    } catch (innerError) {
-      return NextResponse.json({ success: false, error: "Server error" }, { status: 500 });
-    }
+    console.error("Database connection failed during registration:", error.message);
+    return NextResponse.json({ success: false, error: "Server error. Please try again." }, { status: 500 });
   }
 }

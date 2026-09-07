@@ -342,19 +342,62 @@ export default function CasesPage() {
     initialNote: ""
   });
 
-  // Load from localStorage
+  // Load from API & localStorage fallback
   useEffect(() => {
-    const saved = localStorage.getItem("maides_admin_cases");
-    if (saved) {
+    const fetchCases = async () => {
       try {
-        setCases(JSON.parse(saved));
-      } catch {
-        setCases(INITIAL_CASES);
+        const res = await fetch('/api/admin/cases');
+        const data = await res.json();
+        if (data.success && data.cases && data.cases.length > 0) {
+          const dbCases = data.cases.map((c: any) => ({
+            id: c.id,
+            patientId: c.patientId,
+            patientName: c.patient ? `${c.patient.firstName} ${c.patient.lastName}` : "Unknown Patient",
+            country: c.patient?.country || "International",
+            condition: c.condition,
+            specialty: c.specialty || "General Medicine",
+            treatment: c.treatment || c.condition,
+            hospital: c.hospital?.name || "Unassigned Hospital",
+            doctor: c.doctor?.name || "Unassigned Doctor",
+            status: (c.status || "New") as CaseStatus,
+            createdDate: c.createdAt ? c.createdAt.split('T')[0] : "2026-09-01",
+            estimatedCost: "$5,000",
+            expectedTreatmentDate: "2026-09-30",
+            coordinator: "Admin Coordinator",
+            priority: "Medium" as const,
+            notes: [],
+            timeline: [
+              {
+                id: "TL-INIT",
+                title: "Case Created",
+                date: c.createdAt ? c.createdAt.split('T')[0] : "2026-09-01",
+                description: `Medical case for ${c.condition} initialized in system.`,
+                author: "System"
+              }
+            ]
+          }));
+          setCases(dbCases);
+          return;
+        }
+      } catch (e) {
+        console.error("Failed to load cases from API", e);
       }
-    } else {
-      setCases(INITIAL_CASES);
-      localStorage.setItem("maides_admin_cases", JSON.stringify(INITIAL_CASES));
-    }
+
+      // Fallback to localStorage / INITIAL_CASES
+      const saved = localStorage.getItem("maides_admin_cases");
+      if (saved) {
+        try {
+          setCases(JSON.parse(saved));
+        } catch {
+          setCases(INITIAL_CASES);
+        }
+      } else {
+        setCases(INITIAL_CASES);
+        localStorage.setItem("maides_admin_cases", JSON.stringify(INITIAL_CASES));
+      }
+    };
+
+    fetchCases();
   }, []);
 
   const saveCases = (updated: MedicalCase[]) => {

@@ -1,6 +1,6 @@
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -12,10 +12,15 @@ model User {
   email     String   @unique
   password  String
   role      String   @default("PATIENT")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  patient   Patient?
-  admin     Admin?
+  otp          String?
+  otpExpires   DateTime?
+  isVerified   Boolean  @default(false)
+  otpAttempts  Int      @default(0)
+  otpLockedUntil DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  patient      Patient?
+  admin        Admin?
 }
 
 model Admin {
@@ -25,41 +30,90 @@ model Admin {
 }
 
 model Patient {
-  id             String    @id @default(uuid())
-  userId         String    @unique
-  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  firstName      String
-  lastName       String
-  country        String?
-  phone          String?
-  dateOfBirth    DateTime?
-  gender         String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  cases          MedicalCase[]
-  appointments   Appointment[]
-  documents      Document[]
-  invoices       Invoice[]
-  messages       Message[]
-  supportTickets SupportTicket[]
-  notifications  Notification[]
-  reviews        Review[]
+  id                String    @id @default(uuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName         String
+  lastName          String
+  phone             String?
+  altPhone          String?
+  dob               String?
+  gender            String?
+  country           String?
+  state             String?
+  city              String?
+  addressLine1      String?
+  addressLine2      String?
+  postalCode        String?
+  passportNo        String?
+  passportExpiry    String?
+  nationality       String?
+  emergencyName     String?
+  emergencyRelation String?
+  emergencyPhone    String?
+  emergencyEmail    String?
+  bloodGroup        String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  cases             MedicalCase[]
+  appointments      Appointment[]
+  documents         Document[]
+  invoices          Invoice[]
+  messages          Message[]
+  supportTickets    SupportTicket[]
+  notifications     Notification[]
+  reviews           Review[]
+  enquiries         Enquiry[]
+  medicalInfo       MedicalInfo?
 }
 
 model Hospital {
   id            String   @id @default(uuid())
   name          String
-  location      String
-  description   String?
-  accreditation String?
-  isPublished   Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  location                    String?
+  description                 String?
+  accreditation               String?
+  tagline                     String?
+  shortDescription            String?
+  fullDescription             String?
+  image                       String?
+  galleryImages               String?
+  address                     String?
+  city                        String?
+  district                    String?
+  region                      String?
+  state                       String?
+  country                     String?
+  postalCode                  String?
+  phone                       String?
+  email                       String?
+  website                     String?
+  emergencyPhone              String?
+  beds                        String?
+  establishedYear             Int?
+  internationalPatientsAnnual Int?
+  nearestAirport              String?
+  airportDistanceKm           Int?
+  accreditations              String?
+  facilities                  String?
+  internationalServices       String?
+  languages                   String?
+  vipRoomsAvailable           Boolean  @default(true)
+  ayurvedaWingAvailable       Boolean  @default(true)
+  rating                      Float?
+  reviewCount                 Int?
+  displayOrder                Int?
+  status                      String   @default("ACTIVE")
+  casesActive                 Int?
+  isPublished                 Boolean  @default(true)
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
   doctors       Doctor[]
   cases         MedicalCase[]
   appointments  Appointment[]
   treatments    Treatment[]
   packages      Package[]
+  enquiries     Enquiry[]
 }
 
 model Doctor {
@@ -68,11 +122,29 @@ model Doctor {
   hospital       Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
   name           String
   specialty      String
-  qualifications String?
-  experience     Int?
-  isPublished    Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  qualifications     String?
+  experience         Int?
+  title              String?
+  registrationNumber String?
+  phone              String?
+  email              String?
+  gender             String?
+  avatar             String?
+  casesHandled       Int?
+  rating             Float?
+  languages          String?
+  department         String?
+  displayOrder       Int?
+  status             String   @default("ACTIVE")
+  bio                String?
+  fullBiography      String?
+  availableDays      String?
+  district           String?
+  city               String?
+  consultationFee    String?
+  isPublished        Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
   cases          MedicalCase[]
   appointments   Appointment[]
 }
@@ -117,6 +189,15 @@ model MedicalCase {
   doctorId     String?
   doctor       Doctor?   @relation(fields: [doctorId], references: [id])
   status       String   @default("New")
+  visaStatus     String?  @default("Not Required")
+  visaReference  String?
+  arrivalDate    DateTime?
+  departureDate  DateTime?
+  flightDetails  String?
+  airportPickup  Boolean  @default(false)
+  notes          String?
+  estimatedCost  Float?
+  currency       String?  @default("USD")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -131,6 +212,8 @@ model Appointment {
   doctor          Doctor?   @relation(fields: [doctorId], references: [id])
   appointmentDate DateTime
   status          String   @default("Pending")
+  type            String   @default("VIDEO_CONSULTATION")
+  meetLink        String?
   notes           String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -143,6 +226,7 @@ model Document {
   fileName     String
   fileUrl      String
   documentType String
+  status       String   @default("Uploaded")
   createdAt    DateTime @default(now())
 }
 
@@ -178,6 +262,8 @@ model Message {
   category       String   @default("General")
   status         String   @default("sent")
   createdAt      DateTime @default(now())
+  ticketId       String?
+  ticket         SupportTicket? @relation(fields: [ticketId], references: [id])
 }
 
 model SupportTicket {
@@ -187,7 +273,11 @@ model SupportTicket {
   subject     String
   description String
   status      String   @default("Open")
+  priority    String   @default("Medium")
+  assignedTo  String   @default("Unassigned")
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  messages    Message[]
 }
 
 model Notification {
@@ -209,3 +299,69 @@ model Review {
   status      String   @default("Pending")
   createdAt   DateTime @default(now())
 }
+
+model Enquiry {
+  id                 String   @id @default(uuid())
+  patientId          String?
+  patient            Patient? @relation(fields: [patientId], references: [id], onDelete: SetNull)
+  name               String
+  email              String
+  phone              String?
+  country            String?
+  treatment          String?
+  specialty          String?
+  budget             String?
+  timeline           String?
+  urgency            String?
+  status             String   @default("New")
+  assignedHospitalId String?
+  hospital           Hospital? @relation(fields: [assignedHospitalId], references: [id], onDelete: SetNull)
+  notes              String?
+  submittedAt        DateTime @default(now())
+}
+
+model MedicalInfo {
+  id                String   @id @default(uuid())
+  patientId         String   @unique
+  patient           Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  allergies         String?
+  conditions        String?
+  medications       String?
+  bloodType         String?
+  previousSurgeries String?
+  emergencyContact  String?
+  updatedAt         DateTime @updatedAt
+}
+
+model Specialty {
+  id               String   @id @default(uuid())
+  name             String
+  code             String?
+  category         String?
+  shortDescription String?
+  fullDescription  String?
+  iconName         String?
+  image            String?
+  displayOrder     Int?     @default(0)
+  status           String   @default("ACTIVE")
+  isPublished      Boolean  @default(true)
+  hospitals        String?
+  doctors          String?
+  proceduresCount  Int?     @default(0)
+  keyProcedures    String?
+  accreditations   String?
+  leadDoctor       String?
+  seoTitle         String?
+  seoDescription   String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  action     String
+  actorEmail String?
+  details    String?
+  createdAt  DateTime @default(now())
+}
+

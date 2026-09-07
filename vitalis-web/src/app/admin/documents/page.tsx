@@ -113,19 +113,46 @@ export default function DocumentsAdminPage() {
     notes: ""
   });
 
-  // Load from localStorage
+  // Load from API & localStorage fallback
   useEffect(() => {
-    const saved = localStorage.getItem("maides_admin_documents");
-    if (saved) {
+    const fetchDocs = async () => {
       try {
-        setDocuments(JSON.parse(saved));
-      } catch {
-        setDocuments(INITIAL_DOCUMENTS);
+        const res = await fetch('/api/admin/documents');
+        const data = await res.json();
+        if (data.success && data.documents && data.documents.length > 0) {
+          const dbDocs = data.documents.map((d: any) => ({
+            id: d.id,
+            name: d.title || d.fileName || "Medical Record.pdf",
+            patient: d.patient ? `${d.patient.firstName} ${d.patient.lastName}` : "Patient Record",
+            caseId: d.medicalCaseId || "GENERAL",
+            type: d.category || "Clinical Record",
+            size: d.fileSize ? `${(d.fileSize / (1024 * 1024)).toFixed(1)} MB` : "2.4 MB",
+            uploadedAt: d.createdAt ? d.createdAt.split('T')[0] : "2026-09-01",
+            status: d.status === "APPROVED" ? "VERIFIED" : d.status === "REJECTED" ? "ARCHIVED" : "PENDING_REVIEW",
+            notes: d.comments || d.fileUrl || "Uploaded via portal"
+          }));
+          setDocuments(dbDocs);
+          return;
+        }
+      } catch (e) {
+        console.error("Failed to fetch documents from API", e);
       }
-    } else {
-      setDocuments(INITIAL_DOCUMENTS);
-      localStorage.setItem("maides_admin_documents", JSON.stringify(INITIAL_DOCUMENTS));
-    }
+
+      // Fallback to localStorage / INITIAL_DOCUMENTS
+      const saved = localStorage.getItem("maides_admin_documents");
+      if (saved) {
+        try {
+          setDocuments(JSON.parse(saved));
+        } catch {
+          setDocuments(INITIAL_DOCUMENTS);
+        }
+      } else {
+        setDocuments(INITIAL_DOCUMENTS);
+        localStorage.setItem("maides_admin_documents", JSON.stringify(INITIAL_DOCUMENTS));
+      }
+    };
+
+    fetchDocs();
   }, []);
 
   const saveDocs = (updated: DocumentItem[]) => {

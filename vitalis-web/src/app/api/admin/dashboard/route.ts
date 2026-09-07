@@ -22,12 +22,16 @@ export async function GET() {
     // Execute KPI queries in parallel for performance (SRS Section 5.2)
     const [
       totalPatients,
+      activeCases,
       totalCases,
       pendingAppointments,
       financialStats,
       recentInquiries
     ] = await Promise.all([
       prisma.patient.count(),
+      prisma.medicalCase.count({
+        where: { status: { notIn: ["Completed", "Cancelled", "Closed"] } }
+      }),
       prisma.medicalCase.count(),
       prisma.appointment.count({
         where: { status: 'Pending' }
@@ -46,7 +50,8 @@ export async function GET() {
     const dashboardData = {
       kpis: {
         totalPatients,
-        activeCases: totalCases,
+        activeCases,
+        totalCases,
         pendingAppointments,
         totalRevenue: financialStats._sum.amount || 0
       },

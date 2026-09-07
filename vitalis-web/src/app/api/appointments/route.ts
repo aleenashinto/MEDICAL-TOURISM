@@ -30,12 +30,24 @@ export async function GET() {
     }
 
     const patientAppointments = await prisma.appointment.findMany({
-      where: { patientId: user.patient.id }
+      where: { patientId: user.patient.id },
+      include: {
+        doctor: {
+          include: {
+            hospital: true
+          }
+        },
+        hospital: true
+      },
+      orderBy: {
+        appointmentDate: 'desc'
+      }
     });
 
     return NextResponse.json({ success: true, appointments: patientAppointments });
   } catch (error) {
-    return NextResponse.json({ success: true, appointments: [] });
+    console.error("GET /api/appointments error:", error);
+    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -55,6 +67,14 @@ export async function POST(request: Request) {
       
       data.patientId = user.patient.id; // Enforce Mass Assignment Protection
     }
+
+    // Force safe defaults
+    delete data.id;
+    if (data.appointmentDate) {
+      data.appointmentDate = new Date(data.appointmentDate);
+    }
+    data.status = data.status || "REQUESTED";
+    data.meetLink = null;
 
     const newAppt = await prisma.appointment.create({ data });
     return NextResponse.json({ success: true, appointment: newAppt });

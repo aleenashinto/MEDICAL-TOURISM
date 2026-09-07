@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
 import { 
@@ -39,7 +39,7 @@ export default function PatientSettingsPage() {
   const [language, setLanguage] = useState("en");
   const [currency, setCurrency] = useState("USD");
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPwdError("");
     setPwdSuccess(false);
@@ -65,15 +65,27 @@ export default function PatientSettingsPage() {
     }
 
     setIsUpdatingPwd(true);
-
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/patient/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPwdSuccess(true);
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmNewPassword("");
+        setTimeout(() => setPwdSuccess(false), 3500);
+      } else {
+        setPwdError(data.error || 'Failed to update password.');
+      }
+    } catch (err) {
+      setPwdError('Network error. Please try again.');
+    } finally {
       setIsUpdatingPwd(false);
-      setPwdSuccess(true);
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmNewPassword("");
-      setTimeout(() => setPwdSuccess(false), 3500);
-    }, 800);
+    }
   };
 
   const handlePrefSubmit = (e: React.FormEvent) => {

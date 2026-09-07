@@ -329,15 +329,59 @@ export default function LogisticsPage() {
 
   // Load / Save
   useEffect(() => {
-    const svVisas = localStorage.getItem("maides_admin_visas_v2");
-    const svTravel = localStorage.getItem("maides_admin_travel_v2");
-    const svTrans = localStorage.getItem("maides_admin_transfers_v2");
-    const svHotels = localStorage.getItem("maides_admin_hotels_v2");
+    const fetchTravelData = async () => {
+      try {
+        const res = await fetch('/api/admin/travel');
+        const data = await res.json();
+        if (data.success && data.travel && data.travel.length > 0) {
+          const apiVisas: VisaRequest[] = data.travel.map((c: any) => ({
+            id: `VISA-${c.id.slice(0, 4).toUpperCase()}`,
+            caseId: c.id,
+            patientName: c.patient ? `${c.patient.fullName}` : "Patient",
+            patientPassport: c.patient?.passportNumber || "P-PENDING",
+            country: c.patient?.country || "International",
+            hospital: c.hospital?.name || "Partner Medical Center",
+            visaType: "Medical Visa (MED)" as VisaRequest["visaType"],
+            applicationDate: c.createdAt ? c.createdAt.split('T')[0] : "2026-09-01",
+            expectedApprovalDate: "2026-09-15",
+            status: (c.visaStatus || "Documents Submitted") as VisaStatus,
+            notes: c.visaReference ? `Reference: ${c.visaReference}` : "Visa processing initiated",
+            documentsSubmitted: true
+          }));
 
-    setVisas(svVisas ? JSON.parse(svVisas) : INITIAL_VISAS);
-    setTravelPlans(svTravel ? JSON.parse(svTravel) : INITIAL_TRAVEL_PLANS);
-    setTransfers(svTrans ? JSON.parse(svTrans) : INITIAL_TRANSFERS);
-    setHotels(svHotels ? JSON.parse(svHotels) : INITIAL_HOTELS);
+          const apiTravel: TravelPlan[] = data.travel.map((c: any) => ({
+            id: `TRV-${c.id.slice(0, 4).toUpperCase()}`,
+            patientName: c.patient ? `${c.patient.fullName}` : "Patient",
+            country: c.patient?.country || "International",
+            arrivalDate: c.arrivalDate ? c.arrivalDate.split('T')[0] : "2026-09-20",
+            departureDate: c.departureDate ? c.departureDate.split('T')[0] : "2026-10-04",
+            flightDetails: c.flightDetails || "TBD - Awaiting Itinerary",
+            arrivalAirport: "Cochin International Airport (COK)",
+            assignedCoordinator: "Logistics Team",
+            status: c.arrivalDate ? "Confirmed" : "Scheduled",
+            notes: c.airportPickup ? "Airport Pickup Required" : "Self transfer"
+          }));
+
+          setVisas(apiVisas);
+          setTravelPlans(apiTravel);
+          return;
+        }
+      } catch (e) {
+        console.error("Failed to fetch travel API data", e);
+      }
+
+      const svVisas = localStorage.getItem("maides_admin_visas_v2");
+      const svTravel = localStorage.getItem("maides_admin_travel_v2");
+      const svTrans = localStorage.getItem("maides_admin_transfers_v2");
+      const svHotels = localStorage.getItem("maides_admin_hotels_v2");
+
+      setVisas(svVisas ? JSON.parse(svVisas) : INITIAL_VISAS);
+      setTravelPlans(svTravel ? JSON.parse(svTravel) : INITIAL_TRAVEL_PLANS);
+      setTransfers(svTrans ? JSON.parse(svTrans) : INITIAL_TRANSFERS);
+      setHotels(svHotels ? JSON.parse(svHotels) : INITIAL_HOTELS);
+    };
+
+    fetchTravelData();
   }, []);
 
   const saveVisas = (updated: VisaRequest[]) => {

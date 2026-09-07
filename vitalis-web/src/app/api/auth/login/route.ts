@@ -2,8 +2,10 @@ import { NextResponse } from 'next/server';
 import { signToken } from '@/lib/session';
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
+import { compare, hash } from 'bcryptjs';
 
-async function hashPassword(password: string): Promise<string> {
+// Legacy hash function for lazy migration
+async function legacyHashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
@@ -19,24 +21,29 @@ export async function POST(request: Request) {
     password = body.password;
     role = body.role;
 
+    if (!email || !password) {
+      return NextResponse.json({ success: false, error: "Email and password are required" }, { status: 400 });
+    }
+
     let userRole = role;
     let userName = "";
     let userFirstName = "";
     let userLastName = "";
 
-    // Admin credentials could also be fetched from the DB, but ENV is common
-    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@gmail.com";
-    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin1234";
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
     if (role === 'ADMIN') {
+      if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+        return NextResponse.json({ success: false, error: "Admin credentials not configured on the server." }, { status: 500 });
+      }
+
       const cleanEmail = email?.trim().toLowerCase();
       const cleanPassword = password?.trim();
       
-      // Check both the environment variable AND the hardcoded requested credentials
       const matchesEnv = cleanEmail === ADMIN_EMAIL.toLowerCase() && cleanPassword === ADMIN_PASSWORD;
-      const matchesHardcoded = cleanEmail === "admin@gmail.com" && cleanPassword === "Admin1234";
 
-      if (matchesEnv || matchesHardcoded) {
+      if (matchesEnv) {
         userFirstName = "System";
         userLastName = "Administrator";
         userName = "System Administrator";
@@ -44,25 +51,10 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: "Invalid administrator credentials." }, { status: 401 });
       }
     } else {
-      // Demo Mode Bypass: Hardcoded patient login for Vercel without a database
       const cleanEmail = email?.trim().toLowerCase();
-      if (cleanEmail === 'saya@gmail.com' || cleanEmail === 'patient@gmail.com') {
-        const sessionPayload = { email, role: 'PATIENT', name: 'Saya', firstName: 'Saya', lastName: '' };
-        const sessionToken = await signToken(sessionPayload);
-        const cookieStore = await cookies();
-        cookieStore.set('maides_session', sessionToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          path: '/',
-          maxAge: 30 * 24 * 60 * 60 // 30 days
-        });
-        return NextResponse.json({ success: true, user: sessionPayload });
-      }
-
-      // Patient Login using Prisma
+      
       const user = await prisma.user.findUnique({
-        where: { email: email.toLowerCase().trim() },
+        where: { email: cleanEmail },
         include: { patient: true }
       });
       
@@ -70,15 +62,38 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: "Account not found. Please register first." }, { status: 404 });
       }
 
-      const inputHash = await hashPassword(password);
+      // Password Verification with Lazy Migration
+      let isValidPassword = false;
+      const isBcryptHash = user.password.startsWith('$2a$') || user.password.startsWith('$2b$');
+
+      if (isBcryptHash) {
+        isValidPassword = await compare(password, user.password);
+      } else {
+        // Fallback to legacy SHA-256 or plaintext for migration
+        const oldHash = await legacyHashPassword(password);
+        if (user.password === oldHash || user.password === password) {
+          isValidPassword = true;
+          // Lazy migrate to bcrypt
+          const newBcryptHash = await hash(password, 10);
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { password: newBcryptHash }
+          });
+        }
+      }
       
-      if (user.password !== inputHash && user.password !== password) {
+      if (!isValidPassword) {
         return NextResponse.json({ success: false, error: "Invalid credentials." }, { status: 401 });
       }
 
-      userFirstName = user.patient?.firstName || "User";
+      if (!user.isVerified) {
+         // Optionally, you might want to send a new OTP here, or just inform them they need to verify
+         return NextResponse.json({ success: false, error: "Account not verified. Please verify your email first.", unverified: true }, { status: 403 });
+      }
+
+      userFirstName = user.patient?.firstName || "";
       userLastName = user.patient?.lastName || "";
-      userName = user.patient ? `${user.patient.firstName} ${user.patient.lastName}`.trim() : "User";
+      userName = user.patient ? `${user.patient.firstName} ${user.patient.lastName}`.trim() : "";
     }
 
     const sessionPayload = { email, role: userRole, name: userName, firstName: userFirstName, lastName: userLastName };
@@ -95,32 +110,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, user: sessionPayload });
   } catch (error: any) {
-    // Vercel Demo Bypass: If the database completely fails (e.g. SQLite missing on Vercel),
-    // we still return a success demo session so the user can see the Patient Portal.
-    console.error("Database connection failed during login (expected on Vercel demo):", error.message);
-    const fallbackEmail = typeof email === 'string' ? email : "demo@vitalis.health";
-    const sessionPayload = { 
-      email: fallbackEmail.toLowerCase().trim(), 
-      role: role || "PATIENT", 
-      name: "User",
-      firstName: "User",
-      lastName: ""
-    };
-    
-    try {
-      const sessionToken = await signToken(sessionPayload);
-      const cookieStore = await cookies();
-      cookieStore.set('maides_session', sessionToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 30 * 24 * 60 * 60 // 30 days
-      });
-      return NextResponse.json({ success: true, user: sessionPayload, message: "Logged in via Demo Bypass" });
-    } catch (innerError) {
-      return NextResponse.json({ success: false, error: "Authentication failed" }, { status: 500 });
-    }
+    console.error("Login error:", error.message);
+    return NextResponse.json({ success: false, error: "Authentication failed due to a server error." }, { status: 500 });
   }
 }
+
 
