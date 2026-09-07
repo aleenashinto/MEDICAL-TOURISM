@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
     if (session.role === 'ADMIN') {
       const allCases = await prisma.medicalCase.findMany();
-      return NextResponse.json(allCases);
+      return NextResponse.json({ cases: allCases });
     }
 
     const user = await prisma.user.findUnique({
@@ -33,8 +33,8 @@ export async function GET(request: Request) {
       where: { patientId: user.patient.id }
     });
 
-    return NextResponse.json(patientCases);
+    return NextResponse.json({ cases: patientCases });
   } catch (error) {
-    return NextResponse.json([]);
+    return NextResponse.json({ cases: [] });
   }
 }

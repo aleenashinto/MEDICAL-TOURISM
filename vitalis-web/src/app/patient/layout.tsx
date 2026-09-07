@@ -23,7 +23,8 @@ import {
   Menu,
   X,
   ChevronRight,
-  MapPin
+  MapPin,
+  FileCheck
 } from "lucide-react";
 
 /** Keys to purge on sign-out so no session data lingers */
@@ -108,18 +109,44 @@ export default function PatientLayout({
     setIsLoaded(true);
   }, [router]);
 
-  const navItems = [
-    { name: "Dashboard", href: "/patient/dashboard", icon: LayoutDashboard },
-    { name: "My Cases", href: "/patient/cases", icon: HeartPulse },
-    { name: "Medical Records", href: "/patient/documents", icon: FileText },
-    { name: "Appointments", href: "/patient/appointments", icon: Calendar },
-    { name: "Travel & Itinerary", href: "/patient/travel", icon: Plane },
-    { name: "Billing & Payments", href: "/patient/payments", icon: CreditCard },
-    { name: "Messages", href: "/patient/messages", icon: MessageSquare },
-    { name: "Support Tickets", href: "/patient/support", icon: LifeBuoy },
-    { name: "Treatment Feedback", href: "/patient/feedback", icon: Star },
-    { name: "My Profile", href: "/patient/profile", icon: User },
-    { name: "Settings", href: "/patient/settings", icon: Settings },
+  const navGroups = [
+    {
+      title: "CARE",
+      items: [
+        { name: "Dashboard", href: "/patient/dashboard", icon: LayoutDashboard },
+        { name: "My Cases", href: "/patient/cases", icon: HeartPulse },
+        { name: "Appointments", href: "/patient/appointments", icon: Calendar },
+        { name: "Medical Records", href: "/patient/documents", icon: FileText },
+      ]
+    },
+    {
+      title: "JOURNEY",
+      items: [
+        { name: "Travel & Itinerary", href: "/patient/travel", icon: Plane },
+        { name: "Medical Visa", href: "/patient/visa", icon: FileCheck },
+      ]
+    },
+    {
+      title: "FINANCIAL",
+      items: [
+        { name: "Billing & Payments", href: "/patient/payments", icon: CreditCard },
+      ]
+    },
+    {
+      title: "COMMUNICATION",
+      items: [
+        { name: "Messages", href: "/patient/messages", icon: MessageSquare },
+        { name: "Support Tickets", href: "/patient/support", icon: LifeBuoy },
+        { name: "Treatment Feedback", href: "/patient/feedback", icon: Star },
+      ]
+    },
+    {
+      title: "ACCOUNT",
+      items: [
+        { name: "My Profile", href: "/patient/profile", icon: User },
+        { name: "Settings", href: "/patient/settings", icon: Settings },
+      ]
+    }
   ];
 
   // PP-042/043: Don't render portal UI until authorization is confirmed
@@ -242,32 +269,39 @@ export default function PatientLayout({
           </div>
 
           {/* Scrollable Navigation */}
-          <nav className="p-3 space-y-1 flex-1 overflow-y-auto mt-2" role="navigation" aria-label="Patient portal main navigation">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive =
-                pathname === item.href ||
-                (item.href !== "/patient/dashboard" && pathname.startsWith(item.href));
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setMobileDrawerOpen(false)}
-                  aria-current={isActive ? "page" : undefined}
-                  className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                    isActive
-                      ? "bg-[#0E82FD] text-white shadow-sm font-bold"
-                      : "text-slate-300 hover:text-white hover:bg-white/10"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-blue-400"}`} aria-hidden="true" />
-                    <span>{item.name}</span>
-                  </div>
-                  {isActive && <ChevronRight className="w-3.5 h-3.5 text-blue-200" aria-hidden="true" />}
-                </Link>
-              );
-            })}
+          <nav className="p-3 space-y-4 flex-1 overflow-y-auto mt-2" role="navigation" aria-label="Patient portal main navigation">
+            {navGroups.map((group) => (
+              <div key={group.title}>
+                <div className="px-3 mb-2 text-[10px] font-bold tracking-wider text-slate-500">{group.title}</div>
+                <div className="space-y-1">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive =
+                      pathname === item.href ||
+                      (item.href !== "/patient/dashboard" && pathname.startsWith(item.href));
+                    return (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        onClick={() => setMobileDrawerOpen(false)}
+                        aria-current={isActive ? "page" : undefined}
+                        className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                          isActive
+                            ? "bg-[#0E82FD] text-white shadow-sm font-bold"
+                            : "text-slate-300 hover:text-white hover:bg-white/10"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-blue-400"}`} aria-hidden="true" />
+                          <span>{item.name}</span>
+                        </div>
+                        {isActive && <ChevronRight className="w-3.5 h-3.5 text-blue-200" aria-hidden="true" />}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
 
             {/* Sign Out */}
             <div className="pt-2 border-t border-slate-700/60 mt-2">
@@ -312,23 +346,15 @@ export default function PatientLayout({
               <input
                 id="portal-search"
                 type="search"
-                placeholder="Search appointments, doctors, cases, documents..."
+                placeholder="Search your cases, appointments, documents..."
                 className="w-full pl-10 pr-4 py-2 bg-slate-100/80 hover:bg-slate-100 focus:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0E82FD] focus:border-transparent transition-all"
                 aria-label="Search the patient portal"
               />
             </div>
           </div>
 
-          {/* Sign Out Button */}
+          {/* Empty Space for layout balance since Sign Out was moved strictly to Sidebar */}
           <div className="flex items-center ml-4">
-            <button
-              onClick={() => { clearSession(); router.push("/"); }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 hover:border-rose-600 text-xs font-bold transition-all shadow-xs group cursor-pointer"
-              aria-label="Sign out of patient portal"
-            >
-              <LogOut className="w-4 h-4 text-rose-500 group-hover:text-white transition-colors" aria-hidden="true" />
-              <span>Sign Out</span>
-            </button>
           </div>
         </header>
 

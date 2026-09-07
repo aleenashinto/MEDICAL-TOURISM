@@ -180,7 +180,7 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
           </div>
           <div className="text-left">
             <div className="leading-tight flex items-center gap-1.5 font-extrabold text-[11px] sm:text-xs">
-              {userRole === "admin" ? "Live Patient Chat Desk" : "24/7 Live Care Assistant"}
+              {userRole === "admin" ? "Live Patient Chat Desk" : "24/7 AI Care Assistant"}
             </div>
             <div className="text-[9px] sm:text-[10px] text-blue-100 font-normal hidden sm:block">
               {userRole === "admin" ? "Direct Patient Channel" : "Instant Kerala Coordinator Chat"}
@@ -211,7 +211,7 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
               </div>
               <div>
                 <div className="font-bold text-xs flex items-center gap-1.5">
-                  {userRole === "admin" ? "Live Patient Channel" : "MAIDES Care Assistant"}
+                  {userRole === "admin" ? "Live Patient Channel" : "AI Care Assistant"}
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 </div>
                 <div className="text-[10px] text-slate-300">
