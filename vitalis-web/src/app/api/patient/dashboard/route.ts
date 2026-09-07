@@ -15,8 +15,9 @@ async function verifyAuth() {
 
 
 export async function GET(request: Request) {
+  let session: any = null;
   try {
-    const session = await verifyAuth();
+    session = await verifyAuth();
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -174,8 +175,8 @@ export async function GET(request: Request) {
     return NextResponse.json({
       patient: {
         id: "PENDING-ID",
-        name: session.name || "Patient",
-        email: session.email || "",
+        name: session?.name || "Patient",
+        email: session?.email || "",
         verificationStatus: "Pending",
         location: "International",
         patientType: "International"
