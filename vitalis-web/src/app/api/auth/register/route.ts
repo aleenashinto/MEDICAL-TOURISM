@@ -88,7 +88,7 @@ export async function POST(request: Request) {
     console.error("Database connection failed during registration (expected on Vercel demo):", error.message);
     
     // Fallback Session
-    const fallbackPayload = { email: "demo@vitalis.health", role: 'PATIENT', name: "Demo Patient" };
+    const fallbackPayload = { email: email?.toLowerCase().trim() || "demo@vitalis.health", role: 'PATIENT', name: `${firstName?.trim() || 'Demo'} ${lastName?.trim() || 'Patient'}` };
     try {
       const sessionToken = await signToken(fallbackPayload);
       const cookieStore = await cookies();

@@ -168,7 +168,11 @@ export default function RegisterPage() {
       }
 
       if (typeof window !== "undefined") {
-        // We no longer need pending variables since we skip OTP
+        if (data.user) {
+          localStorage.setItem("maides_user_name", data.user.name);
+          localStorage.setItem("maides_user_email", data.user.email);
+          localStorage.setItem("maides_user_role", data.user.role);
+        }
       }
 
       router.push("/patient/dashboard");

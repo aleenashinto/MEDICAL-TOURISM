@@ -89,7 +89,8 @@ export async function POST(request: Request) {
     // Vercel Demo Bypass: If the database completely fails (e.g. SQLite missing on Vercel),
     // we still return a success demo session so the user can see the Patient Portal.
     console.error("Database connection failed during login (expected on Vercel demo):", error.message);
-    const sessionPayload = { email: "demo@vitalis.health", role: "PATIENT", name: "Demo User" };
+    const fallbackEmail = typeof email === 'string' ? email : "demo@vitalis.health";
+    const sessionPayload = { email: fallbackEmail.toLowerCase().trim(), role: role || "PATIENT", name: fallbackEmail.split('@')[0] };
     
     try {
       const sessionToken = await signToken(sessionPayload);

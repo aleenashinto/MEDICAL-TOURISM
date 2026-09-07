@@ -228,7 +228,7 @@ export default function PatientLayout({
                   {user.initials}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs font-bold text-white truncate">{user.name}</div>
+                  <div className="text-xs font-bold text-white truncate">Welcome, {user.name}</div>
                   <div className="text-[10px] text-blue-200 truncate">{user.email}</div>
                   {user.location && (
                     <div className="text-[9px] text-slate-400 flex items-center gap-1 mt-0.5">
