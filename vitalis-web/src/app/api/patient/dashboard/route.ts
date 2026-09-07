@@ -12,55 +12,7 @@ async function verifyAuth() {
   return await verifyToken(sessionCookie) as any;
 }
 
-// Generate the fallback demo payload for Vercel/Showcase environments
-function getDemoPayload() {
-  const currentYear = new Date().getFullYear();
-  return {
-    patient: {
-      id: `MED-${currentYear}-DEMO`,
-      name: "Sarah Jenkins (Demo)",
-      email: "demo@vitalis.health",
-      verificationStatus: "Verified",
-      location: "United Kingdom",
-      patientType: "International"
-    },
-    activeCase: {
-      id: "CASE-DEMO-1",
-      treatment: "Cardiac Surgery (OPCABG)",
-      hospital: "Aster Medcity Kochi",
-      doctor: "Dr. Manoj Joseph",
-      status: "Travel & Logistics",
-      currentStage: 4
-    },
-    nextAppointment: {
-      id: "APT-DEMO-1",
-      dateTime: "Tomorrow, 10:00 AM IST",
-      service: "Tele-consultation",
-      doctor: "Dr. Manoj Joseph",
-      status: "Confirmed"
-    },
-    visa: {
-      status: "Letter Issued",
-      reference: "KL-MEDVISA-DEMO-8891"
-    },
-    billing: {
-      currency: "USD",
-      total: 6400,
-      paid: 2000,
-      balance: 4400,
-      status: "Partially Paid"
-    },
-    journey: [
-      { stage: 1, title: "Enquiry Submitted", status: "completed", date: "Sep 01, 2026" },
-      { stage: 2, title: "Medical Review & Protocol", status: "completed", date: "Sep 03, 2026" },
-      { stage: 3, title: "Quotation Accepted", status: "completed", date: "Sep 05, 2026" },
-      { stage: 4, title: "Travel & Logistics", status: "current", date: "In Progress" },
-      { stage: 5, title: "Hospital Admission", status: "pending", date: "Upcoming" },
-      { stage: 6, title: "Discharge & Follow-Up", status: "pending", date: "Upcoming" }
-    ],
-    isDemo: true
-  };
-}
+
 
 export async function GET(request: Request) {
   try {
@@ -69,10 +21,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Explicit Demo Mode handling (Server-side)
-    if (session.email === "demo@vitalis.health" || process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
-      return NextResponse.json(getDemoPayload());
-    }
+
 
     // 1. Fetch Patient Profile
     const user = await prisma.user.findUnique({
