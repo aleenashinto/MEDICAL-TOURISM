@@ -128,7 +128,7 @@ export async function GET(request: Request) {
     const payload = {
       patient: {
         id: p.id,
-        name: `${p.firstName} ${p.lastName}`,
+        name: `${p.firstName || ''} ${p.lastName || ''}`.trim() || session?.name || "Patient",
         email: user.email,
         verificationStatus: "Verified", // In a real app, from DB
         location: p.country || "International",

@@ -125,7 +125,7 @@ export default function PatientDashboardPage() {
           </div>
 
           <h1 className="text-2xl md:text-3xl font-black tracking-tight">
-            Welcome back, {patient.name.split(' ')[0]}
+            Welcome back, {(patient?.name || "Patient").split(' ')[0]}
           </h1>
 
           <div className="flex flex-wrap items-center gap-4 text-xs text-blue-100 pt-1">
