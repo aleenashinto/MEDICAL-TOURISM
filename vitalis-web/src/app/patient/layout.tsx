@@ -32,6 +32,7 @@ const SESSION_KEYS = [
   "maides_user_role",
   "maides_user_email",
   "maides_user_name",
+  "maides_user_first_name",
   "maides_user_location",
   "maides_user_phone",
   "maides_user_photo",
@@ -88,19 +89,20 @@ export default function PatientLayout({
     }
 
     // Authorized — load user info
+    const storedFirstName = localStorage.getItem("maides_user_first_name") || "";
     const storedName = localStorage.getItem("maides_user_name") || "";
     const storedEmail = localStorage.getItem("maides_user_email") || "";
     const storedLocation = localStorage.getItem("maides_user_location") || "";
 
-    const name = storedName || "Patient";
-    const parts = name.trim().split(" ");
+    const displayFirstName = storedFirstName || (storedName ? storedName.trim().split(" ")[0] : "User");
+    const fullParts = storedName ? storedName.trim().split(" ") : [displayFirstName];
     const initials =
-      parts.length > 1
-        ? `${parts[0][0]}${parts[1][0]}`.toUpperCase()
-        : name.slice(0, 2).toUpperCase();
+      fullParts.length > 1
+        ? `${fullParts[0][0]}${fullParts[1][0]}`.toUpperCase()
+        : displayFirstName.slice(0, 2).toUpperCase();
 
     setUser({
-      name,
+      name: displayFirstName,
       email: storedEmail,
       location: storedLocation,
       initials: initials || "PT",

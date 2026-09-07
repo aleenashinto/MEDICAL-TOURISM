@@ -21,6 +21,8 @@ export async function POST(request: Request) {
 
     let userRole = role;
     let userName = "";
+    let userFirstName = "";
+    let userLastName = "";
 
     // Admin credentials could also be fetched from the DB, but ENV is common
     const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@gmail.com";
@@ -35,6 +37,8 @@ export async function POST(request: Request) {
       const matchesHardcoded = cleanEmail === "admin@gmail.com" && cleanPassword === "Admin1234";
 
       if (matchesEnv || matchesHardcoded) {
+        userFirstName = "System";
+        userLastName = "Administrator";
         userName = "System Administrator";
       } else {
         return NextResponse.json({ success: false, error: "Invalid administrator credentials." }, { status: 401 });
@@ -43,7 +47,7 @@ export async function POST(request: Request) {
       // Demo Mode Bypass: Hardcoded patient login for Vercel without a database
       const cleanEmail = email?.trim().toLowerCase();
       if (cleanEmail === 'saya@gmail.com' || cleanEmail === 'patient@gmail.com') {
-        const sessionPayload = { email, role: 'PATIENT', name: 'Saya' };
+        const sessionPayload = { email, role: 'PATIENT', name: 'Saya', firstName: 'Saya', lastName: '' };
         const sessionToken = await signToken(sessionPayload);
         const cookieStore = await cookies();
         cookieStore.set('maides_session', sessionToken, {
@@ -72,10 +76,12 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: "Invalid credentials." }, { status: 401 });
       }
 
-      userName = user.patient ? `${user.patient.firstName} ${user.patient.lastName}` : "Patient";
+      userFirstName = user.patient?.firstName || "User";
+      userLastName = user.patient?.lastName || "";
+      userName = user.patient ? `${user.patient.firstName} ${user.patient.lastName}`.trim() : "User";
     }
 
-    const sessionPayload = { email, role: userRole, name: userName };
+    const sessionPayload = { email, role: userRole, name: userName, firstName: userFirstName, lastName: userLastName };
     const sessionToken = await signToken(sessionPayload);
     
     const cookieStore = await cookies();
@@ -93,7 +99,13 @@ export async function POST(request: Request) {
     // we still return a success demo session so the user can see the Patient Portal.
     console.error("Database connection failed during login (expected on Vercel demo):", error.message);
     const fallbackEmail = typeof email === 'string' ? email : "demo@vitalis.health";
-    const sessionPayload = { email: fallbackEmail.toLowerCase().trim(), role: role || "PATIENT", name: fallbackEmail.split('@')[0] };
+    const sessionPayload = { 
+      email: fallbackEmail.toLowerCase().trim(), 
+      role: role || "PATIENT", 
+      name: "User",
+      firstName: "User",
+      lastName: ""
+    };
     
     try {
       const sessionToken = await signToken(sessionPayload);

@@ -172,22 +172,14 @@ export function LiveSupportChatWidget({ userRole = "patient" }: { userRole?: "pa
             setIsMinimized(false);
             setUnreadCount(0);
           }}
-          className="flex items-center gap-2 sm:gap-3 px-3.5 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-[#0E82FD] via-blue-600 to-[#0F2042] hover:from-blue-600 hover:to-blue-800 text-white font-bold text-xs rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all group border border-white/20 backdrop-blur-md cursor-pointer"
+          className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-tr from-[#0E82FD] to-[#38BDF8] hover:from-blue-600 hover:to-blue-400 text-white rounded-full shadow-xl hover:shadow-2xl hover:scale-110 active:scale-95 transition-all group border border-white/20 backdrop-blur-md cursor-pointer relative"
+          aria-label={userRole === "admin" ? "Live Patient Chat Desk" : "24/7 AI Care Assistant"}
+          title={userRole === "admin" ? "Live Patient Chat Desk" : "24/7 AI Care Assistant"}
         >
-          <div className="relative">
-            <Headphones className="w-4 h-4 sm:w-5 sm:h-5 text-white animate-bounce" />
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute -top-0.5 -right-0.5 ring-2 ring-[#0E82FD]" />
-          </div>
-          <div className="text-left">
-            <div className="leading-tight flex items-center gap-1.5 font-extrabold text-[11px] sm:text-xs">
-              {userRole === "admin" ? "Live Patient Chat Desk" : "24/7 AI Care Assistant"}
-            </div>
-            <div className="text-[9px] sm:text-[10px] text-blue-100 font-normal hidden sm:block">
-              {userRole === "admin" ? "Direct Patient Channel" : "Instant Kerala Coordinator Chat"}
-            </div>
-          </div>
+          <Headphones className="w-5 h-5 sm:w-6 sm:h-6 text-white group-hover:animate-pulse" />
+          <span className="w-3 h-3 rounded-full bg-emerald-400 absolute top-0 right-0 ring-2 ring-white" />
           {unreadCount > 0 && (
-            <span className="px-2 py-0.5 bg-rose-500 text-white rounded-full text-[10px] font-extrabold animate-pulse">
+            <span className="absolute -top-2 -left-2 min-w-[20px] h-5 px-1.5 bg-rose-500 text-white rounded-full text-[10px] font-extrabold flex items-center justify-center animate-bounce shadow-md">
               {unreadCount}
             </span>
           )}

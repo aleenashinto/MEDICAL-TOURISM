@@ -59,7 +59,8 @@ export default function LoginPage() {
       if (typeof window !== "undefined") {
         // Fallback for client-side components relying on these
         localStorage.setItem("maides_user_email", data.user.email);
-        localStorage.setItem("maides_user_name", data.user.name || trimmedEmail.split("@")[0]);
+        localStorage.setItem("maides_user_name", data.user.name || "User");
+        localStorage.setItem("maides_user_first_name", data.user.firstName || "User");
         localStorage.setItem("maides_user_role", data.user.role);
         
         if (rememberMe) {

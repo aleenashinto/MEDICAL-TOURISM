@@ -169,7 +169,8 @@ export default function RegisterPage() {
 
       if (typeof window !== "undefined") {
         if (data.user) {
-          localStorage.setItem("maides_user_name", data.user.name);
+          localStorage.setItem("maides_user_name", data.user.name || "User");
+          localStorage.setItem("maides_user_first_name", data.user.firstName || "User");
           localStorage.setItem("maides_user_email", data.user.email);
           localStorage.setItem("maides_user_role", data.user.role);
         }

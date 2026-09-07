@@ -71,7 +71,13 @@ export async function POST(request: Request) {
     });
 
     // 7. Issue Session Token immediately (Bypass OTP)
-    const sessionPayload = { email: email.toLowerCase().trim(), role: 'PATIENT', name: `${firstName.trim()} ${lastName.trim()}` };
+    const sessionPayload = { 
+      email: email.toLowerCase().trim(), 
+      role: 'PATIENT', 
+      name: `${firstName.trim()} ${lastName.trim()}`.trim(),
+      firstName: firstName.trim() || 'User',
+      lastName: lastName.trim() || ''
+    };
     const sessionToken = await signToken(sessionPayload);
     const cookieStore = await cookies();
     cookieStore.set('maides_session', sessionToken, {
@@ -89,7 +95,13 @@ export async function POST(request: Request) {
     console.error("Database connection failed during registration (expected on Vercel demo):", error.message);
     
     // Fallback Session
-    const fallbackPayload = { email: email?.toLowerCase().trim() || "demo@vitalis.health", role: 'PATIENT', name: `${firstName?.trim() || 'Demo'} ${lastName?.trim() || 'Patient'}` };
+    const fallbackPayload = { 
+      email: email?.toLowerCase().trim() || "demo@vitalis.health", 
+      role: 'PATIENT', 
+      name: `${firstName?.trim() || 'User'} ${lastName?.trim() || ''}`.trim(),
+      firstName: firstName?.trim() || 'User',
+      lastName: lastName?.trim() || ''
+    };
     try {
       const sessionToken = await signToken(fallbackPayload);
       const cookieStore = await cookies();
