@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { checkRateLimit } from '@/lib/rateLimit';
 import { signToken } from '@/lib/session';
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
@@ -23,6 +24,11 @@ export async function POST(request: Request) {
 
     if (!email || !password) {
       return NextResponse.json({ success: false, error: "Email and password are required" }, { status: 400 });
+    }
+
+    const rateCheck = await checkRateLimit(`login:${email.toString().toLowerCase().trim()}`, 10, 900);
+    if (!rateCheck.success) {
+      return NextResponse.json({ success: false, error: "Too many failed login attempts. Please try again in 15 minutes." }, { status: 429 });
     }
 
     let userRole = role;

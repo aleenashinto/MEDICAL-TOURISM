@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { hash } from 'bcryptjs';
+import { sendOtpEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
   let firstName: string, lastName: string, email: string, phone: string, country: string, dob: string, gender: string, password: string, agreeTerms: boolean;
@@ -68,8 +69,8 @@ export async function POST(request: Request) {
       });
     });
 
-    // 8. Return success, asking for OTP verification
-    // In production, we would send the OTP via email/SMS here.
+    // 8. Dispatch real transactional OTP email
+    await sendOtpEmail(email, otpCode);
     console.log(`[SECURE LOG] OTP for ${email}: ${otpCode}`);
 
     return NextResponse.json({ success: true, message: "Registration successful. Please verify your email." });

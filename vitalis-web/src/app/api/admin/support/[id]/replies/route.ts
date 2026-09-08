@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { verifyToken } from '@/lib/session';
 import { cookies } from 'next/headers';
+import { sendTicketReplyNotification } from '@/lib/email';
 
 async function getAdminId() {
   const cookieStore = await cookies();
@@ -29,7 +30,8 @@ export async function POST(request: Request, context: any) {
 
   try {
     const ticket = await prisma.supportTicket.findUnique({
-      where: { id: ticketId }
+      where: { id: ticketId },
+      include: { patient: { include: { user: true } } }
     });
 
     if (!ticket) {
@@ -57,6 +59,11 @@ export async function POST(request: Request, context: any) {
         where: { id: ticketId },
         data: { status: 'In Progress' }
       });
+    }
+
+    const patientEmail = ticket.patient?.user?.email;
+    if (patientEmail) {
+      await sendTicketReplyNotification(patientEmail, ticket.subject);
     }
 
     return NextResponse.json({ success: true, message });

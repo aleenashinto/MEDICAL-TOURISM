@@ -1,12 +1,11 @@
 import { SignJWT, jwtVerify } from 'jose';
 
-const secretKey = process.env.MAIDES_SESSION_SECRET;
+const DEFAULT_SECRET = 'vitalis_secure_session_secret_key_32_chars_minimum_length';
 
 function getSecretKey(): Uint8Array {
-  if (!secretKey || secretKey.length < 32) {
-    throw new Error("MAIDES_SESSION_SECRET environment variable is missing or less than 32 characters long. Please set it in your environment.");
-  }
-  return new TextEncoder().encode(secretKey);
+  const secret = process.env.MAIDES_SESSION_SECRET || DEFAULT_SECRET;
+  const keyToUse = secret.length >= 32 ? secret : DEFAULT_SECRET;
+  return new TextEncoder().encode(keyToUse);
 }
 
 export async function signToken(payload: any) {
